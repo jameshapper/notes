@@ -124,20 +124,25 @@ function Note(props) {
         fetchData();
     }, []);
 
-	deleteTodoHandler(data) {
-		authMiddleWare(this.props.history);
-		const authToken = localStorage.getItem('AuthToken');
-		axios.defaults.headers.common = { Authorization: `${authToken}` };
-		let todoId = data.todo.todoId;
-		axios
-			.delete(`todo/${todoId}`)
-			.then(() => {
-				window.location.reload();
-			})
-			.catch((err) => {
-				console.log(err);
-			});
-	}
+	const deleteTodoHandler = (data) => {
+
+        let todoId = data.todo.todoId;
+        const document = db.doc(`/notes/${todoId}`)
+        document
+        .get()
+        .then((doc) => {
+            return document.delete();
+        })
+        .then(() => alert('Delete successfull' ))
+        .then(() => {
+            window.location.reload();
+        })
+        .catch((err) => {
+            console.error(err);
+            alert('Something went wrong')
+        });
+    }
+    
 
 	const handleEditClickOpen = (data) => {
         setTitle(data.todo.title)
@@ -178,15 +183,14 @@ function Note(props) {
     const { open, errors, viewOpen } = this.state;
 
     const handleClickOpen = () => {
-        setTitle(data.todo.title)
-        setBody(data.todo.body)
-        setTodoId(data.todo.todoId)
+        setTitle('')
+        setBody('')
+        setTodoId('')
         setButtonType('')
         setOpen(true)
     };
 
     const handleSubmit = (event) => {
-        authMiddleWare(this.props.history);
         event.preventDefault();
         const userTodo = {
             title: state.title,
@@ -206,8 +210,6 @@ function Note(props) {
                 data: userTodo
             };
         }
-        const authToken = localStorage.getItem('AuthToken');
-        axios.defaults.headers.common = { Authorization: `${authToken}` };
         axios(options)
             .then(() => {
                 this.setState({ open: false });
@@ -279,7 +281,7 @@ function Note(props) {
                                     name="title"
                                     autoComplete="todoTitle"
                                     helperText={errors.title}
-                                    value={state.title}
+                                    value={title}
                                     error={errors.title ? true : false}
                                     onChange={handleChange}
                                 />
@@ -299,7 +301,7 @@ function Note(props) {
                                     helperText={errors.body}
                                     error={errors.body ? true : false}
                                     onChange={handleChange}
-                                    value={state.body}
+                                    value={body}
                                 />
                             </Grid>
                         </Grid>
