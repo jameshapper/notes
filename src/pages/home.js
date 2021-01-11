@@ -1,5 +1,3 @@
-import { useState, useEffect } from 'react'
-import firebase from '../firebase'
 
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
@@ -58,9 +56,6 @@ const styles = (theme) => ({
 
 function Home({ classes }) {
 
-    const [data, setData] = useState([]);
-    const [newSpellName, setNewSpellName] = useState('');
-
     const loadAccountPage = (event) => {
 		console.log('Account Clicked');
 	};
@@ -73,20 +68,6 @@ function Home({ classes }) {
 		console.log('Logout Clicked');
 		//this.props.history.push('/login');
 	};
-
-    const onCreate = () => {
-        const db = firebase.firestore();
-        db.collection("notes").add({ name: newSpellName });
-    };
-
-    useEffect(() => {
-        const fetchData = async () => {
-            const db = firebase.firestore();
-            const data = await db.collection("notes").get();
-            setData(data.docs.map(doc => ({ ...doc.data(), id: doc.id })));
-        };
-        fetchData();
-    }, []);
 
     return (
         <div>
@@ -142,18 +123,6 @@ function Home({ classes }) {
                         </ListItem>
                     </List>
                 </Drawer>
-
-                <div>                
-                    <ul>
-                        <input value={newSpellName} onChange={e => setNewSpellName(e.target.value)} />
-                        <button onClick={onCreate}>Creat</button>
-                        {data.map(note => (
-                            <li key={note.name}>
-                                {note.name}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
 
             </div>
 

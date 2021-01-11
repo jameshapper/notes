@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import firebase from '../firebase';
 
 import withStyles from '@material-ui/core/styles/withStyles';
 import Typography from '@material-ui/core/Typography';
@@ -21,7 +22,6 @@ import MuiDialogContent from '@material-ui/core/DialogContent';
 
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { useScrollTrigger } from '@material-ui/core';
 
 const styles = (theme) => ({
 	content: {
@@ -94,60 +94,44 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 function Note(props) {
 
-    const [ todos, setTodos ] = useState('')
     const [ title, setTitle ] = useState('')
     const [ body, setBody ] = useState('')
     const [ todoId, setTodoId ]= useState('')
+
     const [ errors, setErrors ] = useState([])
     const [ open, setOpen ] = useState(false)
     const [ uiLoading, setUiLoading ] = useState(true)
     const [ buttonType, setButtonType ] = useState('')
     const [ viewOpen, setViewOpen ] = useState(false)
-    
-    const [data, setData] = useState([]);
-    const [newSpellName, setNewSpellName] = useState('');
 
-	handleChange = (event) => setTitle(event.target.value);
-    
-    const onCreate = () => {
-        const db = firebase.firestore();
-        db.collection("notes").add({ name: newSpellName });
-    };
+    const [ notes, setNotes ] = useState([]);
+
 
     useEffect(() => {
         const fetchData = async () => {
             const db = firebase.firestore();
             const data = await db.collection("notes").get();
-            setData(data.docs.map(doc => ({ ...doc.data(), id: doc.id })));
+            setNotes(data.docs.map(doc => ({ ...doc.data(), id: doc.id })));
             setUiLoading(false);
         };
         fetchData();
     }, []);
 
-	const deleteTodoHandler = (data) => {
+	const handleChange = (event) => setTitle(event.target.value);
 
-        let todoId = data.todo.todoId;
-        const document = db.doc(`/notes/${todoId}`)
-        document
-        .get()
-        .then((doc) => {
-            return document.delete();
-        })
-        .then(() => alert('Delete successfull' ))
-        .then(() => {
-            window.location.reload();
-        })
-        .catch((err) => {
-            console.error(err);
-            alert('Something went wrong')
-        });
+	const deleteTodoHandler = (data) => {
+        setTodoId(data.todo.id)
+        const db = firebase.firestore();
+        const document = db.collection('notes').doc(todoId)
+        document.delete()
+        .then(() => alert("Document deleted"))
+        .catch((error) => console.error("Error deleting document", error));
     }
-    
 
 	const handleEditClickOpen = (data) => {
         setTitle(data.todo.title)
         setBody(data.todo.body)
-        setTodoId(data.todo.todoId)
+        setTodoId(data.todo.id)
         setButtonType('Edit')
         setOpen(true)
 	}
@@ -180,7 +164,6 @@ function Note(props) {
 
     dayjs.extend(relativeTime);
     const { classes } = props;
-    const { open, errors, viewOpen } = this.state;
 
     const handleClickOpen = () => {
         setTitle('')
@@ -192,48 +175,41 @@ function Note(props) {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        const userTodo = {
-            title: state.title,
-            body: state.body
-        };
-        let options = {};
+        const db = firebase.firestore();
+
         if (buttonType === 'Edit') {
-            options = {
-                url: `/todo/${state.todoId}`,
-                method: 'put',
-                data: userTodo
-            };
+            let document = db.collection('notes').doc(todoId);
+            document.update( {title : title, body : body}, )
         } else {
-            options = {
-                url: '/todo',
-                method: 'post',
-                data: userTodo
-            };
-        }
-        axios(options)
-            .then(() => {
-                this.setState({ open: false });
+            const newNote = {
+                title: title,
+                body: body,
+                createdAt: new Date().toISOString()
+            }
+            db.collection('notes').add(newNote)
+            .then((doc)=>{
+                console.log("New note added to db")
+                setOpen(false);
                 window.location.reload();
             })
             .catch((error) => {
-                this.setState({ open: true, errors: error.response.data });
-                console.log(error);
+                setErrors(error)
+                setOpen(true)
+                console.error(error);
+                alert('Something went wrong' );
             });
+        }
     };
 
-    const handleViewClose = () => {
-        setState({ viewOpen: false });
-    };
+    const handleViewClose = () => setViewOpen(false);
 
-    const handleClose = (event) => {
-        setState({ open: false });
-    };
+    const handleClose = (event) => setOpen(false);
 
-    if (state.uiLoading === true) {
+    if (uiLoading === true) {
         return (
             <main className={classes.content}>
                 <div className={classes.toolbar} />
-                {state.uiLoading && <CircularProgress size={150} className={classes.uiProgess} />}
+                {uiLoading && <CircularProgress size={150} className={classes.uiProgess} />}
             </main>
         );
     } else {
@@ -309,7 +285,7 @@ function Note(props) {
                 </Dialog>
 
                 <Grid container spacing={2}>
-                    {data.map((todo) => (
+                    {notes.map((todo) => (
                         <Grid item xs={12} sm={6}>
                             <Card className={classes.root} variant="outlined">
                                 <CardContent>
@@ -320,7 +296,7 @@ function Note(props) {
                                         {dayjs(todo.createdAt).fromNow()}
                                     </Typography>
                                     <Typography variant="body2" component="p">
-                                        {`${todo.body.substring(0, 65)}`}
+                                        {todo.body.substring(0, 65)}
                                     </Typography>
                                 </CardContent>
                                 <CardActions>
@@ -348,7 +324,7 @@ function Note(props) {
                     classes={{ paperFullWidth: classes.dialogeStyle }}
                 >
                     <DialogTitle id="customized-dialog-title" onClose={handleViewClose}>
-                        {state.title}
+                        {title}
                     </DialogTitle>
                     <DialogContent dividers>
                         <TextField
@@ -359,7 +335,7 @@ function Note(props) {
                             readonly
                             rows={1}
                             rowsMax={25}
-                            value={state.body}
+                            value={body}
                             InputProps={{
                                 disableUnderline: true
                             }}
