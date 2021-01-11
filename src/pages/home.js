@@ -1,3 +1,4 @@
+import Note from '../components/note';
 
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
@@ -123,7 +124,7 @@ function Home({ classes }) {
                         </ListItem>
                     </List>
                 </Drawer>
-
+                <div> <Note /> </div>
             </div>
 
 
