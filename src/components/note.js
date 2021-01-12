@@ -107,13 +107,21 @@ function Note(props) {
     const [ notes, setNotes ] = useState([]);
 
     useEffect(() => {
-        const fetchData = async () => {
-            const db = firebase.firestore();
-            const data = await db.collection("notes").get();
-            setNotes(data.docs.map(doc => ({ ...doc.data(), id: doc.id })));
-            setUiLoading(false);
-        };
-        fetchData();
+        // const fetchData = async () => {
+        //     const db = firebase.firestore();
+        //     const data = await db.collection("notes").get();
+        //     setNotes(data.docs.map(doc => ({ ...doc.data(), id: doc.id })));
+        //     setUiLoading(false);
+        // };
+        // fetchData();
+
+        const db = firebase.firestore()
+        return db.collection("notes").onSnapshot(snapshot => {
+            const notesData = [];
+            snapshot.forEach(doc => notesData.push({ ...doc.data(), id: doc.id }));
+            setNotes(notesData)
+            setUiLoading(false)
+        })
     }, []);
 
     const handleTitleChange = (event) => setTitle(event.target.value);
