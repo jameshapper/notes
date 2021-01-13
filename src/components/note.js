@@ -203,7 +203,6 @@ function Note(props) {
             .then((doc)=>{
                 console.log("New note added to db")
                 setOpen(false);
-                window.location.reload();
             })
             .catch((error) => {
                 setErrors(error)
