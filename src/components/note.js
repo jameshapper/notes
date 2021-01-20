@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import firebase from '../firebase';
+import Chips from './chips';
 
 import withStyles from '@material-ui/core/styles/withStyles';
 import Typography from '@material-ui/core/Typography';
@@ -116,7 +117,9 @@ function Note(props) {
         // fetchData();
 
         const db = firebase.firestore()
-        return db.collection("notes").onSnapshot(snapshot => {
+        return db.collection("notes")
+        .orderBy("timestamp","desc")
+        .onSnapshot(snapshot => {
             const notesData = [];
             snapshot.forEach(doc => notesData.push({ ...doc.data(), id: doc.id }));
             setNotes(notesData)
@@ -197,7 +200,8 @@ function Note(props) {
             const newNote = {
                 title: title,
                 body: body,
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }
             db.collection('notes').add(newNote)
             .then((doc)=>{
@@ -304,11 +308,12 @@ function Note(props) {
                                     <Typography variant="h5" component="h2">
                                         {todo.title}
                                     </Typography>
+                                    <Chips ></Chips>
                                     <Typography className={classes.pos} color="textSecondary">
                                         {dayjs(todo.createdAt).fromNow()}
                                     </Typography>
                                     <Typography variant="body2" component="p">
-                                        {todo.body.substring(0, 65)}
+                                        {todo.body.substring(0, 65)+"..."}
                                     </Typography>
                                 </CardContent>
                                 <CardActions>
