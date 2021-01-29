@@ -1,4 +1,6 @@
 import Note from '../components/note';
+import firebase from 'firebase'
+import { useHistory } from "react-router-dom";
 
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
@@ -57,6 +59,8 @@ const styles = (theme) => ({
 
 function Home({ classes }) {
 
+    let history = useHistory();
+
     const loadAccountPage = (event) => {
 		console.log('Account Clicked');
 	};
@@ -66,8 +70,12 @@ function Home({ classes }) {
 	};
 
 	const logoutHandler = (event) => {
-		console.log('Logout Clicked');
-		//this.props.history.push('/login');
+        console.log('Logout Clicked');
+        firebase.auth().signOut().then(() => {
+            history.push('/login')
+          }).catch((error) => {
+            console.log('Error signing out')
+          });;
 	};
 
     return (
