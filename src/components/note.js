@@ -95,6 +95,8 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 function Note(props) {
 
+    const [ user, setUser ] = useState(firebase.auth().currentUser)
+
     const [ title, setTitle ] = useState('')
     const [ body, setBody ] = useState('')
     const [ todoId, setTodoId ]= useState('')
@@ -114,10 +116,14 @@ function Note(props) {
         //     setNotes(data.docs.map(doc => ({ ...doc.data(), id: doc.id })));
         //     setUiLoading(false);
         // };
-        // fetchData();
+        // fetchData()
 
         const db = firebase.firestore()
-        return db.collection("notes")
+        let recentDate = new Date('2020-01-29')
+        
+        console.log(user)
+        return db.collectionGroup("notes").where("uid", "==", user.uid)
+        .where("timestamp", ">=", recentDate)
         .orderBy("timestamp","desc")
         .onSnapshot(snapshot => {
             const notesData = [];
@@ -201,9 +207,10 @@ function Note(props) {
                 title: title,
                 body: body,
                 createdAt: new Date().toISOString(),
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                uid: user.uid
             }
-            db.collection('notes').add(newNote)
+            db.collection('users').doc(user.uid).collection('notes').add(newNote)
             .then((doc)=>{
                 console.log("New note added to db")
                 setOpen(false);
