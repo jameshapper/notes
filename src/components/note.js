@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import firebase from '../firebase';
 import Chips from './chips';
 
@@ -24,6 +24,10 @@ import MuiDialogContent from '@material-ui/core/DialogContent';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import MultipleSelect from './select';
+
+const activities = [ "Hands-on", "App-IT" ]
+//const activities = []
+
 
 const styles = (theme) => ({
 	content: {
@@ -100,7 +104,8 @@ function Note(props) {
 
     const [ title, setTitle ] = useState('')
     const [ body, setBody ] = useState('')
-    const [ todoId, setTodoId ]= useState('')
+    const [ todoId, setTodoId ] = useState('')
+    const [ newActivities, setNewActivities ] = useState([])
 
     const [ errors, setErrors ] = useState([])
     const [ open, setOpen ] = useState(false)
@@ -209,7 +214,8 @@ function Note(props) {
                 body: body,
                 createdAt: new Date().toISOString(),
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                uid: user.uid
+                uid: user.uid,
+                activities: newActivities
             }
             db.collection('users').doc(user.uid).collection('notes').add(newNote)
             .then((doc)=>{
@@ -271,7 +277,7 @@ function Note(props) {
 
                     <form className={classes.form} noValidate>
                         <Grid container spacing={2}>
-                            <Grid item xs={12}>
+                            <Grid item xs={12} key='title'>
                                 <TextField
                                     variant="outlined"
                                     required
@@ -286,10 +292,10 @@ function Note(props) {
                                     onChange={handleTitleChange}
                                 />
                             </Grid>
-                            <Grid item xs={12}>
-                                <MultipleSelect></MultipleSelect>
+                            <Grid item xs={12} key="chips">
+                                <MultipleSelect getList={activities => setNewActivities(activities)}></MultipleSelect>
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid item xs={12} key="body">
                                 <TextField
                                     variant="outlined"
                                     required
@@ -319,7 +325,7 @@ function Note(props) {
                                     <Typography variant="h5" component="h2">
                                         {todo.title}
                                     </Typography>
-                                    <Chips ></Chips>
+                                    {activities && activities.length > 0 && <Chips activities={activities}></Chips>}
                                     <Typography className={classes.pos} color="textSecondary">
                                         {dayjs(todo.createdAt).fromNow()}
                                     </Typography>

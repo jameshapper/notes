@@ -80,13 +80,14 @@ function getStyles(name, personName, theme) {
   };
 }
 
-export default function MultipleSelect() {
+export default function MultipleSelect(props) {
   const classes = useStyles();
   const theme = useTheme();
   const [personName, setPersonName] = React.useState([]);
 
   const handleChange = (event) => {
     setPersonName(event.target.value);
+    props.getList(event.target.value)
   };
 
   return (
@@ -107,8 +108,8 @@ export default function MultipleSelect() {
             >
             {names.map((name) => (
                 <MenuItem key={name} value={name}>
-                <Checkbox checked={personName.indexOf(name) > -1} />
-                <ListItemText primary={name} />
+                    <Checkbox checked={personName.indexOf(name) > -1} />
+                    <ListItemText primary={name} />
                 </MenuItem>
             ))}
             </Select>
