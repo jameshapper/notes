@@ -23,6 +23,7 @@ import MuiDialogContent from '@material-ui/core/DialogContent';
 
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import MultipleSelect from './select';
 
 const styles = (theme) => ({
 	content: {
@@ -284,6 +285,9 @@ function Note(props) {
                                     error={errors.title ? true : false}
                                     onChange={handleTitleChange}
                                 />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <MultipleSelect></MultipleSelect>
                             </Grid>
                             <Grid item xs={12}>
                                 <TextField
