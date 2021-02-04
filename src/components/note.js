@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import firebase from '../firebase';
 import Chips from './chips';
 
@@ -24,10 +24,6 @@ import MuiDialogContent from '@material-ui/core/DialogContent';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import MultipleSelect from './select';
-
-const activities = [ "Hands-on", "App-IT" ]
-//const activities = []
-
 
 const styles = (theme) => ({
 	content: {
@@ -149,7 +145,7 @@ function Note(props) {
         console.log(data)
         //for some reason using todoId does not work even though same value as data.todo.id--async problem?
         const db = firebase.firestore();
-        const document = db.collection('notes').doc(data.todo.id)
+        const document = db.collection('users').doc(user.uid).collection('notes').doc(data.todo.id)
         document.delete()
         .then(() => alert("Document deleted"))
         .then(() => setTodoId(''))
@@ -206,8 +202,8 @@ function Note(props) {
         const db = firebase.firestore();
 
         if (buttonType === 'Edit') {
-            let document = db.collection('notes').doc(todoId);
-            document.update( {title : title, body : body}, )
+            let document = db.collection('users').doc(user.uid).collection('notes').doc(todoId);
+            document.update( {title : title, body : body, activities: newActivities} )
         } else {
             const newNote = {
                 title: title,
@@ -325,7 +321,7 @@ function Note(props) {
                                     <Typography variant="h5" component="h2">
                                         {todo.title}
                                     </Typography>
-                                    {activities && activities.length > 0 && <Chips activities={activities}></Chips>}
+                                    {todo.activities && todo.activities.length > 0 && <Chips activities={todo.activities}></Chips>}
                                     <Typography className={classes.pos} color="textSecondary">
                                         {dayjs(todo.createdAt).fromNow()}
                                     </Typography>

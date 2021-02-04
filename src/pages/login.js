@@ -1,14 +1,32 @@
+import React, { useEffect, useContext, useState } from "react";
 import 'firebase/auth';
 import firebase from "../firebase"
 import Button from '@material-ui/core/Button';
 import { useHistory } from "react-router-dom";
+import { UserContext } from "../userContext"
+import { Redirect } from 'react-router-dom';
 
 const auth = firebase.auth();
 const firestore = firebase.firestore();
 
 function Login() {
 
+	const currentUser = useContext(UserContext);
+	if(currentUser){console.log('Login value '+currentUser)}
+	
 	let history = useHistory()
+
+	const [redirect, setredirect] = useState(null);
+
+	useEffect(() => {
+		if (currentUser) {
+		  setredirect('/')
+		}
+	  }, [currentUser])
+
+	if (redirect) {
+	return <Redirect to={redirect}/>
+	}
 
     const signInWithGoogle = () => {
       const provider = new firebase.auth.GoogleAuthProvider();
@@ -28,15 +46,14 @@ function Login() {
 	  })
 	  .then(() => {
 		history.push('/')});;
-    }
-  
+	}
+	
     return (
 		<div style={{minHeight: '100vh', backgroundImage: `url('/BaliSpace.jpeg')`, backgroundRepeat: 'no-repeat', backgroundSize: 'cover',}}>
 			<div style={{display: 'flex',  justifyContent:'center', alignItems:'center', height: '100vh'}}>
 				<Button variant="contained" color="primary" onClick={signInWithGoogle}>Sign in with Google</Button>
 			</div>
 		</div>
-
     )
   
   }
