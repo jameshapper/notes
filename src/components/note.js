@@ -167,7 +167,7 @@ function Note(props) {
 	}
 
     const DialogTitle = withStyles(styles)((props) => {
-        const { children, onClose, ...other } = props;
+        const { children, onClose, classes, ...other } = props;
         return (
             <MuiDialogTitle disableTypography className={classes.root} {...other}>
                 <Typography variant="h6">{children}</Typography>
@@ -226,6 +226,15 @@ function Note(props) {
             });
         }
     };
+
+    const dataList = [
+        {name:'Hands-on',uid: 'Hands-on'},
+        {name:'App-IT', uid: 'App-IT'},
+        {name:'Study', uid: 'Study'},
+        {name:'Problems', uid: 'Problems'},
+        {name:'Sharing', uid: 'Sharing'},
+        {name:'Connect', uid: 'Connect'}
+      ];
 
     const handleViewClose = () => setViewOpen(false);
 
@@ -289,7 +298,7 @@ function Note(props) {
                                 />
                             </Grid>
                             <Grid item xs={12} key="chips">
-                                <MultipleSelect getList={activities => setNewActivities(activities)}></MultipleSelect>
+                                <MultipleSelect allOptions={dataList} getList={activities => setNewActivities(activities)}></MultipleSelect>
                             </Grid>
                             <Grid item xs={12} key="body">
                                 <TextField

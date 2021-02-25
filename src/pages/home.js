@@ -1,6 +1,9 @@
 import Note from '../components/note';
+import { useContext } from 'react'
 import firebase from 'firebase'
 import { useHistory } from "react-router-dom";
+import { UserContext } from "../userContext"
+import TeacherClasses from "../components/classes"
 
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
@@ -17,6 +20,7 @@ import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import NotesIcon from '@material-ui/icons/Notes';
 import Avatar from '@material-ui/core/avatar';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+
 //import CircularProgress from '@material-ui/core/CircularProgress';
 
 const drawerWidth = 240;
@@ -58,6 +62,13 @@ const styles = (theme) => ({
 });
 
 function Home({ classes }) {
+
+    const currentUser = useContext(UserContext);
+    if(currentUser){
+        console.log('In HOME user value '+currentUser.currentUser.uid)
+        console.log('In HOME user is Admin is '+currentUser.isAdmin)
+        console.log('In HOME loading is '+currentUser.loading)
+    }
 
     let history = useHistory();
 
@@ -132,7 +143,7 @@ function Home({ classes }) {
                         </ListItem>
                     </List>
                 </Drawer>
-                <div> <Note /> </div>
+                <div>{currentUser.isAdmin ? <TeacherClasses/> : <Note />}  </div>
             </div>
 
 

@@ -62,34 +62,31 @@ const MenuProps = {
   getContentAnchorEl: null
 };
 
-// const allOptions = [
-//   'Hands-on',
-//   'App-IT',
-//   'Study',
-//   'Problems',
-//   'Sharing',
-//   'Connect',
-// ];
+const names = [
+  'Hands-on',
+  'App-IT',
+  'Study',
+  'Problems',
+  'Sharing',
+  'Connect',
+];
 
-function getStyles(name, selectedOptions, theme) {
+function getStyles(name, personName, theme) {
   return {
     fontWeight:
-      selectedOptions.indexOf(name) === -1
+      personName.indexOf(name) === -1
         ? theme.typography.fontWeightRegular
         : theme.typography.fontWeightMedium,
   };
 }
 
-export default function MultipleSelect(props) {
-  const allOptions = props.allOptions
-
+export default function StudentSelect(props) {
   const classes = useStyles();
   const theme = useTheme();
-  const [selectedOptions, setSelectedOptions] = React.useState([]);
+  const [personName, setPersonName] = React.useState([]);
 
   const handleChange = (event) => {
-    console.log("selectedOptions are "+event.target.value)
-    setSelectedOptions(event.target.value);
+    setPersonName(event.target.value);
     props.getList(event.target.value)
   };
 
@@ -102,17 +99,17 @@ export default function MultipleSelect(props) {
             labelId="demo-mutiple-checkbox-label"
             id="demo-mutiple-checkbox"
             multiple
-            value={selectedOptions}
+            value={personName}
             onChange={handleChange}
             input={<Input />}
             //renderValue={(selected) => selected.join(', ')}
             renderValue={(selected) => ''}
             MenuProps={MenuProps}
             >
-            {allOptions.map((option) => (
-                <MenuItem key={option.uid} value={option.uid}>
-                    <Checkbox checked={selectedOptions.indexOf(option.uid) > -1} />
-                    <ListItemText primary={option.name} />
+            {names.map((name) => (
+                <MenuItem key={name} value={name}>
+                    <Checkbox checked={personName.indexOf(name) > -1} />
+                    <ListItemText primary={name} />
                 </MenuItem>
             ))}
             </Select>
@@ -120,7 +117,7 @@ export default function MultipleSelect(props) {
       </div>
       <div style={{justifyContent: 'center'}}>
         <Paper component="ul" className = {classes.root}>
-            {selectedOptions.map((data) => {
+            {personName.map((data) => {
                 return (
                 <li key={data}>
                     <Chip label={data} className={classes.chip}/>

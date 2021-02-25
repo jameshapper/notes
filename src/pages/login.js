@@ -11,18 +11,18 @@ const firestore = firebase.firestore();
 
 function Login() {
 
-	const currentUser = useContext(UserContext);
-	if(currentUser){console.log('Login value '+currentUser)}
+	const value = useContext(UserContext);
+	if(value){console.log('Login value '+value.currentUser)}
 	
 	let history = useHistory()
 
 	const [redirect, setredirect] = useState(null);
 
 	useEffect(() => {
-		if (currentUser) {
+		if (value.currentUser) {
 		  setredirect('/')
 		}
-	  }, [currentUser])
+	  }, [value.currentUser])
 
 	if (redirect) {
 	return <Redirect to={redirect}/>
@@ -33,7 +33,7 @@ function Login() {
 	  auth.signInWithPopup(provider)
 	  .then((user) => {
 		//after we have the credential - lets check if the user exists in firestore
-		var docRef = firestore.collection('users').doc(auth.currentUser.uid);
+		var docRef = firestore.collection('users').doc(auth.value.currentUser.uid);
 		docRef.get().then(doc => {
 		  if (doc.exists) {
 			//user exists then just update the login time
@@ -67,7 +67,7 @@ function Login() {
       fullName: profile.name,
       email: profile.email,
     };
-    collection.doc(auth.currentUser.uid).set(details);
+    collection.doc(auth.value.currentUser.uid).set(details);
     return {user, details};
   }
 
