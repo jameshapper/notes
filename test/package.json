@@ -19,5 +19,8 @@
   "devDependencies": {
     "@firebase/testing": "^0.20.11",
     "mocha": "^8.3.0"
+  },
+  "dependencies": {
+    "firebase-admin": "^9.5.0"
   }
 }

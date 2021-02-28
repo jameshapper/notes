@@ -1,9 +1,34 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if
-          request.time < timestamp.date(2021, 2, 28);
+
+    function editOnlyChangesFields(allowedFields){
+      let affectedKeys = request.resource.data.diff(resource.data).affectedKeys();
+      return affectedKeys.hasOnly(allowedFields);
     }
+
+    match /{somePath=**}/notes/{noteId} {
+      function noteHasOnlyAllowedFields() {
+        let requiredAndOptionalFields = ['title', 'body', 'uid', 'createdAt', 'timestamp','activities'];
+        return request.resource.data.keys().hasOnly(requiredAndOptionalFields);
+      }
+
+      allow read: if request.auth.uid == resource.data.uid
+      allow read: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get("admin",false) ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.admin == true : false
+
+      allow create: if request.auth.uid == request.resource.data.uid && noteHasOnlyAllowedFields()
+      allow update, delete: if request.auth.uid == resource.data.uid && noteHasOnlyAllowedFields() && editOnlyChangesFields(['title', 'body', 'createdAt', 'timestamp', 'activities'])
+
+    }
+
+    match /users/{userId} {
+      function userHasOnlyAllowedFields() {
+        let requiredAndOptionalFields = ['firstName', 'lastName', 'fullName', 'email'];
+        return request.resource.data.keys().hasOnly(requiredAndOptionalFields);
+      }
+      allow read: if (request.auth.uid == userId)
+      allow write: if request.auth.uid == userId && userHasOnlyAllowedFields()
+    }
+
   }
 }
