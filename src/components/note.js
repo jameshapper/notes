@@ -15,6 +15,9 @@ import Slide from '@material-ui/core/Slide';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import Card from '@material-ui/core/Card';
+import CardHeader from '@material-ui/core/CardHeader';
+import Avatar from '@material-ui/core/Avatar';
+
 import CardActions from '@material-ui/core/CardActions';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import CardContent from '@material-ui/core/CardContent';
@@ -324,16 +327,19 @@ function Note(props) {
 
                 <Grid container spacing={2}>
                     {notes.map((todo) => (
-                        <Grid item xs={12} sm={6}>
+                        <Grid item xs={12} sm={6} key = {todo.id}>
                             <Card className={classes.root} variant="outlined">
+                            <CardHeader
+                                avatar={
+                                <Avatar aria-label="recipe" className={classes.avatar}>
+                                    R
+                                </Avatar>
+                                }
+                                title={todo.title}
+                                subheader= {dayjs(todo.createdAt).fromNow()+" by author"}
+                            />
                                 <CardContent>
-                                    <Typography variant="h5" component="h2">
-                                        {todo.title}
-                                    </Typography>
                                     {todo.activities && todo.activities.length > 0 && <Chips activities={todo.activities}></Chips>}
-                                    <Typography className={classes.pos} color="textSecondary">
-                                        {dayjs(todo.createdAt).fromNow()}
-                                    </Typography>
                                     <Typography variant="body2" component="p">
                                         {todo.body.substring(0, 65)+"..."}
                                     </Typography>
@@ -371,7 +377,7 @@ function Note(props) {
                             id="todoDetails"
                             name="body"
                             multiline
-                            readonly
+                            readOnly
                             rows={1}
                             rowsMax={25}
                             value={body}

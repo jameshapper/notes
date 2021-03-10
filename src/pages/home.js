@@ -1,6 +1,5 @@
 import Note from '../components/note';
 import { useContext } from 'react'
-import firebase from 'firebase'
 import { useHistory } from "react-router-dom";
 import { UserContext } from "../userContext"
 import TeacherClasses from "../components/classes"
@@ -64,92 +63,104 @@ const styles = (theme) => ({
 function Home({ classes }) {
 
     const currentUser = useContext(UserContext);
-    if(currentUser){
-        console.log('In HOME user value '+currentUser.currentUser.uid)
-        console.log('In HOME user is Admin is '+currentUser.isAdmin)
-        console.log('In HOME loading is '+currentUser.loading)
-    }
 
     let history = useHistory();
 
+    if(currentUser.currentUser){
+        console.log('In HOME user value '+currentUser.currentUser.uid)
+        console.log('In HOME user is Admin is '+currentUser.isAdmin)
+        console.log('In HOME loading is '+currentUser.loading)
+        console.log('currentUser is ', currentUser)
+        console.log('avatar url is '+currentUser.avatar)
+    } else {
+        history.push('/login')
+    }
+
     const loadAccountPage = (event) => {
 		console.log('Account Clicked');
+
 	};
 
 	const loadTodoPage = (event) => {
 		console.log('Todo Clicked');
 	};
 
-	const logoutHandler = (event) => {
+	const logoutHandler = async(event) => {
         console.log('Logout Clicked');
-        firebase.auth().signOut().then(() => {
+        await currentUser.logout().then(() => {
             history.push('/login')
           }).catch((error) => {
             console.log('Error signing out')
           });;
 	};
 
-    return (
-        <div>
-            <div className={classes.root}>
-                <CssBaseline />
-                <AppBar position="fixed" className={classes.appBar}>
-                    <Toolbar>
-                        <Typography variant="h6" noWrap>
-                            TodoApp
-						</Typography>
-                    </Toolbar>
-                </AppBar>
-                <Drawer
-                    className={classes.drawer}
-                    variant="permanent"
-                    classes={{
-                        paper: classes.drawerPaper
-                    }}
-                >
-                    <div className={classes.toolbar} />
-                    <Divider />
-                    <center>
-                        <Avatar alt="Remy Sharp" src="https://i.pravatar.cc/300" className={classes.avatar} />
-                        <p>
-                            {' '}
-                            Jim Happer
-                        </p>
-                    </center>
-                    <Divider />
-                    <List>
-                        <ListItem button key="Todo" onClick={loadTodoPage}>
-                            <ListItemIcon>
+    if(currentUser.currentUser) {
+        return (
+            <div>
+                <div className={classes.root}>
+                    <CssBaseline />
+                    <AppBar position="fixed" className={classes.appBar}>
+                        <Toolbar>
+                            <Typography variant="h6" noWrap>
+                                TodoApp
+                            </Typography>
+                        </Toolbar>
+                    </AppBar>
+                    <Drawer
+                        className={classes.drawer}
+                        variant="permanent"
+                        classes={{
+                            paper: classes.drawerPaper
+                        }}
+                    >
+                        <div className={classes.toolbar} />
+                        <Divider />
+                        <center>
+                            <Avatar alt="User Avatar" src={currentUser.avatar} className={classes.avatar} />
+                            <p>
                                 {' '}
-                                <NotesIcon />{' '}
-                            </ListItemIcon>
-                            <ListItemText primary="Todo" />
-                        </ListItem>
-
-                        <ListItem button key="Account" onClick={loadAccountPage}>
-                            <ListItemIcon>
-                                {' '}
-                                <AccountBoxIcon />{' '}
-                            </ListItemIcon>
-                            <ListItemText primary="Account" />
-                        </ListItem>
-
-                        <ListItem button key="Logout" onClick={logoutHandler}>
-                            <ListItemIcon>
-                                {' '}
-                                <ExitToAppIcon />{' '}
-                            </ListItemIcon>
-                            <ListItemText primary="Logout" />
-                        </ListItem>
-                    </List>
-                </Drawer>
-                <div>{currentUser.isAdmin ? <TeacherClasses/> : <Note />}  </div>
+                                {currentUser.currentUser && currentUser.currentUser.displayName ? currentUser.currentUser.displayName : "Welcome!"}
+                            </p>
+                        </center>
+                        <Divider />
+                        <List>
+                            <ListItem button key="Todo" onClick={loadTodoPage}>
+                                <ListItemIcon>
+                                    {' '}
+                                    <NotesIcon />{' '}
+                                </ListItemIcon>
+                                <ListItemText primary="Todo" />
+                            </ListItem>
+    
+                            <ListItem button key="Account" onClick={loadAccountPage}>
+                                <ListItemIcon>
+                                    {' '}
+                                    <AccountBoxIcon />{' '}
+                                </ListItemIcon>
+                                <ListItemText primary="Account" />
+                            </ListItem>
+    
+                            <ListItem button key="Logout" onClick={logoutHandler}>
+                                <ListItemIcon>
+                                    {' '}
+                                    <ExitToAppIcon />{' '}
+                                </ListItemIcon>
+                                <ListItemText primary="Logout" />
+                            </ListItem>
+                        </List>
+                    </Drawer>
+                    <div>{currentUser.isAdmin ? <TeacherClasses/> : <Note />}  </div>
+                </div>
+    
+    
             </div>
+    
+        )
+    } else {
+        return <div></div>
+    }
 
 
-        </div>
-
-    )
 }
 
 export default withStyles(styles)(Home);

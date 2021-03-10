@@ -1,6 +1,6 @@
 import React, { useEffect, useContext, useState } from "react";
-import 'firebase/auth';
 import firebase from "../firebase"
+import 'firebase/auth';
 import Button from '@material-ui/core/Button';
 import { useHistory } from "react-router-dom";
 import { UserContext } from "../userContext"
@@ -12,20 +12,26 @@ const firestore = firebase.firestore();
 function Login() {
 
 	const value = useContext(UserContext);
-	if(value){console.log('Login value '+value.currentUser)}
+	if(value){console.log('Login value and loading '+value.currentUser +value.loading)}
 	
 	let history = useHistory()
 
 	const [redirect, setredirect] = useState(null);
 
 	useEffect(() => {
-		if (value.currentUser) {
-		  setredirect('/')
+		if (!value.loading) {
+			if (value.currentUser) {
+				setredirect('/')
+			}
 		}
-	  }, [value.currentUser])
+	}, [value.loading, value.currentUser])
 
 	if (redirect) {
-	return <Redirect to={redirect}/>
+		return <Redirect to={redirect}/>
+	}
+
+	if (value.loading) {
+		return <div>Loading!</div>
 	}
 
     const signInWithGoogle = () => {
@@ -33,10 +39,14 @@ function Login() {
 	  auth.signInWithPopup(provider)
 	  .then((user) => {
 		//after we have the credential - lets check if the user exists in firestore
-		var docRef = firestore.collection('users').doc(auth.value.currentUser.uid);
+		console.log('user object ', user)
+		console.log('user.user object ', user.user)
+		console.log('user.user.uid ', user.user.uid)
+		var docRef = firestore.collection('users').doc(user.user.uid);
 		docRef.get().then(doc => {
 		  if (doc.exists) {
 			//user exists then just update the login time
+			console.log("User exists already")
 			return user
 		  } else {
 			//user doesn't exist - create a new user in firestore
@@ -62,12 +72,12 @@ function Login() {
 	const collection = firestore.collection('users');
     const {profile} = user.additionalUserInfo;
     const details = {
-      firstName: profile.given_name,
-      lastName: profile.family_name,
-      fullName: profile.name,
-      email: profile.email,
+      firstName: profile.hasOwnProperty("given_name") ? profile.given_name : '',
+      lastName: profile.hasOwnProperty("family_name") ? profile.family_name : '',
+      fullName: profile.hasOwnProperty("name") ? profile.name : '',
+      email: profile.hasOwnProperty("email") ? profile.email : '',
     };
-    collection.doc(auth.value.currentUser.uid).set(details);
+    collection.doc(user.user.uid).set(details);
     return {user, details};
   }
 

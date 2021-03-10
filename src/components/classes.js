@@ -117,18 +117,21 @@ function TeacherClasses(props) {
         const db = firebase.firestore()
         
         console.log("User",user)
-        return db.collection("users").doc(user.uid).get()
-        .then((doc) => {
-			if (doc.exists) {
-				let teacherData = doc.data()
-				console.log("Document data:", teacherData);
-				setTeacherClasses(teacherData.classes)
-                setUiLoading(false)
-			} else {
-				// doc.data() will be undefined in this case
-				console.log("No such teacher document!");
-			}
-		})
+        if(user){
+            return db.collection("users").doc(user.uid).get()
+            .then((doc) => {
+                if (doc.exists) {
+                    let teacherData = doc.data()
+                    console.log("Document data:", teacherData);
+                    setTeacherClasses(teacherData.classes)
+                    setUiLoading(false)
+                } else {
+                    // doc.data() will be undefined in this case
+                    console.log("No such teacher document!");
+                }
+            })
+        }
+
     }, [user]);
 
     const DialogTitle = withStyles(styles)((props) => {
@@ -267,10 +270,10 @@ function TeacherClasses(props) {
                 <div>
                       <Grid container spacing={2}>
                       {notes.map((todo) => (
-                          <Grid item xs={12} sm={6}>
+                          <Grid item xs={12} sm={6} key = {todo.id}>
                               <Card className={classes.root} variant="outlined">
                                   <CardContent>
-                                      <Typography variant="h5" component="h2">
+                                      <Typography variant="h6" component="h3">
                                           {todo.title}
                                       </Typography>
                                       {todo.activities && todo.activities.length > 0 && <Chips activities={todo.activities}></Chips>}
