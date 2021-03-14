@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import firebase from '../firebase';
 import Chips from './chips';
 
@@ -27,6 +27,7 @@ import MuiDialogContent from '@material-ui/core/DialogContent';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import MultipleSelect from './select';
+import { UserContext } from '../userContext';
 
 const styles = (theme) => ({
 	content: {
@@ -99,7 +100,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 function Note(props) {
 
-    const [ user, setUser ] = useState(firebase.auth().currentUser)
+    //const [ user, setUser ] = useState(firebase.auth().currentUser)
 
     const [ title, setTitle ] = useState('')
     const [ body, setBody ] = useState('')
@@ -114,6 +115,8 @@ function Note(props) {
 
     const [ notes, setNotes ] = useState([]);
 
+    const { currentUser, avatar } = useContext(UserContext)
+
     useEffect(() => {
         // const fetchData = async () => {
         //     const db = firebase.firestore();
@@ -124,10 +127,10 @@ function Note(props) {
         // fetchData()
 
         const db = firebase.firestore()
-        let recentDate = new Date('2020-01-29')
+        let recentDate = new Date('2021-02-29')
         
-        console.log(user)
-        return db.collectionGroup("notes").where("uid", "==", user.uid)
+        console.log("user from firebase auth", currentUser)
+        return db.collectionGroup("notes").where("uid", "==", currentUser.uid)
         .where("timestamp", ">=", recentDate)
         .orderBy("timestamp","desc")
         .onSnapshot(snapshot => {
@@ -148,7 +151,7 @@ function Note(props) {
         console.log(data)
         //for some reason using todoId does not work even though same value as data.todo.id--async problem?
         const db = firebase.firestore();
-        const document = db.collection('users').doc(user.uid).collection('notes').doc(data.todo.id)
+        const document = db.collection('users').doc(currentUser.uid).collection('notes').doc(data.todo.id)
         document.delete()
         .then(() => alert("Document deleted"))
         .then(() => setTodoId(''))
@@ -205,7 +208,7 @@ function Note(props) {
         const db = firebase.firestore();
 
         if (buttonType === 'Edit') {
-            let document = db.collection('users').doc(user.uid).collection('notes').doc(todoId);
+            let document = db.collection('users').doc(currentUser.uid).collection('notes').doc(todoId);
             document.update( {title : title, body : body, activities: newActivities} )
         } else {
             const newNote = {
@@ -213,10 +216,12 @@ function Note(props) {
                 body: body,
                 createdAt: new Date().toISOString(),
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                uid: user.uid,
-                activities: newActivities
+                uid: currentUser.uid,
+                activities: newActivities,
+                author: currentUser.displayName,
+                avatar: avatar
             }
-            db.collection('users').doc(user.uid).collection('notes').add(newNote)
+            db.collection('users').doc(currentUser.uid).collection('notes').add(newNote)
             .then((doc)=>{
                 console.log("New note added to db")
                 setOpen(false);
@@ -329,15 +334,13 @@ function Note(props) {
                     {notes.map((todo) => (
                         <Grid item xs={12} sm={6} key = {todo.id}>
                             <Card className={classes.root} variant="outlined">
-                            <CardHeader
-                                avatar={
-                                <Avatar aria-label="recipe" className={classes.avatar}>
-                                    R
-                                </Avatar>
-                                }
-                                title={todo.title}
-                                subheader= {dayjs(todo.createdAt).fromNow()+" by author"}
-                            />
+                                <CardHeader
+                                    avatar={
+                                        <Avatar aria-label="recipe" className={classes.avatar} src={todo.avatar} />
+                                    }
+                                    title={todo.title}
+                                    subheader= {dayjs(todo.createdAt).fromNow()+" by "+todo.author}
+                                />
                                 <CardContent>
                                     {todo.activities && todo.activities.length > 0 && <Chips activities={todo.activities}></Chips>}
                                     <Typography variant="body2" component="p">

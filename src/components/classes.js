@@ -16,6 +16,8 @@ import CloseIcon from '@material-ui/icons/Close';
 import Slide from '@material-ui/core/Slide';
 import Grid from '@material-ui/core/Grid';
 import Card from '@material-ui/core/Card';
+import CardHeader from '@material-ui/core/CardHeader';
+import Avatar from '@material-ui/core/Avatar';
 import CardActions from '@material-ui/core/CardActions';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import CardContent from '@material-ui/core/CardContent';
@@ -169,9 +171,12 @@ function TeacherClasses(props) {
     const handleSubmit = (event) => {
         event.preventDefault();
         const db = firebase.firestore();
+        let recentDate = new Date('2021-02-29')
 
 		db.collectionGroup('notes')
-        .where('uid','in',selectedStudents)
+        .where('uid','in', selectedStudents)
+        .where("timestamp", ">=", recentDate)
+        .orderBy("timestamp","desc")
         .get()
 		.then((querySnapshot) => {
             const notesData = [];
@@ -272,18 +277,19 @@ function TeacherClasses(props) {
                       {notes.map((todo) => (
                           <Grid item xs={12} sm={6} key = {todo.id}>
                               <Card className={classes.root} variant="outlined">
-                                  <CardContent>
-                                      <Typography variant="h6" component="h3">
-                                          {todo.title}
-                                      </Typography>
-                                      {todo.activities && todo.activities.length > 0 && <Chips activities={todo.activities}></Chips>}
-                                      <Typography className={classes.pos} color="textSecondary">
-                                          {dayjs(todo.createdAt).fromNow()}
-                                      </Typography>
-                                      <Typography variant="body2" component="p">
-                                          {todo.body.substring(0, 65)+"..."}
-                                      </Typography>
-                                  </CardContent>
+                                <CardHeader
+                                    avatar={
+                                        <Avatar aria-label="recipe" className={classes.avatar} src={todo.avatar} />
+                                    }
+                                    title={todo.title}
+                                    subheader= {dayjs(todo.createdAt).fromNow()+" by "+todo.author}
+                                />
+                                <CardContent>
+                                    {todo.activities && todo.activities.length > 0 && <Chips activities={todo.activities}></Chips>}
+                                    <Typography variant="body2" component="p">
+                                        {todo.body.substring(0, 65)+"..."}
+                                    </Typography>
+                                </CardContent>
                                   <CardActions>
                                       <Button size="small" color="primary" onClick={() => handleViewOpen({ todo })}>
                                           {' '}

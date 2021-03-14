@@ -1,5 +1,6 @@
 import Note from '../components/note';
-import { useContext } from 'react'
+import Account from '../components/account'
+import { useContext, useState } from 'react'
 import { useHistory } from "react-router-dom";
 import { UserContext } from "../userContext"
 import TeacherClasses from "../components/classes"
@@ -62,39 +63,42 @@ const styles = (theme) => ({
 
 function Home({ classes }) {
 
-    const currentUser = useContext(UserContext);
+    const { currentUser, isAdmin, loading, avatar, logout } = useContext(UserContext);
+    const [ accountOpen, setAccountOpen ] = useState(false)
 
     let history = useHistory();
 
-    if(currentUser.currentUser){
-        console.log('In HOME user value '+currentUser.currentUser.uid)
-        console.log('In HOME user is Admin is '+currentUser.isAdmin)
-        console.log('In HOME loading is '+currentUser.loading)
+    if(currentUser){
+        console.log('In HOME user value '+currentUser.uid)
+        console.log('In HOME user profile url is '+currentUser.photoURL)
+        console.log('In HOME user is Admin is '+isAdmin)
+        console.log('In HOME loading is '+loading)
         console.log('currentUser is ', currentUser)
-        console.log('avatar url is '+currentUser.avatar)
+        console.log('avatar url is '+avatar)
     } else {
         history.push('/login')
     }
 
     const loadAccountPage = (event) => {
 		console.log('Account Clicked');
-
+        setAccountOpen(true)
 	};
 
 	const loadTodoPage = (event) => {
 		console.log('Todo Clicked');
+        setAccountOpen(false)
 	};
 
 	const logoutHandler = async(event) => {
         console.log('Logout Clicked');
-        await currentUser.logout().then(() => {
+        await logout().then(() => {
             history.push('/login')
           }).catch((error) => {
             console.log('Error signing out')
           });;
 	};
 
-    if(currentUser.currentUser) {
+    if(currentUser) {
         return (
             <div>
                 <div className={classes.root}>
@@ -102,7 +106,7 @@ function Home({ classes }) {
                     <AppBar position="fixed" className={classes.appBar}>
                         <Toolbar>
                             <Typography variant="h6" noWrap>
-                                TodoApp
+                                NotesApp
                             </Typography>
                         </Toolbar>
                     </AppBar>
@@ -116,10 +120,10 @@ function Home({ classes }) {
                         <div className={classes.toolbar} />
                         <Divider />
                         <center>
-                            <Avatar alt="User Avatar" src={currentUser.avatar} className={classes.avatar} />
+                            <Avatar alt="User Avatar" src={avatar} className={classes.avatar} />
                             <p>
                                 {' '}
-                                {currentUser.currentUser && currentUser.currentUser.displayName ? currentUser.currentUser.displayName : "Welcome!"}
+                                {currentUser && currentUser.displayName ? currentUser.displayName : "Welcome!"}
                             </p>
                         </center>
                         <Divider />
@@ -129,7 +133,7 @@ function Home({ classes }) {
                                     {' '}
                                     <NotesIcon />{' '}
                                 </ListItemIcon>
-                                <ListItemText primary="Todo" />
+                                <ListItemText primary="Notes" />
                             </ListItem>
     
                             <ListItem button key="Account" onClick={loadAccountPage}>
@@ -149,7 +153,7 @@ function Home({ classes }) {
                             </ListItem>
                         </List>
                     </Drawer>
-                    <div>{currentUser.isAdmin ? <TeacherClasses/> : <Note />}  </div>
+                    <div>{accountOpen ? <Account/> : isAdmin ? <TeacherClasses/> : <Note />}  </div>
                 </div>
     
     
