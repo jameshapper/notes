@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -9,6 +9,8 @@ import Select from '@material-ui/core/Select';
 import Checkbox from '@material-ui/core/Checkbox';
 import Chip from '@material-ui/core/Chip';
 import Paper from '@material-ui/core/Paper'
+import MultiSelect from "react-multi-select-component";
+
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -62,31 +64,26 @@ const MenuProps = {
   getContentAnchorEl: null
 };
 
-const names = [
-  'Hands-on',
-  'App-IT',
-  'Study',
-  'Problems',
-  'Sharing',
-  'Connect',
-];
-
-function getStyles(name, personName, theme) {
+function getStyles(name, selectedOptions, theme) {
   return {
     fontWeight:
-      personName.indexOf(name) === -1
+      selectedOptions.indexOf(name) === -1
         ? theme.typography.fontWeightRegular
         : theme.typography.fontWeightMedium,
   };
 }
 
-export default function StudentSelect(props) {
+export default function MultipleSelect(props) {
+  const allOptions = props.allOptions
+
   const classes = useStyles();
   const theme = useTheme();
-  const [personName, setPersonName] = React.useState([]);
+  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [selected, setSelected] = useState([])
 
   const handleChange = (event) => {
-    setPersonName(event.target.value);
+    console.log("selectedOptions are "+event.target.value)
+    setSelectedOptions(event.target.value);
     props.getList(event.target.value)
   };
 
@@ -99,25 +96,35 @@ export default function StudentSelect(props) {
             labelId="demo-mutiple-checkbox-label"
             id="demo-mutiple-checkbox"
             multiple
-            value={personName}
+            value={selectedOptions}
             onChange={handleChange}
             input={<Input />}
             //renderValue={(selected) => selected.join(', ')}
             renderValue={(selected) => ''}
             MenuProps={MenuProps}
             >
-            {names.map((name) => (
-                <MenuItem key={name} value={name}>
-                    <Checkbox checked={personName.indexOf(name) > -1} />
-                    <ListItemText primary={name} />
+            {allOptions.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                    <Checkbox checked={selectedOptions.indexOf(option.value) > -1} />
+                    <ListItemText primary={option.label} />
                 </MenuItem>
             ))}
             </Select>
         </FormControl>
       </div>
+      <div>
+        <h1>Select Fruits</h1>
+        <pre>{JSON.stringify(selected)}</pre>
+        <MultiSelect
+          options={allOptions}
+          value={selected}
+          onChange={setSelected}
+          labelledBy={"Select"}
+        />
+      </div>
       <div style={{justifyContent: 'center'}}>
         <Paper component="ul" className = {classes.root}>
-            {personName.map((data) => {
+            {selectedOptions.map((data) => {
                 return (
                 <li key={data}>
                     <Chip label={data} className={classes.chip}/>

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import firebase from '../firebase';
 import Chips from './chips';
+import Datepicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
 
 import withStyles from '@material-ui/core/styles/withStyles';
 import Typography from '@material-ui/core/Typography';
@@ -112,6 +114,7 @@ function TeacherClasses(props) {
 
     const [ teacherClasses, setTeacherClasses ] = useState([]);
     const [ notes, setNotes ] = useState([]);
+    const [ selectedDate, setSelectedDate ] = useState(null)
 
 
     useEffect(() => {
@@ -171,7 +174,8 @@ function TeacherClasses(props) {
     const handleSubmit = (event) => {
         event.preventDefault();
         const db = firebase.firestore();
-        let recentDate = new Date('2021-02-29')
+        //let recentDate = new Date('2021-02-29')
+        let recentDate = selectedDate
 
 		db.collectionGroup('notes')
         .where('uid','in', selectedStudents)
@@ -239,6 +243,16 @@ function TeacherClasses(props) {
 
                     <form className={classes.form} noValidate>
                         <Grid container spacing={2}>
+                            <Grid item xs={12} key='date'>
+                                <Typography>
+                                    How far back do you want to see notes?
+                                </Typography>
+                                <Datepicker 
+                                    selected={selectedDate} 
+                                    onChange={date => setSelectedDate(date)}
+                                    maxDate={new Date()}
+                                />
+                            </Grid>
                             <Grid item xs={12} key='title'>
 								<DialogTitle id="customized-dialog-title" onClose={handleClose}>
 									{title}

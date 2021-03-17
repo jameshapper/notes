@@ -236,12 +236,12 @@ function Note(props) {
     };
 
     const dataList = [
-        {name:'Hands-on',uid: 'Hands-on'},
-        {name:'App-IT', uid: 'App-IT'},
-        {name:'Study', uid: 'Study'},
-        {name:'Problems', uid: 'Problems'},
-        {name:'Sharing', uid: 'Sharing'},
-        {name:'Connect', uid: 'Connect'}
+        {label:'Hands-on',value: 'Hands-on'},
+        {label:'App-IT', value: 'App-IT'},
+        {label:'Study', value: 'Study'},
+        {label:'Problems', value: 'Problems'},
+        {label:'Sharing', value: 'Sharing'},
+        {label:'Connect', value: 'Connect'}
       ];
 
     const handleViewClose = () => setViewOpen(false);

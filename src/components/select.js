@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -9,6 +9,8 @@ import Select from '@material-ui/core/Select';
 import Checkbox from '@material-ui/core/Checkbox';
 import Chip from '@material-ui/core/Chip';
 import Paper from '@material-ui/core/Paper'
+import MultiSelect from "react-multi-select-component";
+
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -62,15 +64,6 @@ const MenuProps = {
   getContentAnchorEl: null
 };
 
-// const allOptions = [
-//   'Hands-on',
-//   'App-IT',
-//   'Study',
-//   'Problems',
-//   'Sharing',
-//   'Connect',
-// ];
-
 function getStyles(name, selectedOptions, theme) {
   return {
     fontWeight:
@@ -85,7 +78,8 @@ export default function MultipleSelect(props) {
 
   const classes = useStyles();
   const theme = useTheme();
-  const [selectedOptions, setSelectedOptions] = React.useState([]);
+  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [selected, setSelected] = useState([])
 
   const handleChange = (event) => {
     console.log("selectedOptions are "+event.target.value)
@@ -110,13 +104,23 @@ export default function MultipleSelect(props) {
             MenuProps={MenuProps}
             >
             {allOptions.map((option) => (
-                <MenuItem key={option.uid} value={option.uid}>
-                    <Checkbox checked={selectedOptions.indexOf(option.uid) > -1} />
-                    <ListItemText primary={option.name} />
+                <MenuItem key={option.value} value={option.value}>
+                    <Checkbox checked={selectedOptions.indexOf(option.value) > -1} />
+                    <ListItemText primary={option.label} />
                 </MenuItem>
             ))}
             </Select>
         </FormControl>
+      </div>
+      <div>
+        <h1>Select Fruits</h1>
+        <pre>{JSON.stringify(selected)}</pre>
+        <MultiSelect
+          options={allOptions}
+          value={selected}
+          onChange={setSelected}
+          labelledBy={"Select"}
+        />
       </div>
       <div style={{justifyContent: 'center'}}>
         <Paper component="ul" className = {classes.root}>
