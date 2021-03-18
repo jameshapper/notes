@@ -1,13 +1,9 @@
 import React, { useEffect, useContext, useState } from "react";
-import firebase from "../firebase"
-import 'firebase/auth';
+import firebase, { auth, db } from "../firebase"
 import Button from '@material-ui/core/Button';
 import { useHistory } from "react-router-dom";
 import { UserContext } from "../userContext"
 import { Redirect } from 'react-router-dom';
-
-const auth = firebase.auth();
-const firestore = firebase.firestore();
 
 function Login() {
 
@@ -42,7 +38,7 @@ function Login() {
 		console.log('user object ', user)
 		console.log('user.user object ', user.user)
 		console.log('user.user.uid ', user.user.uid)
-		var docRef = firestore.collection('users').doc(user.user.uid);
+		var docRef = db.collection('users').doc(user.user.uid);
 		docRef.get().then(doc => {
 		  if (doc.exists) {
 			//user exists then just update the login time
@@ -69,7 +65,7 @@ function Login() {
   }
 
   function addNewUserToFirestore(user) {
-	const collection = firestore.collection('users');
+	const collection = db.collection('users');
     const {profile} = user.additionalUserInfo;
     const details = {
       firstName: profile.hasOwnProperty("given_name") ? profile.given_name : '',

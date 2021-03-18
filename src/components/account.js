@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import firebase from '../firebase';
+import { db, storage } from '../firebase';
 
 import withStyles from '@material-ui/core/styles/withStyles';
 import Button from '@material-ui/core/Button';
@@ -78,7 +78,7 @@ function Account(props) {
     const [fileUrl, setFileUrl] = useState(null);
 	const [ fileUpload, setFileUpload ] = useState(null)
 
-    const db = firebase.firestore()
+    //const db = firebase.firestore()
   
     const onFileChange = async (e) => {
 	  setFileUpload(e.target.files[0])
@@ -88,7 +88,8 @@ function Account(props) {
 
 	  console.log('file upload name is '+fileUpload.name)
 
- 	  const storageRef = firebase.storage().ref();
+ 	  const storageRef = storage.ref();
+	  //const storageRef = firebase.storage().ref();
       const fileRef = storageRef.child(fileUpload.name);
       await fileRef.put(fileUpload);
 	  let downloadUrl = await fileRef.getDownloadURL()

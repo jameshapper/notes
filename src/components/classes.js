@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import firebase from '../firebase';
+import { db, auth } from '../firebase';
 import Chips from './chips';
 import Datepicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -100,7 +100,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 function TeacherClasses(props) {
 
-    const [ user ] = useState(firebase.auth().currentUser)
+    const [ user ] = useState(auth.currentUser)
 
     const [ title, setTitle ] = useState('')
     const [ body, setBody ] = useState('')
@@ -118,8 +118,6 @@ function TeacherClasses(props) {
 
 
     useEffect(() => {
-
-        const db = firebase.firestore()
         
         console.log("User",user)
         if(user){
@@ -173,8 +171,6 @@ function TeacherClasses(props) {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        const db = firebase.firestore();
-        //let recentDate = new Date('2021-02-29')
         let recentDate = selectedDate
 
 		db.collectionGroup('notes')

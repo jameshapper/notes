@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import firebase from '../firebase';
+import firebase, { db } from '../firebase';
 import Chips from './chips';
 
 import withStyles from '@material-ui/core/styles/withStyles';
@@ -100,8 +100,6 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 function Note(props) {
 
-    //const [ user, setUser ] = useState(firebase.auth().currentUser)
-
     const [ title, setTitle ] = useState('')
     const [ body, setBody ] = useState('')
     const [ todoId, setTodoId ] = useState('')
@@ -126,7 +124,6 @@ function Note(props) {
         // };
         // fetchData()
 
-        const db = firebase.firestore()
         let recentDate = new Date('2021-02-29')
         
         console.log("user from firebase auth", currentUser)
@@ -150,7 +147,6 @@ function Note(props) {
         console.log(data.todo.id)
         console.log(data)
         //for some reason using todoId does not work even though same value as data.todo.id--async problem?
-        const db = firebase.firestore();
         const document = db.collection('users').doc(currentUser.uid).collection('notes').doc(data.todo.id)
         document.delete()
         .then(() => alert("Document deleted"))
@@ -205,7 +201,6 @@ function Note(props) {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        const db = firebase.firestore();
 
         if (buttonType === 'Edit') {
             let document = db.collection('users').doc(currentUser.uid).collection('notes').doc(todoId);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -80,6 +80,11 @@ export default function MultipleSelect(props) {
   const theme = useTheme();
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [selected, setSelected] = useState([])
+
+  useEffect(() => {
+    let selectArray = selected.map(a => a.value)
+    console.log(`array of selected ids ${selectArray}`)
+  })
 
   const handleChange = (event) => {
     console.log("selectedOptions are "+event.target.value)
