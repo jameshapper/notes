@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
 import firebase, { db } from '../firebase';
 import Chips from './chips';
+import ReactQuill from "react-quill";
+import EditorToolbar, { modules, formats } from "./EditorToolbar";
+import "react-quill/dist/quill.snow.css";
+import "./styles.css";
+import Editor from "./editortest2"
 
 import withStyles from '@material-ui/core/styles/withStyles';
 import Typography from '@material-ui/core/Typography';
@@ -112,8 +117,18 @@ function Note(props) {
     const [ viewOpen, setViewOpen ] = useState(false)
 
     const [ notes, setNotes ] = useState([]);
+    const [ rt, setRt ] = useState("")
 
     const { currentUser, avatar } = useContext(UserContext)
+
+    const dataList = [
+        {label:'Hands-on',value: 'Hands-on'},
+        {label:'App-IT', value: 'App-IT'},
+        {label:'Study', value: 'Study'},
+        {label:'Problems', value: 'Problems'},
+        {label:'Sharing', value: 'Sharing'},
+        {label:'Connect', value: 'Connect'}
+      ];
 
     useEffect(() => {
         // const fetchData = async () => {
@@ -168,6 +183,53 @@ function Note(props) {
         setViewOpen(true)
 	}
 
+    dayjs.extend(relativeTime);
+
+    const { classes } = props;
+
+    const handleClickOpen = () => {
+        setTitle('')
+        setBody('')
+        setTodoId('')
+        setButtonType('')
+        setOpen(true)
+    };
+
+    const handleViewClose = () => setViewOpen(false);
+    const handleClose = (event) => setOpen(false);
+
+    const handleSubmit = (event) => {
+        event.preventDefault();
+
+        if (buttonType === 'Edit') {
+            let document = db.collection('users').doc(currentUser.uid).collection('notes').doc(todoId);
+            document.update( {title : title, body : body, activities: newActivities} )
+        } else {
+            const newNote = {
+                title: title,
+                body: body,
+                createdAt: new Date().toISOString(),
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                uid: currentUser.uid,
+                activities: newActivities,
+                author: currentUser.displayName,
+                avatar: avatar,
+                rt: rt
+            }
+            db.collection('users').doc(currentUser.uid).collection('notes').add(newNote)
+            .then((doc)=>{
+                console.log("New note added to db")
+                setOpen(false);
+            })
+            .catch((error) => {
+                setErrors(error)
+                setOpen(true)
+                console.error(error);
+                alert('Something went wrong' );
+            });
+        }
+    };
+
     const DialogTitle = withStyles(styles)((props) => {
         const { children, onClose, classes, ...other } = props;
         return (
@@ -187,61 +249,6 @@ function Note(props) {
             padding: theme.spacing(2)
         }
     }))(MuiDialogContent);
-
-    dayjs.extend(relativeTime);
-    const { classes } = props;
-
-    const handleClickOpen = () => {
-        setTitle('')
-        setBody('')
-        setTodoId('')
-        setButtonType('')
-        setOpen(true)
-    };
-
-    const handleSubmit = (event) => {
-        event.preventDefault();
-
-        if (buttonType === 'Edit') {
-            let document = db.collection('users').doc(currentUser.uid).collection('notes').doc(todoId);
-            document.update( {title : title, body : body, activities: newActivities} )
-        } else {
-            const newNote = {
-                title: title,
-                body: body,
-                createdAt: new Date().toISOString(),
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                uid: currentUser.uid,
-                activities: newActivities,
-                author: currentUser.displayName,
-                avatar: avatar
-            }
-            db.collection('users').doc(currentUser.uid).collection('notes').add(newNote)
-            .then((doc)=>{
-                console.log("New note added to db")
-                setOpen(false);
-            })
-            .catch((error) => {
-                setErrors(error)
-                setOpen(true)
-                console.error(error);
-                alert('Something went wrong' );
-            });
-        }
-    };
-
-    const dataList = [
-        {label:'Hands-on',value: 'Hands-on'},
-        {label:'App-IT', value: 'App-IT'},
-        {label:'Study', value: 'Study'},
-        {label:'Problems', value: 'Problems'},
-        {label:'Sharing', value: 'Sharing'},
-        {label:'Connect', value: 'Connect'}
-      ];
-
-    const handleViewClose = () => setViewOpen(false);
-
-    const handleClose = (event) => setOpen(false);
 
     if (uiLoading === true) {
         return (
@@ -290,10 +297,10 @@ function Note(props) {
                                     variant="outlined"
                                     required
                                     fullWidth
-                                    id="todoTitle"
+                                    id="noteTitle"
                                     label="Todo Title"
                                     name="title"
-                                    autoComplete="todoTitle"
+                                    autoComplete="noteTitle"
                                     helperText={errors.title}
                                     value={title}
                                     error={errors.title ? true : false}
@@ -308,10 +315,10 @@ function Note(props) {
                                     variant="outlined"
                                     required
                                     fullWidth
-                                    id="todoDetails"
-                                    label="Todo Details"
+                                    id="noteDetails"
+                                    label="Note Details"
                                     name="body"
-                                    autoComplete="todoDetails"
+                                    autoComplete="noteDetails"
                                     multiline
                                     rows={25}
                                     rowsMax={25}
@@ -323,6 +330,13 @@ function Note(props) {
                             </Grid>
                         </Grid>
                     </form>
+
+                    <Grid item xs={12} sm={6}>
+                        <Editor setRt={rt => setRt(rt)}/>
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                        <div dangerouslySetInnerHTML={{__html:rt}}/>
+                    </Grid>
                 </Dialog>
 
                 <Grid container spacing={2}>
@@ -372,7 +386,7 @@ function Note(props) {
                     <DialogContent dividers>
                         <TextField
                             fullWidth
-                            id="todoDetails"
+                            id="noteDetails"
                             name="body"
                             multiline
                             readOnly

@@ -117,16 +117,6 @@ export default function MultipleSelect(props) {
             </Select>
         </FormControl>
       </div>
-      <div>
-        <h1>Select Fruits</h1>
-        <pre>{JSON.stringify(selected)}</pre>
-        <MultiSelect
-          options={allOptions}
-          value={selected}
-          onChange={setSelected}
-          labelledBy={"Select"}
-        />
-      </div>
       <div style={{justifyContent: 'center'}}>
         <Paper component="ul" className = {classes.root}>
             {selectedOptions.map((data) => {

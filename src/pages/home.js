@@ -1,9 +1,12 @@
 import Note from '../components/note';
 import Account from '../components/account'
+//import Editor from '../components/editortest'
 import { useContext, useState } from 'react'
 import { useHistory } from "react-router-dom";
 import { UserContext } from "../userContext"
 import TeacherClasses from "../components/classes"
+//import Grid from '@material-ui/core/Grid';
+
 
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
@@ -155,7 +158,6 @@ function Home({ classes }) {
                     </Drawer>
                     <div>{accountOpen ? <Account/> : isAdmin ? <TeacherClasses/> : <Note />}  </div>
                 </div>
-    
     
             </div>
     

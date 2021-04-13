@@ -28,6 +28,8 @@ import MuiDialogTitle from '@material-ui/core/DialogTitle';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import MultipleSelect from './select';
+import MultiSelect from "react-multi-select-component";
+
 
 const styles = (theme) => ({
 	content: {
@@ -116,6 +118,8 @@ function TeacherClasses(props) {
     const [ notes, setNotes ] = useState([]);
     const [ selectedDate, setSelectedDate ] = useState(null)
 
+    const [ selected, setSelected ] = useState([])
+
 
     useEffect(() => {
         
@@ -136,6 +140,11 @@ function TeacherClasses(props) {
         }
 
     }, [user]);
+
+    useEffect(() => {
+        console.log('selected ids are '+selected.map((student) => student.value))
+        setSelectedStudents(selected.map(a => a.value))
+    },[selected])
 
     const DialogTitle = withStyles(styles)((props) => {
         const { children, onClose, classes, ...other } = props;
@@ -163,9 +172,6 @@ function TeacherClasses(props) {
     const handleSelectOpen = (teacherClass) => {
         setTitle(teacherClass.name)
         setCurrentClass(teacherClass.students)
-        console.log("currentClass is "+currentClass)
-        console.log("class title is "+title)
-        console.log("passed array is "+teacherClass.students)
         setOpen(true)
     };
 
@@ -254,8 +260,18 @@ function TeacherClasses(props) {
 									{title}
 								</DialogTitle>
                             </Grid>
-                            <Grid item xs={12} key="chips">
-                                <MultipleSelect allOptions={currentClass} getList={selectedStudents => setSelectedStudents(selectedStudents)}></MultipleSelect>
+
+                            <Grid>
+                                <div>
+                                    <h1>Select Students</h1>
+                                    <pre>{JSON.stringify(selected)}</pre>
+                                    <MultiSelect
+                                    options={currentClass}
+                                    value={selected}
+                                    onChange={setSelected}
+                                    labelledBy={"Select"}
+                                    />
+                                </div>
                             </Grid>
                         </Grid>
                     </form>
