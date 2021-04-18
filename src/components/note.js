@@ -173,6 +173,7 @@ function Note(props) {
         setTitle(data.todo.title)
         setBody(data.todo.body)
         setTodoId(data.todo.id)
+        setRt(data.todo.rt)
         setButtonType('Edit')
         setOpen(true)
 	}
@@ -180,6 +181,7 @@ function Note(props) {
 	const handleViewOpen = (data) => {
         setTitle(data.todo.title)
         setBody(data.todo.body)
+        setRt(data.todo.rt)
         setViewOpen(true)
 	}
 
@@ -192,6 +194,7 @@ function Note(props) {
         setBody('')
         setTodoId('')
         setButtonType('')
+        setRt('')
         setOpen(true)
     };
 
@@ -310,33 +313,14 @@ function Note(props) {
                             <Grid item xs={12} key="chips">
                                 <MultipleSelect allOptions={dataList} getList={activities => setNewActivities(activities)}></MultipleSelect>
                             </Grid>
-                            <Grid item xs={12} key="body">
-                                <TextField
-                                    variant="outlined"
-                                    required
-                                    fullWidth
-                                    id="noteDetails"
-                                    label="Note Details"
-                                    name="body"
-                                    autoComplete="noteDetails"
-                                    multiline
-                                    rows={25}
-                                    rowsMax={25}
-                                    helperText={errors.body}
-                                    error={errors.body ? true : false}
-                                    onChange={handleBodyChange}
-                                    value={body}
-                                />
-                            </Grid>
+
                         </Grid>
                     </form>
 
                     <Grid item xs={12} sm={6}>
-                        <Editor setRt={rt => setRt(rt)}/>
+                        <Editor initText={rt} setRt={rt => setRt(rt)} setBody={body => setBody(body)}/>
                     </Grid>
-                    <Grid item xs={12} sm={6}>
-                        <div dangerouslySetInnerHTML={{__html:rt}}/>
-                    </Grid>
+
                 </Dialog>
 
                 <Grid container spacing={2}>
@@ -383,20 +367,9 @@ function Note(props) {
                     <DialogTitle id="customized-dialog-title" onClose={handleViewClose}>
                         {title}
                     </DialogTitle>
+
                     <DialogContent dividers>
-                        <TextField
-                            fullWidth
-                            id="noteDetails"
-                            name="body"
-                            multiline
-                            readOnly
-                            rows={1}
-                            rowsMax={25}
-                            value={body}
-                            InputProps={{
-                                disableUnderline: true
-                            }}
-                        />
+                        <div dangerouslySetInnerHTML={{__html:rt}}/>
                     </DialogContent>
                 </Dialog>
             </main>
