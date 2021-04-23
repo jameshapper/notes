@@ -9,7 +9,7 @@ service cloud.firestore {
 
     match /{somePath=**}/notes/{noteId} {
       function noteHasOnlyAllowedFields() {
-        let requiredAndOptionalFields = ['title', 'body', 'uid', 'createdAt', 'timestamp','activities'];
+        let requiredAndOptionalFields = ['title', 'body', 'uid', 'createdAt', 'timestamp','activities','author','avatar'];
         return request.resource.data.keys().hasOnly(requiredAndOptionalFields);
       }
 
@@ -23,11 +23,26 @@ service cloud.firestore {
 
     match /users/{userId} {
       function userHasOnlyAllowedFields() {
-        let requiredAndOptionalFields = ['firstName', 'lastName', 'fullName', 'email'];
+        let requiredAndOptionalFields = ['firstName', 'lastName', 'fullName', 'email','avatar'];
         return request.resource.data.keys().hasOnly(requiredAndOptionalFields);
       }
       allow read: if (request.auth.uid == userId)
       allow write: if request.auth.uid == userId && userHasOnlyAllowedFields()
+    }
+
+    match /{somePath=**}/comments/{commentId} {
+      function noteHasOnlyAllowedFields() {
+        let requiredAndOptionalFields = ['body', 'uid', 'createdAt', 'timestamp','author','avatar','rt','studentId','noteId'];
+        return request.resource.data.keys().hasOnly(requiredAndOptionalFields);
+      }
+
+      allow read: if request.auth.uid == resource.data.uid
+      allow read: if request.auth.uid == resource.data.studentId
+      allow read: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get("admin",false) ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.admin == true : false
+
+      allow create: if request.auth.uid == request.resource.data.uid && noteHasOnlyAllowedFields()
+      allow update: if request.auth.uid == resource.data.uid && noteHasOnlyAllowedFields() && editOnlyChangesFields(['body', 'createdAt', 'timestamp', 'activities','rt'])
+
     }
 
   }

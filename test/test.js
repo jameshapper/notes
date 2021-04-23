@@ -7,6 +7,8 @@ const studentId = "studentId"
 const theirId = "user_xyz"
 const myAuth = {uid: myId, email: "abc@gmail.com"}
 const studentAuth = {uid: studentId, email: "student@gmail.com"}
+const aNote = "someNote"
+const studentNote = {uid: studentId, noteId: aNote}
 
 function getFirestore(auth) {
   return firebase.initializeTestApp({projectId: MY_PROJECT_ID, auth: auth}).firestore()
@@ -113,6 +115,47 @@ describe("Student notes app", () => {
     const db = getFirestore(studentAuth)
     const testUser = db.collection("users").doc(studentId)
     await firebase.assertFails(testUser.set({admin: true, lastName:"last", firstName: "first", fullName: "full", email: "student@gmail.com"}))
+  })
+
+  it("Can create comments if uid field is same as authenticated user", async() => {
+    const commentId = "any_comment"
+    const db = getFirestore(studentAuth)
+    const testDoc = db.collection("users").doc(studentId).collection("notes").doc(aNote).collection("comments").doc(commentId)
+    await firebase.assertSucceeds(testDoc.set({uid: studentId, body: "after"}))
+  })
+
+  it("Can read comments if uid field is same as authenticated user", async() => {
+    const admin = getAdminFirestore()
+    const noteId = "any_note"
+    const commentId = "any_comment"
+    const aComment = admin.collection("users").doc(studentId).collection("notes").doc(noteId).collection("comments").doc(commentId)
+    await aComment.set({uid : studentId})
+
+    const db = getFirestore(studentAuth)
+    const testDoc = db.collection("users").doc(studentId).collection("notes").doc(noteId).collection("comments").doc(commentId)
+    await firebase.assertSucceeds(testDoc.get())
+  })
+
+  it("Can read comments if studentId field is same as authenticated user", async() => {
+    const admin = getAdminFirestore()
+    const noteId = "any_note"
+    const commentId = "any_comment"
+    const aComment = admin.collection("users").doc(studentId).collection("notes").doc(noteId).collection("comments").doc(commentId)
+    await aComment.set({studentId : studentId})
+
+    const db = getFirestore(studentAuth)
+    const testDoc = db.collection("users").doc(studentId).collection("notes").doc(noteId).collection("comments").doc(commentId)
+    await firebase.assertSucceeds(testDoc.get())
+  })
+
+  it("Can read comments if admin", async() => {
+    const admin = getAdminFirestore()
+    const adminDoc = admin.collection("users").doc(myId)
+    await adminDoc.set({admin : true})
+    
+    const db = getFirestore(myAuth)
+    const testComments = db.collectionGroup("comments");
+    await firebase.assertSucceeds(testComments.get());
   })
 
 })

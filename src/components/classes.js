@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { db, auth } from '../firebase';
+import React, { useState, useEffect, useContext } from 'react';
+import firebase, { db, auth } from '../firebase';
 import Chips from './chips';
 import Datepicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -29,6 +29,9 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import MultipleSelect from './select';
 import MultiSelect from "react-multi-select-component";
+import Editor from "./editortest2"
+import { UserContext } from '../userContext';
+
 
 
 const styles = (theme) => ({
@@ -106,6 +109,8 @@ function TeacherClasses(props) {
 
     const [ title, setTitle ] = useState('')
     const [ body, setBody ] = useState('')
+    const [ noteUid, setNoteUid ] = useState('')
+    const [ studentId, setStudentId ] = useState('')
     const [ selectedStudents, setSelectedStudents ] = useState([])
     const [ currentClass, setCurrentClass ] = useState([])
 
@@ -119,7 +124,11 @@ function TeacherClasses(props) {
     const [ selectedDate, setSelectedDate ] = useState(null)
 
     const [ selected, setSelected ] = useState([])
+    const [ rt, setRt ] = useState("")
+    const [ commentBody, setCommentBody ] = useState("")
+    const [ commentRt, setCommentRt ] = useState("")
 
+    const { avatar } = useContext(UserContext)
 
     useEffect(() => {
         
@@ -201,9 +210,42 @@ function TeacherClasses(props) {
 		});
     };
 
+    const handleSubmitComment = (event) => {
+        event.preventDefault();
+
+        if (false) {
+
+        } else {
+            const newComment = {
+                body: commentBody,
+                createdAt: new Date().toISOString(),
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                uid: user.uid,
+                author: user.displayName,
+                avatar: avatar,
+                rt: commentRt,
+                studentId: studentId,
+                noteId: noteUid
+            }
+            db.collection('users').doc(studentId).collection('notes').doc(noteUid).collection('comments').add(newComment)
+            .then((doc)=>{
+                console.log("New comment added to db")
+                setViewOpen(false);
+            })
+            .catch((error) => {
+                setErrors(error)
+                setOpen(true)
+                console.error(error);
+                alert('Something went wrong' );
+            });
+        }
+    };
+
     const handleViewOpen = (data) => {
         setTitle(data.todo.title)
         setBody(data.todo.body)
+        setNoteUid(data.todo.id)
+        setStudentId(data.todo.uid)
         setViewOpen(true)
 	}
 
@@ -352,6 +394,15 @@ function TeacherClasses(props) {
                               }}
                           />
                       </DialogContent>
+
+                      <Grid item xs={12} sm={6}>
+                        <Editor initText={commentRt} setRt={rt => setCommentRt(commentRt)} setBody={body => setCommentBody(commentBody)}/>
+                      </Grid>
+
+                      <Grid item xs={12} sm={6}>
+                        <Button variant="contained" onClick={handleSubmitComment}>Add Comment</Button>
+                      </Grid>
+
                   </Dialog>
                 </div>  
                 }

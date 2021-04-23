@@ -13,13 +13,13 @@ export const Editor = (props) => {
   //https://scriptverse.academy/tutorials/reactjs-rich-text-editor.html
 
   const [ rt, setRt ] = useState(props.initText)
-  console.log("props.rt is "+props.initText)
+  //console.log("props.rt is "+props.initText)
   //const [ body, setBody ] = useState("")
   const handleRtChange = (value, delta, source, editor) => { 
     setRt(value)
-    console.log(value) 
-    console.log(rt)
-    console.log("trying to get text "+editor.getText())
+    //console.log(value) 
+    //console.log(rt)
+    //console.log("trying to get text "+editor.getText())
     props.setRt(value)
     props.setBody(editor.getText())
   }

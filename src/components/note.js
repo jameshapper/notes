@@ -157,11 +157,6 @@ function Note(props) {
     const handleBodyChange = (event) => setBody(event.target.value);
 
 	const deleteTodoHandler = (data) => {
-        //setTodoId(data.todo.id)
-        console.log(todoId)
-        console.log(data.todo.id)
-        console.log(data)
-        //for some reason using todoId does not work even though same value as data.todo.id--async problem?
         const document = db.collection('users').doc(currentUser.uid).collection('notes').doc(data.todo.id)
         document.delete()
         .then(() => alert("Document deleted"))
@@ -206,7 +201,11 @@ function Note(props) {
 
         if (buttonType === 'Edit') {
             let document = db.collection('users').doc(currentUser.uid).collection('notes').doc(todoId);
-            document.update( {title : title, body : body, activities: newActivities} )
+            document.update( {title : title, body : body, activities: newActivities, rt:rt} )
+            .then((doc)=>{
+                console.log("Note edited")
+                setOpen(false);
+            })
         } else {
             const newNote = {
                 title: title,
