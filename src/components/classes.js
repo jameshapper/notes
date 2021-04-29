@@ -9,7 +9,7 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import TextField from '@material-ui/core/TextField';
-import MuiDialogContent from '@material-ui/core/DialogContent';
+import DialogContent from '@material-ui/core/DialogContent';
 
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -127,6 +127,7 @@ function TeacherClasses(props) {
     const [ rt, setRt ] = useState("")
     const [ commentBody, setCommentBody ] = useState("")
     const [ commentRt, setCommentRt ] = useState("")
+    const [ comments, setComments ] = useState([])
 
     const { avatar } = useContext(UserContext)
 
@@ -168,12 +169,6 @@ function TeacherClasses(props) {
             </MuiDialogTitle>
         );
     });
-
-    const DialogContent = withStyles((theme) => ({
-        viewRoot: {
-            padding: theme.spacing(2)
-        }
-    }))(MuiDialogContent);
 
     dayjs.extend(relativeTime);
     const { classes } = props;
@@ -246,8 +241,31 @@ function TeacherClasses(props) {
         setBody(data.todo.body)
         setNoteUid(data.todo.id)
         setStudentId(data.todo.uid)
+        setRt(data.todo.rt)
         setViewOpen(true)
 	}
+
+    useEffect(() => {
+        
+        if(noteUid){
+            return db.collectionGroup("comments")
+            .where("noteId","==",noteUid)
+            .get()
+            .then((querySnapshot) => {
+                const commentsData = [];
+                querySnapshot.forEach((doc) => {
+                    commentsData.push({ ...doc.data(), id: doc.id })
+                    console.log("comment doc id is "+doc.id)
+                })
+                setComments(commentsData)
+            })
+            .catch((error) => {
+                alert('something wrong while looking for comments')
+                console.log(error)
+            })
+        }
+
+    }, [noteUid]);
 
     const handleViewClose = () => setViewOpen(false);
 
@@ -379,24 +397,23 @@ function TeacherClasses(props) {
                       <DialogTitle id="customized-dialog-title" onClose={handleViewClose}>
                           {title}
                       </DialogTitle>
+
                       <DialogContent dividers>
-                          <TextField
-                              fullWidth
-                              id="todoDetails"
-                              name="body"
-                              multiline
-                              readonly
-                              rows={1}
-                              rowsMax={25}
-                              value={body}
-                              InputProps={{
-                                  disableUnderline: true
-                              }}
-                          />
+                        <div dangerouslySetInnerHTML={{__html:rt}}/>
                       </DialogContent>
 
+                      {comments && comments.length > 0 && 
+                      <div>
+                          {comments.map((comment) => (
+                            <DialogContent dividers>
+                                <div dangerouslySetInnerHTML={{__html:comment.rt}}/>
+                            </DialogContent>
+                          ))}
+                      </div>
+                      }
+
                       <Grid item xs={12} sm={6}>
-                        <Editor initText={commentRt} setRt={rt => setCommentRt(commentRt)} setBody={body => setCommentBody(commentBody)}/>
+                        <Editor initText={commentRt} setRt={rt => setCommentRt(rt)} setBody={body => setCommentBody(body)}/>
                       </Grid>
 
                       <Grid item xs={12} sm={6}>

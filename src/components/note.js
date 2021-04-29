@@ -22,17 +22,19 @@ import Grid from '@material-ui/core/Grid';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import Avatar from '@material-ui/core/Avatar';
+import Paper from '@material-ui/core/Paper'
 
 import CardActions from '@material-ui/core/CardActions';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import CardContent from '@material-ui/core/CardContent';
 import MuiDialogTitle from '@material-ui/core/DialogTitle';
-import MuiDialogContent from '@material-ui/core/DialogContent';
+import DialogContent from '@material-ui/core/DialogContent';
 
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import MultipleSelect from './select';
 import { UserContext } from '../userContext';
+import { grey } from '@material-ui/core/colors';
 
 const styles = (theme) => ({
 	content: {
@@ -107,8 +109,12 @@ function Note(props) {
 
     const [ title, setTitle ] = useState('')
     const [ body, setBody ] = useState('')
+    const [ noteUid, setNoteUid ] = useState('')
+
     const [ todoId, setTodoId ] = useState('')
     const [ newActivities, setNewActivities ] = useState([])
+    const [ created, setCreated ] = useState("")
+    const [ author, setAuthor ] = useState("")
 
     const [ errors, setErrors ] = useState([])
     const [ open, setOpen ] = useState(false)
@@ -118,6 +124,8 @@ function Note(props) {
 
     const [ notes, setNotes ] = useState([]);
     const [ rt, setRt ] = useState("")
+    const [ commentRt, setCommentRt ] = useState("")
+    const [ comments, setComments ] = useState([])
 
     const { currentUser, avatar } = useContext(UserContext)
 
@@ -176,9 +184,35 @@ function Note(props) {
 	const handleViewOpen = (data) => {
         setTitle(data.todo.title)
         setBody(data.todo.body)
+        setNoteUid(data.todo.id)
         setRt(data.todo.rt)
         setViewOpen(true)
+        setCreated(data.todo.createdAt)
+        setAuthor(data.todo.author)
 	}
+
+    useEffect(() => {
+        
+        if(noteUid){
+            return db.collectionGroup("comments")
+            .where("studentId", "==", currentUser.uid)
+            .where("noteId","==",noteUid)
+            .get()
+            .then((querySnapshot) => {
+                const commentsData = [];
+                querySnapshot.forEach((doc) => {
+                    commentsData.push({ ...doc.data(), id: doc.id })
+                    console.log("comment doc id is "+doc.id)
+                })
+                setComments(commentsData)
+            })
+            .catch((error) => {
+                alert('something wrong while looking for comments')
+                console.log(error)
+            })
+        }
+
+    }, [noteUid]);
 
     dayjs.extend(relativeTime);
 
@@ -245,12 +279,6 @@ function Note(props) {
             </MuiDialogTitle>
         );
     });
-
-    const DialogContent = withStyles((theme) => ({
-        viewRoot: {
-            padding: theme.spacing(2)
-        }
-    }))(MuiDialogContent);
 
     if (uiLoading === true) {
         return (
@@ -363,13 +391,54 @@ function Note(props) {
                     fullWidth
                     classes={{ paperFullWidth: classes.dialogeStyle }}
                 >
-                    <DialogTitle id="customized-dialog-title" onClose={handleViewClose}>
-                        {title}
-                    </DialogTitle>
+                    <Paper   elevation={2}
+                        style={{
+                            padding: 8,
+                            backgroundColor: "#e0e0e0",
+                            border: "1px solid black",
+                            margin: "2px 2px 8px 2px"
+                        }}>
+                    <Grid container >
+                        <Grid item xs={1}>
+                            <Avatar aria-label="recipe" className={classes.avatar} src={avatar} />
+                        </Grid>
+                        <Grid item xs={11}>
+                            <DialogTitle id="customized-dialog-title" onClose={handleViewClose}>
+                            {title}
+                            </DialogTitle>
+                            <div>{dayjs(created).fromNow()+" by "+author}</div>
+                        </Grid>
+                        <Grid item>
+                            <DialogContent>
+                                <div dangerouslySetInnerHTML={{__html:rt}}/>
+                            </DialogContent>
+                        </Grid>
+                    </Grid>
+                    </Paper>
 
-                    <DialogContent dividers>
-                        <div dangerouslySetInnerHTML={{__html:rt}}/>
-                    </DialogContent>
+
+                    {comments && comments.length > 0 && 
+                      <div>
+                          {comments.map((comment) => (
+                            <Grid container>
+                                <Grid item xs={1}>
+                                <Avatar aria-label="recipe" className={classes.avatar} src={comment.avatar} />
+                                </Grid>
+                                <Grid item xs={11}>
+                                    <Paper>
+                                    {dayjs(comment.createdAt).fromNow()+" by "+comment.author}
+                                        <DialogContent>
+                                            <div dangerouslySetInnerHTML={{__html:comment.rt}}/>
+                                        </DialogContent>
+                                    </Paper>
+
+                                </Grid>
+                                <hr/>
+                            </Grid>
+                          ))}
+                      </div>
+                    }
+
                 </Dialog>
             </main>
         );
