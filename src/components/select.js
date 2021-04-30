@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
+
+import { makeStyles } from '@material-ui/core/styles';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -9,8 +10,6 @@ import Select from '@material-ui/core/Select';
 import Checkbox from '@material-ui/core/Checkbox';
 import Chip from '@material-ui/core/Chip';
 import Paper from '@material-ui/core/Paper'
-import MultiSelect from "react-multi-select-component";
-
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -64,27 +63,17 @@ const MenuProps = {
   getContentAnchorEl: null
 };
 
-function getStyles(name, selectedOptions, theme) {
-  return {
-    fontWeight:
-      selectedOptions.indexOf(name) === -1
-        ? theme.typography.fontWeightRegular
-        : theme.typography.fontWeightMedium,
-  };
-}
-
 export default function MultipleSelect(props) {
   const allOptions = props.allOptions
 
   const classes = useStyles();
-  const theme = useTheme();
+
   const [selectedOptions, setSelectedOptions] = useState([]);
-  const [selected, setSelected] = useState([])
+  const [ paperView, setPaperView ] = useState(false)
 
   useEffect(() => {
-    let selectArray = selected.map(a => a.value)
-    console.log(`array of selected ids ${selectArray}`)
-  })
+    selectedOptions.length ? setPaperView(true) : setPaperView(false)
+  }, [ selectedOptions ])
 
   const handleChange = (event) => {
     console.log("selectedOptions are "+event.target.value)
@@ -104,8 +93,7 @@ export default function MultipleSelect(props) {
             value={selectedOptions}
             onChange={handleChange}
             input={<Input />}
-            //renderValue={(selected) => selected.join(', ')}
-            renderValue={(selected) => ''}
+            renderValue={() => ''}
             MenuProps={MenuProps}
             >
             {allOptions.map((option) => (
@@ -117,6 +105,7 @@ export default function MultipleSelect(props) {
             </Select>
         </FormControl>
       </div>
+      {paperView && 
       <div style={{justifyContent: 'center'}}>
         <Paper component="ul" className = {classes.root}>
             {selectedOptions.map((data) => {
@@ -128,6 +117,7 @@ export default function MultipleSelect(props) {
             })}
         </Paper>
       </div>
+      }
     </div>
   );
 }

@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useContext } from 'react';
 import firebase, { db } from '../firebase';
 import Chips from './chips';
-import ReactQuill from "react-quill";
-import EditorToolbar, { modules, formats } from "./EditorToolbar";
 import "react-quill/dist/quill.snow.css";
 import "./styles.css";
 import Editor from "./editortest2"
+import MultipleSelect from './select';
+import { UserContext } from '../userContext';
+
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 
 import withStyles from '@material-ui/core/styles/withStyles';
 import Typography from '@material-ui/core/Typography';
@@ -23,18 +26,11 @@ import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import Avatar from '@material-ui/core/Avatar';
 import Paper from '@material-ui/core/Paper'
-
 import CardActions from '@material-ui/core/CardActions';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import CardContent from '@material-ui/core/CardContent';
 import MuiDialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
-
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
-import MultipleSelect from './select';
-import { UserContext } from '../userContext';
-import { grey } from '@material-ui/core/colors';
 
 const styles = (theme) => ({
 	content: {
@@ -87,7 +83,7 @@ const styles = (theme) => ({
 		top: '35%'
 	},
 	dialogeStyle: {
-		maxWidth: '50%'
+		maxWidth: '75%'
 	},
 	viewRoot: {
 		margin: 0,
@@ -109,6 +105,7 @@ function Note(props) {
 
     const [ title, setTitle ] = useState('')
     const [ body, setBody ] = useState('')
+    const [ noteId, setNoteId ] = useState('')
     const [ noteUid, setNoteUid ] = useState('')
 
     const [ todoId, setTodoId ] = useState('')
@@ -162,7 +159,7 @@ function Note(props) {
     }, []);
 
     const handleTitleChange = (event) => setTitle(event.target.value);
-    const handleBodyChange = (event) => setBody(event.target.value);
+    //const handleBodyChange = (event) => setBody(event.target.value);
 
 	const deleteTodoHandler = (data) => {
         const document = db.collection('users').doc(currentUser.uid).collection('notes').doc(data.todo.id)
@@ -184,19 +181,20 @@ function Note(props) {
 	const handleViewOpen = (data) => {
         setTitle(data.todo.title)
         setBody(data.todo.body)
-        setNoteUid(data.todo.id)
+        setNoteId(data.todo.id)
         setRt(data.todo.rt)
         setViewOpen(true)
         setCreated(data.todo.createdAt)
         setAuthor(data.todo.author)
+        setNoteUid(data.todo.uid)
 	}
 
     useEffect(() => {
         
-        if(noteUid){
+        if(noteId && noteUid){
             return db.collectionGroup("comments")
-            .where("studentId", "==", currentUser.uid)
-            .where("noteId","==",noteUid)
+            .where("studentId", "==", noteUid)
+            .where("noteId","==",noteId)
             .get()
             .then((querySnapshot) => {
                 const commentsData = [];
@@ -212,7 +210,7 @@ function Note(props) {
             })
         }
 
-    }, [noteUid]);
+    }, [noteId, noteUid]);
 
     dayjs.extend(relativeTime);
 
