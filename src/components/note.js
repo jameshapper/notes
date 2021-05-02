@@ -6,6 +6,7 @@ import "./styles.css";
 import Editor from "./editortest2"
 import MultipleSelect from './select';
 import { UserContext } from '../userContext';
+import ListCards from './listcards'
 
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -108,7 +109,7 @@ function Note(props) {
     const [ noteId, setNoteId ] = useState('')
     const [ noteUid, setNoteUid ] = useState('')
 
-    const [ todoId, setTodoId ] = useState('')
+    //const [ noteId, setNoteId ] = useState('')
     const [ newActivities, setNewActivities ] = useState([])
     const [ created, setCreated ] = useState("")
     const [ author, setAuthor ] = useState("")
@@ -161,32 +162,32 @@ function Note(props) {
     const handleTitleChange = (event) => setTitle(event.target.value);
     //const handleBodyChange = (event) => setBody(event.target.value);
 
-	const deleteTodoHandler = (data) => {
-        const document = db.collection('users').doc(currentUser.uid).collection('notes').doc(data.todo.id)
+	const deleteNoteHandler = (data) => {
+        const document = db.collection('users').doc(currentUser.uid).collection('notes').doc(data.note.id)
         document.delete()
         .then(() => alert("Document deleted"))
-        .then(() => setTodoId(''))
+        .then(() => setNoteId(''))
         .catch((error) => console.error("Error deleting document", error));
     }
 
 	const handleEditClickOpen = (data) => {
-        setTitle(data.todo.title)
-        setBody(data.todo.body)
-        setTodoId(data.todo.id)
-        setRt(data.todo.rt)
+        setTitle(data.note.title)
+        setBody(data.note.body)
+        setNoteId(data.note.id)
+        setRt(data.note.rt)
         setButtonType('Edit')
         setOpen(true)
 	}
 
 	const handleViewOpen = (data) => {
-        setTitle(data.todo.title)
-        setBody(data.todo.body)
-        setNoteId(data.todo.id)
-        setRt(data.todo.rt)
+        setTitle(data.note.title)
+        setBody(data.note.body)
+        setNoteId(data.note.id)
+        setRt(data.note.rt)
         setViewOpen(true)
-        setCreated(data.todo.createdAt)
-        setAuthor(data.todo.author)
-        setNoteUid(data.todo.uid)
+        setCreated(data.note.createdAt)
+        setAuthor(data.note.author)
+        setNoteUid(data.note.uid)
 	}
 
     useEffect(() => {
@@ -219,7 +220,7 @@ function Note(props) {
     const handleClickOpen = () => {
         setTitle('')
         setBody('')
-        setTodoId('')
+        setNoteId('')
         setButtonType('')
         setRt('')
         setOpen(true)
@@ -232,7 +233,7 @@ function Note(props) {
         event.preventDefault();
 
         if (buttonType === 'Edit') {
-            let document = db.collection('users').doc(currentUser.uid).collection('notes').doc(todoId);
+            let document = db.collection('users').doc(currentUser.uid).collection('notes').doc(noteId);
             document.update( {title : title, body : body, activities: newActivities, rt:rt} )
             .then((doc)=>{
                 console.log("Note edited")
@@ -293,11 +294,12 @@ function Note(props) {
                 <IconButton
                     className={classes.floatingButton}
                     color="primary"
-                    aria-label="Add Todo"
+                    aria-label="Add Note"
                     onClick={handleClickOpen}
                 >
                     <AddCircleIcon style={{ fontSize: 60 }} />
                 </IconButton>
+                
                 <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
                     <AppBar className={classes.appBar}>
                         <Toolbar>
@@ -305,7 +307,7 @@ function Note(props) {
                                 <CloseIcon />
                             </IconButton>
                             <Typography variant="h6" className={classes.title}>
-                                {buttonType === 'Edit' ? 'Edit Todo' : 'Create a new Todo'}
+                                {buttonType === 'Edit' ? 'Edit Note' : 'Create a new Note '}
                             </Typography>
                             <Button
                                 autoFocus
@@ -326,7 +328,7 @@ function Note(props) {
                                     required
                                     fullWidth
                                     id="noteTitle"
-                                    label="Todo Title"
+                                    label="Note Title"
                                     name="title"
                                     autoComplete="noteTitle"
                                     helperText={errors.title}
@@ -348,39 +350,7 @@ function Note(props) {
 
                 </Dialog>
 
-                <Grid container spacing={2}>
-                    {notes.map((todo) => (
-                        <Grid item xs={12} sm={6} key = {todo.id}>
-                            <Card className={classes.root} variant="outlined">
-                                <CardHeader
-                                    avatar={
-                                        <Avatar aria-label="recipe" className={classes.avatar} src={todo.avatar} />
-                                    }
-                                    title={todo.title}
-                                    subheader= {dayjs(todo.createdAt).fromNow()+" by "+todo.author}
-                                />
-                                <CardContent>
-                                    {todo.activities && todo.activities.length > 0 && <Chips activities={todo.activities}></Chips>}
-                                    <Typography variant="body2" component="p">
-                                        {todo.body.substring(0, 65)+"..."}
-                                    </Typography>
-                                </CardContent>
-                                <CardActions>
-                                    <Button size="small" color="primary" onClick={() => handleViewOpen({ todo })}>
-                                        {' '}
-                                        View{' '}
-                                    </Button>
-                                    <Button size="small" color="primary" onClick={() => handleEditClickOpen({ todo })}>
-                                        Edit
-                                    </Button>
-                                    <Button size="small" color="primary" onClick={() => deleteTodoHandler({ todo })}>
-                                        Delete
-                                    </Button>
-                                </CardActions>
-                            </Card>
-                        </Grid>
-                    ))}
-                </Grid>
+                <ListCards notes={notes} handleEditClickOpen={handleEditClickOpen} handleViewOpen={handleViewOpen} deleteNoteHandler={deleteNoteHandler} canEdit={true}/>
 
                 <Dialog
                     onClose={handleViewClose}

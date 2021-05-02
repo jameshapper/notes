@@ -3,6 +3,7 @@ import firebase, { db, auth } from '../firebase';
 import Chips from './chips';
 import Editor from "./editortest2"
 import { UserContext } from '../userContext';
+import ListCards from './listcards'
 
 import Datepicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -28,6 +29,7 @@ import CardActions from '@material-ui/core/CardActions';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import CardContent from '@material-ui/core/CardContent';
 import MuiDialogTitle from '@material-ui/core/DialogTitle';
+import Paper from '@material-ui/core/Paper'
 
 const styles = (theme) => ({
 	content: {
@@ -108,6 +110,9 @@ function TeacherClasses(props) {
     const [ studentId, setStudentId ] = useState('')
     const [ selectedStudents, setSelectedStudents ] = useState([])
     const [ currentClass, setCurrentClass ] = useState([])
+    const [ created, setCreated ] = useState("")
+    const [ author, setAuthor ] = useState("")
+    const [ noteAvatar, setNoteAvatar ] = useState("")
 
     const [ errors, setErrors ] = useState([])
     const [ open, setOpen ] = useState(false)
@@ -232,11 +237,14 @@ function TeacherClasses(props) {
     };
 
     const handleViewOpen = (data) => {
-        setTitle(data.todo.title)
-        setBody(data.todo.body)
-        setNoteUid(data.todo.id)
-        setStudentId(data.todo.uid)
-        setRt(data.todo.rt)
+        setTitle(data.note.title)
+        setBody(data.note.body)
+        setNoteUid(data.note.id)
+        setStudentId(data.note.uid)
+        setCreated(data.note.createdAt)
+        setAuthor(data.note.author)
+        setRt(data.note.rt)
+        setNoteAvatar(data.note.avatar)
         setViewOpen(true)
 	}
 
@@ -353,33 +361,9 @@ function TeacherClasses(props) {
 
                 { notes && notes.length > 0 && 
                 <div>
-                      <Grid container spacing={2}>
-                      {notes.map((todo) => (
-                          <Grid item xs={12} sm={6} key = {todo.id}>
-                              <Card className={classes.root} variant="outlined">
-                                <CardHeader
-                                    avatar={
-                                        <Avatar aria-label="recipe" className={classes.avatar} src={todo.avatar} />
-                                    }
-                                    title={todo.title}
-                                    subheader= {dayjs(todo.createdAt).fromNow()+" by "+todo.author}
-                                />
-                                <CardContent>
-                                    {todo.activities && todo.activities.length > 0 && <Chips activities={todo.activities}></Chips>}
-                                    <Typography variant="body2" component="p">
-                                        {todo.body.substring(0, 65)+"..."}
-                                    </Typography>
-                                </CardContent>
-                                  <CardActions>
-                                      <Button size="small" color="primary" onClick={() => handleViewOpen({ todo })}>
-                                          {' '}
-                                          View{' '}
-                                      </Button>
-                                  </CardActions>
-                              </Card>
-                          </Grid>
-                      ))}
-                  </Grid>
+                    <ListCards notes={notes} handleEditClickOpen={()=>alert('permission denied')} handleViewOpen={handleViewOpen} deleteNoteHandler={()=>alert('permission denied')} canEdit={false}/>
+                </div>  
+                }
   
                   <Dialog
                       onClose={handleViewClose}
@@ -388,23 +372,53 @@ function TeacherClasses(props) {
                       fullWidth
                       classes={{ paperFullWidth: classes.dialogeStyle }}
                   >
-                      <DialogTitle id="customized-dialog-title" onClose={handleViewClose}>
-                          {title}
-                      </DialogTitle>
+                    <Paper   elevation={2}
+                    style={{
+                        padding: 8,
+                        backgroundColor: "#e0e0e0",
+                        border: "1px solid black",
+                        margin: "2px 2px 8px 2px"
+                    }}>
+                        <Grid container >
+                            <Grid item xs={1}>
+                                <Avatar aria-label="recipe" className={classes.avatar} src={noteAvatar} />
+                            </Grid>
+                            <Grid item xs={11}>
+                                <DialogTitle id="customized-dialog-title" onClose={handleViewClose}>
+                                {title}
+                                </DialogTitle>
+                                <div>{dayjs(created).fromNow()+" by "+author}</div>
+                            </Grid>
+                            <Grid item>
+                                <DialogContent>
+                                    <div dangerouslySetInnerHTML={{__html:rt}}/>
+                                </DialogContent>
+                            </Grid>
+                        </Grid>
+                    </Paper>
 
-                      <DialogContent dividers>
-                        <div dangerouslySetInnerHTML={{__html:rt}}/>
-                      </DialogContent>
 
-                      {comments && comments.length > 0 && 
+                    {comments && comments.length > 0 && 
                       <div>
                           {comments.map((comment) => (
-                            <DialogContent dividers>
-                                <div dangerouslySetInnerHTML={{__html:comment.rt}}/>
-                            </DialogContent>
+                            <Grid container>
+                                <Grid item xs={1}>
+                                <Avatar aria-label="recipe" className={classes.avatar} src={comment.avatar} />
+                                </Grid>
+                                <Grid item xs={11}>
+                                    <Paper>
+                                    {dayjs(comment.createdAt).fromNow()+" by "+comment.author}
+                                        <DialogContent>
+                                            <div dangerouslySetInnerHTML={{__html:comment.rt}}/>
+                                        </DialogContent>
+                                    </Paper>
+
+                                </Grid>
+                                <hr/>
+                            </Grid>
                           ))}
                       </div>
-                      }
+                    }
 
                       <Grid item xs={12} sm={6}>
                         <Editor initText={commentRt} setRt={rt => setCommentRt(rt)} setBody={body => setCommentBody(body)}/>
@@ -415,8 +429,6 @@ function TeacherClasses(props) {
                       </Grid>
 
                   </Dialog>
-                </div>  
-                }
 
             </main>
         );
