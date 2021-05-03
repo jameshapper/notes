@@ -1,5 +1,7 @@
 import React from 'react'
 
+import Editor from './editortest2'
+
 import dayjs from 'dayjs';
 
 import Dialog from '@material-ui/core/Dialog'
@@ -10,8 +12,74 @@ import DialogContent from '@material-ui/core/DialogContent'
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import IconButton from '@material-ui/core/IconButton'
-import CloseIcon from '@material-ui/core/Close'
+import CloseIcon from '@material-ui/icons/Close'
 import MuiDialogTitle from '@material-ui/core/DialogTitle'
+import withStyles from '@material-ui/core/styles/withStyles'
+
+const styles = (theme) => ({
+	content: {
+		flexGrow: 1,
+		padding: theme.spacing(3)
+	},
+	appBar: {
+		position: 'relative'
+	},
+	title: {
+		marginLeft: theme.spacing(2),
+		flex: 1
+	},
+	submitButton: {
+		display: 'block',
+		color: 'white',
+		textAlign: 'center',
+		position: 'absolute',
+		top: 14,
+		right: 10
+	},
+	floatingButton: {
+		position: 'fixed',
+		bottom: 0,
+		right: 0
+	},
+	form: {
+		width: '98%',
+		marginLeft: 13,
+		marginTop: theme.spacing(3)
+	},
+	toolbar: theme.mixins.toolbar,
+	root: {
+		minWidth: 220
+	},
+	bullet: {
+		display: 'inline-block',
+		margin: '0 2px',
+		transform: 'scale(0.8)'
+	},
+	pos: {
+		marginBottom: 12
+	},
+	uiProgess: {
+		position: 'fixed',
+		zIndex: '1000',
+		height: '31px',
+		width: '31px',
+		left: '50%',
+		top: '35%'
+	},
+	dialogeStyle: {
+		maxWidth: '75%'
+	},
+	viewRoot: {
+		margin: 0,
+		padding: theme.spacing(2)
+	},
+	closeButton: {
+		position: 'absolute',
+		right: theme.spacing(1),
+		top: theme.spacing(1),
+		color: theme.palette.grey[500]
+	}
+});
 
 const DialogTitle = withStyles(styles)((props) => {
     const { children, onClose, classes, ...other } = props;
@@ -27,7 +95,8 @@ const DialogTitle = withStyles(styles)((props) => {
     );
 });
 
-export default function Viewnotes({handleViewClose, viewOpen, title, author, created, avatar, comments, rt}) {
+export default function ViewNotes({handleViewClose, viewOpen, title, author, created, avatar, comments, rt, classes, handleSubmitComment, setCommentBody, setCommentRt, commentRt}) {
+    
     return (
         <Dialog
         onClose={handleViewClose}

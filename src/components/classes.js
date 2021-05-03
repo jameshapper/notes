@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import firebase, { db, auth } from '../firebase';
-import Chips from './chips';
-import Editor from "./editortest2"
 import { UserContext } from '../userContext';
 import ListCards from './listcards'
+import ViewNotes from './viewnotes'
 
 import Datepicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -15,7 +14,6 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
-import DialogContent from '@material-ui/core/DialogContent';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -23,13 +21,10 @@ import CloseIcon from '@material-ui/icons/Close';
 import Slide from '@material-ui/core/Slide';
 import Grid from '@material-ui/core/Grid';
 import Card from '@material-ui/core/Card';
-import CardHeader from '@material-ui/core/CardHeader';
-import Avatar from '@material-ui/core/Avatar';
 import CardActions from '@material-ui/core/CardActions';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import CardContent from '@material-ui/core/CardContent';
 import MuiDialogTitle from '@material-ui/core/DialogTitle';
-import Paper from '@material-ui/core/Paper'
 
 const styles = (theme) => ({
 	content: {
@@ -106,7 +101,7 @@ function TeacherClasses(props) {
 
     const [ title, setTitle ] = useState('')
     const [ body, setBody ] = useState('')
-    const [ noteUid, setNoteUid ] = useState('')
+    const [ noteId, setNoteId ] = useState('')
     const [ studentId, setStudentId ] = useState('')
     const [ selectedStudents, setSelectedStudents ] = useState([])
     const [ currentClass, setCurrentClass ] = useState([])
@@ -220,9 +215,9 @@ function TeacherClasses(props) {
                 avatar: avatar,
                 rt: commentRt,
                 studentId: studentId,
-                noteId: noteUid
+                noteId: noteId
             }
-            db.collection('users').doc(studentId).collection('notes').doc(noteUid).collection('comments').add(newComment)
+            db.collection('users').doc(studentId).collection('notes').doc(noteId).collection('comments').add(newComment)
             .then((doc)=>{
                 console.log("New comment added to db")
                 setViewOpen(false);
@@ -239,7 +234,7 @@ function TeacherClasses(props) {
     const handleViewOpen = (data) => {
         setTitle(data.note.title)
         setBody(data.note.body)
-        setNoteUid(data.note.id)
+        setNoteId(data.note.id)
         setStudentId(data.note.uid)
         setCreated(data.note.createdAt)
         setAuthor(data.note.author)
@@ -250,9 +245,9 @@ function TeacherClasses(props) {
 
     useEffect(() => {
         
-        if(noteUid){
+        if(noteId){
             return db.collectionGroup("comments")
-            .where("noteId","==",noteUid)
+            .where("noteId","==",noteId)
             .get()
             .then((querySnapshot) => {
                 const commentsData = [];
@@ -267,8 +262,7 @@ function TeacherClasses(props) {
                 console.log(error)
             })
         }
-
-    }, [noteUid]);
+    }, [noteId]);
 
     const handleViewClose = () => setViewOpen(false);
 
@@ -365,70 +359,7 @@ function TeacherClasses(props) {
                 </div>  
                 }
   
-                  <Dialog
-                      onClose={handleViewClose}
-                      aria-labelledby="customized-dialog-title"
-                      open={viewOpen}
-                      fullWidth
-                      classes={{ paperFullWidth: classes.dialogeStyle }}
-                  >
-                    <Paper   elevation={2}
-                    style={{
-                        padding: 8,
-                        backgroundColor: "#e0e0e0",
-                        border: "1px solid black",
-                        margin: "2px 2px 8px 2px"
-                    }}>
-                        <Grid container >
-                            <Grid item xs={1}>
-                                <Avatar aria-label="recipe" className={classes.avatar} src={noteAvatar} />
-                            </Grid>
-                            <Grid item xs={11}>
-                                <DialogTitle id="customized-dialog-title" onClose={handleViewClose}>
-                                {title}
-                                </DialogTitle>
-                                <div>{dayjs(created).fromNow()+" by "+author}</div>
-                            </Grid>
-                            <Grid item>
-                                <DialogContent>
-                                    <div dangerouslySetInnerHTML={{__html:rt}}/>
-                                </DialogContent>
-                            </Grid>
-                        </Grid>
-                    </Paper>
-
-
-                    {comments && comments.length > 0 && 
-                      <div>
-                          {comments.map((comment) => (
-                            <Grid container>
-                                <Grid item xs={1}>
-                                <Avatar aria-label="recipe" className={classes.avatar} src={comment.avatar} />
-                                </Grid>
-                                <Grid item xs={11}>
-                                    <Paper>
-                                    {dayjs(comment.createdAt).fromNow()+" by "+comment.author}
-                                        <DialogContent>
-                                            <div dangerouslySetInnerHTML={{__html:comment.rt}}/>
-                                        </DialogContent>
-                                    </Paper>
-
-                                </Grid>
-                                <hr/>
-                            </Grid>
-                          ))}
-                      </div>
-                    }
-
-                      <Grid item xs={12} sm={6}>
-                        <Editor initText={commentRt} setRt={rt => setCommentRt(rt)} setBody={body => setCommentBody(body)}/>
-                      </Grid>
-
-                      <Grid item xs={12} sm={6}>
-                        <Button variant="contained" onClick={handleSubmitComment}>Add Comment</Button>
-                      </Grid>
-
-                  </Dialog>
+                <ViewNotes handleViewClose={handleViewClose} viewOpen={viewOpen} title={title} author={author} created={created} avatar={noteAvatar} comments={comments} rt={rt} classes={classes} handleSubmitComment={handleSubmitComment} setCommentBody={setCommentBody} setCommentRt={setCommentRt} commentRt={commentRt}/>
 
             </main>
         );

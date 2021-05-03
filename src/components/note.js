@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
 import firebase, { db } from '../firebase';
-import Chips from './chips';
 import "react-quill/dist/quill.snow.css";
 import "./styles.css";
 import Editor from "./editortest2"
 import MultipleSelect from './select';
 import { UserContext } from '../userContext';
 import ListCards from './listcards'
+import ViewNotes from './viewnotes'
 
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -23,15 +23,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import Slide from '@material-ui/core/Slide';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
-import Card from '@material-ui/core/Card';
-import CardHeader from '@material-ui/core/CardHeader';
-import Avatar from '@material-ui/core/Avatar';
-import Paper from '@material-ui/core/Paper'
-import CardActions from '@material-ui/core/CardActions';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import CardContent from '@material-ui/core/CardContent';
-import MuiDialogTitle from '@material-ui/core/DialogTitle';
-import DialogContent from '@material-ui/core/DialogContent';
 
 const styles = (theme) => ({
 	content: {
@@ -107,9 +99,8 @@ function Note(props) {
     const [ title, setTitle ] = useState('')
     const [ body, setBody ] = useState('')
     const [ noteId, setNoteId ] = useState('')
-    const [ noteUid, setNoteUid ] = useState('')
+    const [ studentId, setStudentId ] = useState('')
 
-    //const [ noteId, setNoteId ] = useState('')
     const [ newActivities, setNewActivities ] = useState([])
     const [ created, setCreated ] = useState("")
     const [ author, setAuthor ] = useState("")
@@ -124,6 +115,7 @@ function Note(props) {
     const [ rt, setRt ] = useState("")
     const [ commentRt, setCommentRt ] = useState("")
     const [ comments, setComments ] = useState([])
+    const [ commentBody, setCommentBody ] = useState("")
 
     const { currentUser, avatar } = useContext(UserContext)
 
@@ -183,18 +175,18 @@ function Note(props) {
         setTitle(data.note.title)
         setBody(data.note.body)
         setNoteId(data.note.id)
+        setStudentId(currentUser.uid)
         setRt(data.note.rt)
         setViewOpen(true)
         setCreated(data.note.createdAt)
         setAuthor(data.note.author)
-        setNoteUid(data.note.uid)
 	}
 
     useEffect(() => {
         
-        if(noteId && noteUid){
+        if(noteId && studentId){
             return db.collectionGroup("comments")
-            .where("studentId", "==", noteUid)
+            .where("studentId", "==", studentId)
             .where("noteId","==",noteId)
             .get()
             .then((querySnapshot) => {
@@ -211,7 +203,7 @@ function Note(props) {
             })
         }
 
-    }, [noteId, noteUid]);
+    }, [noteId, studentId]);
 
     dayjs.extend(relativeTime);
 
@@ -265,19 +257,36 @@ function Note(props) {
         }
     };
 
-    const DialogTitle = withStyles(styles)((props) => {
-        const { children, onClose, classes, ...other } = props;
-        return (
-            <MuiDialogTitle disableTypography className={classes.root} {...other}>
-                <Typography variant="h6">{children}</Typography>
-                {onClose ? (
-                    <IconButton aria-label="close" className={classes.closeButton} onClick={onClose}>
-                        <CloseIcon />
-                    </IconButton>
-                ) : null}
-            </MuiDialogTitle>
-        );
-    });
+    const handleSubmitComment = (event) => {
+        event.preventDefault();
+
+        if (false) {
+
+        } else {
+            const newComment = {
+                body: commentBody,
+                createdAt: new Date().toISOString(),
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                uid: currentUser.uid,
+                author: currentUser.displayName,
+                avatar: avatar,
+                rt: commentRt,
+                studentId: studentId,
+                noteId: noteId
+            }
+            db.collection('users').doc(studentId).collection('notes').doc(noteId).collection('comments').add(newComment)
+            .then((doc)=>{
+                console.log("New comment added to db")
+                setViewOpen(false);
+            })
+            .catch((error) => {
+                setErrors(error)
+                setOpen(true)
+                console.error(error);
+                alert('Something went wrong' );
+            });
+        }
+    };
 
     if (uiLoading === true) {
         return (
@@ -352,62 +361,8 @@ function Note(props) {
 
                 <ListCards notes={notes} handleEditClickOpen={handleEditClickOpen} handleViewOpen={handleViewOpen} deleteNoteHandler={deleteNoteHandler} canEdit={true}/>
 
-                <Dialog
-                    onClose={handleViewClose}
-                    aria-labelledby="customized-dialog-title"
-                    open={viewOpen}
-                    fullWidth
-                    classes={{ paperFullWidth: classes.dialogeStyle }}
-                >
-                    <Paper   elevation={2}
-                        style={{
-                            padding: 8,
-                            backgroundColor: "#e0e0e0",
-                            border: "1px solid black",
-                            margin: "2px 2px 8px 2px"
-                        }}>
-                    <Grid container >
-                        <Grid item xs={1}>
-                            <Avatar aria-label="recipe" className={classes.avatar} src={avatar} />
-                        </Grid>
-                        <Grid item xs={11}>
-                            <DialogTitle id="customized-dialog-title" onClose={handleViewClose}>
-                            {title}
-                            </DialogTitle>
-                            <div>{dayjs(created).fromNow()+" by "+author}</div>
-                        </Grid>
-                        <Grid item>
-                            <DialogContent>
-                                <div dangerouslySetInnerHTML={{__html:rt}}/>
-                            </DialogContent>
-                        </Grid>
-                    </Grid>
-                    </Paper>
+                <ViewNotes handleViewClose={handleViewClose} viewOpen={viewOpen} title={title} author={author} created={created} avatar={avatar} comments={comments} rt={rt} classes={classes} handleSubmitComment={handleSubmitComment} setCommentBody={setCommentBody} setCommentRt={setCommentRt} commentRt={commentRt}/>
 
-
-                    {comments && comments.length > 0 && 
-                      <div>
-                          {comments.map((comment) => (
-                            <Grid container>
-                                <Grid item xs={1}>
-                                <Avatar aria-label="recipe" className={classes.avatar} src={comment.avatar} />
-                                </Grid>
-                                <Grid item xs={11}>
-                                    <Paper>
-                                    {dayjs(comment.createdAt).fromNow()+" by "+comment.author}
-                                        <DialogContent>
-                                            <div dangerouslySetInnerHTML={{__html:comment.rt}}/>
-                                        </DialogContent>
-                                    </Paper>
-
-                                </Grid>
-                                <hr/>
-                            </Grid>
-                          ))}
-                      </div>
-                    }
-
-                </Dialog>
             </main>
         );
     }
