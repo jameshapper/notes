@@ -27,7 +27,8 @@ service cloud.firestore {
         return request.resource.data.keys().hasOnly(requiredAndOptionalFields);
       }
       allow read: if (request.auth.uid == userId)
-      allow write: if request.auth.uid == userId && userHasOnlyAllowedFields()
+      allow create: if request.auth.uid == userId && userHasOnlyAllowedFields()
+      allow update: if request.auth.uid == userId && editOnlyChangesFields(['avatar'])
     }
 
     match /{somePath=**}/comments/{commentId} {

@@ -149,7 +149,7 @@ function Note(props) {
             setNotes(notesData)
             setUiLoading(false)
         })
-    }, []);
+    }, [currentUser]);
 
     const handleTitleChange = (event) => setTitle(event.target.value);
     //const handleBodyChange = (event) => setBody(event.target.value);
@@ -230,6 +230,9 @@ function Note(props) {
             .then((doc)=>{
                 console.log("Note edited")
                 setOpen(false);
+                setRt("")
+                setTitle("")
+                setBody("")
             })
         } else {
             const newNote = {
@@ -247,6 +250,9 @@ function Note(props) {
             .then((doc)=>{
                 console.log("New note added to db")
                 setOpen(false);
+                setRt("")
+                setTitle("")
+                setBody("")
             })
             .catch((error) => {
                 setErrors(error)
@@ -278,6 +284,7 @@ function Note(props) {
             .then((doc)=>{
                 console.log("New comment added to db")
                 setViewOpen(false);
+                setCommentRt("")
             })
             .catch((error) => {
                 setErrors(error)

@@ -134,7 +134,7 @@ export default function ViewNotes({handleViewClose, viewOpen, title, author, cre
         {comments && comments.length > 0 && 
           <div>
               {comments.map((comment) => (
-                <Grid container>
+                <Grid container key={comment.id}>
                     <Grid item xs={1}>
                     <Avatar aria-label="recipe" className={classes.avatar} src={comment.avatar} />
                     </Grid>

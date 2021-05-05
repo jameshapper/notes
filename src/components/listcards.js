@@ -13,6 +13,8 @@ import CardActions from '@material-ui/core/CardActions'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import { makeStyles } from '@material-ui/core';
+import Badge from '@material-ui/core/Badge'
+import Message from '@material-ui/icons/Message'
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -53,10 +55,11 @@ export default function ListCards({notes, handleEditClickOpen, handleViewOpen, d
                                     <Button size="small" color="primary" onClick={() => handleEditClickOpen({ note })}>
                                         Edit
                                     </Button>
-                                    <Button size="small" color="primary" onClick={() => deleteNoteHandler({ note })}>
-                                        Delete
-                                    </Button>
                                     </>}
+                                    {note.commentNum && 
+                                    <Badge badgeContent={note.commentNum} color="primary">
+                                        <Message />
+                                    </Badge>}
                                 </CardActions>
                             </Card>
                         </Grid>

@@ -116,7 +116,7 @@ function TeacherClasses(props) {
 
     const [ teacherClasses, setTeacherClasses ] = useState([]);
     const [ notes, setNotes ] = useState([]);
-    const [ selectedDate, setSelectedDate ] = useState(null)
+    const [ selectedDate, setSelectedDate ] = useState(new Date(Date.now() - 604800000))
 
     const [ selected, setSelected ] = useState([])
     const [ rt, setRt ] = useState("")
@@ -221,6 +221,10 @@ function TeacherClasses(props) {
             .then((doc)=>{
                 console.log("New comment added to db")
                 setViewOpen(false);
+            })
+            .then(() => {
+                let noteRef = db.collection('users').doc(studentId).collection('notes').doc(noteId)
+                noteRef.update({ commentNum: firebase.firestore.FieldValue.increment(1)})
             })
             .catch((error) => {
                 setErrors(error)
