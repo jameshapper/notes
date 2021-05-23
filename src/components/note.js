@@ -128,6 +128,10 @@ function Note(props) {
         {label:'Connect', value: 'Connect'}
       ];
 
+    dayjs.extend(relativeTime);
+
+    const { classes } = props;
+
     useEffect(() => {
         // const fetchData = async () => {
         //     const db = firebase.firestore();
@@ -162,24 +166,24 @@ function Note(props) {
         .catch((error) => console.error("Error deleting document", error));
     }
 
-	const handleEditClickOpen = (data) => {
-        setTitle(data.note.title)
-        setBody(data.note.body)
-        setNoteId(data.note.id)
-        setRt(data.note.rt)
+	const handleEditOpen = (note) => {
+        setTitle(note.title)
+        setBody(note.body)
+        setNoteId(note.id)
+        setRt(note.rt)
         setButtonType('Edit')
         setOpen(true)
 	}
 
-	const handleViewOpen = (data) => {
-        setTitle(data.note.title)
-        setBody(data.note.body)
-        setNoteId(data.note.id)
+    const handleViewOpen = (note) => {
+        setTitle(note.title)
+        setBody(note.body)
+        setNoteId(note.id)
         setStudentId(currentUser.uid)
-        setRt(data.note.rt)
+        setRt(note.rt)
         setViewOpen(true)
-        setCreated(data.note.createdAt)
-        setAuthor(data.note.author)
+        setCreated(note.createdAt)
+        setAuthor(note.author)
 	}
 
     useEffect(() => {
@@ -205,9 +209,6 @@ function Note(props) {
 
     }, [noteId, studentId]);
 
-    dayjs.extend(relativeTime);
-
-    const { classes } = props;
 
     const handleClickOpen = () => {
         setTitle('')
@@ -366,7 +367,7 @@ function Note(props) {
 
                 </Dialog>
 
-                <ListCards notes={notes} handleEditClickOpen={handleEditClickOpen} handleViewOpen={handleViewOpen} deleteNoteHandler={deleteNoteHandler} canEdit={true}/>
+                <ListCards notes={notes} handleEditOpen={handleEditOpen} handleViewOpen={handleViewOpen} deleteNoteHandler={deleteNoteHandler} canEdit={true}/>
 
                 <ViewNotes handleViewClose={handleViewClose} viewOpen={viewOpen} title={title} author={author} created={created} avatar={avatar} comments={comments} rt={rt} classes={classes} handleSubmitComment={handleSubmitComment} setCommentBody={setCommentBody} setCommentRt={setCommentRt} commentRt={commentRt}/>
 

@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
 
 }))
 
-export default function ListCards({notes, handleEditClickOpen, handleViewOpen, deleteNoteHandler, canEdit}) {
+export default function ListCards({notes, handleEditOpen, handleViewOpen, deleteNoteHandler, canEdit}) {
     
     const classes = useStyles();
 
@@ -47,12 +47,12 @@ export default function ListCards({notes, handleEditClickOpen, handleViewOpen, d
                                     </Typography>
                                 </CardContent>
                                 <CardActions>
-                                    <Button size="small" color="primary" onClick={() => handleViewOpen({ note })}>
+                                    <Button size="small" color="primary" onClick={() => handleViewOpen( note )}>
                                         {' '}
                                         View{' '}
                                     </Button>
                                     {canEdit && <>
-                                    <Button size="small" color="primary" onClick={() => handleEditClickOpen({ note })}>
+                                    <Button size="small" color="primary" onClick={() => handleEditOpen( note )}>
                                         Edit
                                     </Button>
                                     </>}

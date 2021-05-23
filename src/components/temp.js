@@ -25,7 +25,6 @@ import CardActions from '@material-ui/core/CardActions';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import CardContent from '@material-ui/core/CardContent';
 import MuiDialogTitle from '@material-ui/core/DialogTitle';
-import { PanoramaFishEyeSharp } from '@material-ui/icons';
 
 const styles = (theme) => ({
 	content: {
@@ -105,7 +104,9 @@ function TeacherClasses(props) {
     const [ noteId, setNoteId ] = useState('')
     const [ studentId, setStudentId ] = useState('')
     const [ selectedStudents, setSelectedStudents ] = useState([])
-
+    const [ notes10, setNotes10 ] = useState([])
+    const [ notes20, setNotes20 ] = useState([])
+    const [ notes30, setNotes30 ] = useState([])
     const [ students10, setStudents10 ] = useState([])
     const [ students20, setStudents20 ] = useState([])
     const [ students30, setStudents30 ] = useState([])
@@ -153,8 +154,8 @@ function TeacherClasses(props) {
     }, [user]);
 
     useEffect(() => {
-        //console.log('selected ids are '+selected.map((student) => student.value))
-        //setSelectedStudents(selected.map(a => a.value))
+        console.log('selected ids are '+selected.map((student) => student.value))
+        setSelectedStudents(selected.map(a => a.value))
         setStudents10(selected.map(a=>a.value).slice(0,10))
         setStudents20(selected.map(a=>a.value).slice(10,20))
         setStudents30(selected.map(a=>a.value).slice(20,30))
@@ -184,58 +185,72 @@ function TeacherClasses(props) {
         setOpen(true)
     };
 
-    const handleSubmit = async (event) => {
+    const handleSubmit = (event) => {
         event.preventDefault();
-        let notes10 = []
-        let notes20 = []
-        let notes30 = []
 
         let recentDate = selectedDate
         console.log('students in array groups lengths '+students10.length+students20.length+students30.length)
 
-        if(students10.length>0){
-            let first10 = await
-            db.collectionGroup('notes')
-            .where('uid','in', students10)
-            .where("timestamp", ">=", recentDate)
-            .orderBy("timestamp","desc")
-            .get()
-
-            first10.forEach((doc) => {
-                notes10.push({ ...doc.data(), id: doc.id })
+		db.collectionGroup('notes')
+        .where('uid','in', students10)
+        .where("timestamp", ">=", recentDate)
+        .orderBy("timestamp","desc")
+        .get()
+		.then((querySnapshot) => {
+            const notesData = [];
+            querySnapshot.forEach((doc) => {
+                notesData.push({ ...doc.data(), id: doc.id })
+                console.log(doc.id)
             })
-        }
-
-        if(students20.length>0){
-            let second10 = await
-            db.collectionGroup('notes')
-            .where('uid','in', students20)
-            .where("timestamp", ">=", recentDate)
-            .orderBy("timestamp","desc")
-            .get()
-
-            second10.forEach((doc) => {
-            notes20.push({ ...doc.data(), id: doc.id })
-            })
-        }
-
-        if(students30.length>0){
-            let third10 = await
-            db.collectionGroup('notes')
-            .where('uid','in', students30)
-            .where("timestamp", ">=", recentDate)
-            .orderBy("timestamp","desc")
-            .get()
-
-            third10.forEach((doc) => {
-            notes30.push({ ...doc.data(), id: doc.id })
-            })
-        }
-
-        setNotes(notes10.concat(notes20,notes30))
-        setOpen(false)
-        //console.log("notes10 is "+notes10.length+" notes20 is "+notes20.length+" and notes30 is "+notes30.length)
-
+            setNotes10(notesData)
+            console.log('probably students10 not set yet '+students10.length)
+		})
+        .then((doc)=>{
+            if(students20.length > 0){
+                db.collectionGroup('notes')
+                .where('uid','in', students20)
+                .where("timestamp", ">=", recentDate)
+                .orderBy("timestamp","desc")
+                .get()
+                .then((querySnapshot) => {
+                    const notesData = [];
+                    querySnapshot.forEach((doc) => {
+                        notesData.push({ ...doc.data(), id: doc.id })
+                        console.log(doc.id)
+                    })
+                    setNotes20(notesData)
+                })
+            }
+        })
+        .then((doc)=>{
+            if(students30.length > 0){
+                db.collectionGroup('notes')
+                .where('uid','in', students30)
+                .where("timestamp", ">=", recentDate)
+                .orderBy("timestamp","desc")
+                .get()
+                .then((querySnapshot) => {
+                    const notesData = [];
+                    querySnapshot.forEach((doc) => {
+                        notesData.push({ ...doc.data(), id: doc.id })
+                        console.log(doc.id)
+                    })
+                    setNotes30(notesData)
+                })
+            }
+        })
+        .then((doc)=>{
+            setNotes(notes10.concat(notes20,notes30))
+            console.log('total number of notes is '+notes.length)
+            console.log('notes10, notes20, and notes30 are '+notes10+' '+notes20+' '+notes30)
+            setOpen(false)
+        })
+		.catch((error) => {
+			setErrors(error)
+			setOpen(true)
+			console.error(error);
+			alert('Something went wrong' );
+		});
     };
 
     const handleSubmitComment = (event) => {
@@ -273,15 +288,15 @@ function TeacherClasses(props) {
         }
     };
 
-    const handleViewOpen = (note) => {
-        setTitle(note.title)
-        setBody(note.body)
-        setNoteId(note.id)
-        setStudentId(note.uid)
-        setCreated(note.createdAt)
-        setAuthor(note.author)
-        setRt(note.rt)
-        setNoteAvatar(note.avatar)
+    const handleViewOpen = (data) => {
+        setTitle(data.note.title)
+        setBody(data.note.body)
+        setNoteId(data.note.id)
+        setStudentId(data.note.uid)
+        setCreated(data.note.createdAt)
+        setAuthor(data.note.author)
+        setRt(data.note.rt)
+        setNoteAvatar(data.note.avatar)
         setViewOpen(true)
 	}
 
@@ -397,7 +412,7 @@ function TeacherClasses(props) {
 
                 { notes && notes.length > 0 && 
                 <div>
-                    <ListCards notes={notes} handleEditOpen={()=>alert('permission denied')} handleViewOpen={handleViewOpen} deleteNoteHandler={()=>alert('permission denied')} canEdit={false}/>
+                    <ListCards notes={notes} handleEditClickOpen={()=>alert('permission denied')} handleViewOpen={handleViewOpen} deleteNoteHandler={()=>alert('permission denied')} canEdit={false}/>
                 </div>  
                 }
   

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { auth, db, storage } from "./firebase"
+import { auth, db } from "./firebase"
 
 export const UserContext = React.createContext()
 
@@ -28,15 +28,7 @@ export default function UserProvider({ children }) {
                 setIsAdmin(doc.data().admin)
               }
               if(doc.data().hasOwnProperty("avatar")) {
-                let avatarUrl = doc.data().avatar
-                //var storage = firebase.storage()
-                var imageRef = storage.refFromURL(avatarUrl)
-                console.log(imageRef)
-                console.log(imageRef.fullPath)
-                imageRef.getDownloadURL().then((url) => {
-                  console.log(url)
-                  setAvatar(url)
-                })
+                setAvatar(doc.data().avatar)
               }
             }
           })
