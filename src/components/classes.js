@@ -47,11 +47,6 @@ const styles = (theme) => ({
 		top: 14,
 		right: 10
 	},
-	floatingButton: {
-		position: 'fixed',
-		bottom: 0,
-		right: 0
-	},
 	form: {
 		width: '98%',
 		marginLeft: 13,
@@ -61,14 +56,6 @@ const styles = (theme) => ({
 	root: {
 		minWidth: 220
 	},
-	bullet: {
-		display: 'inline-block',
-		margin: '0 2px',
-		transform: 'scale(0.8)'
-	},
-	pos: {
-		marginBottom: 12
-	},
 	uiProgess: {
 		position: 'fixed',
 		zIndex: '1000',
@@ -76,13 +63,6 @@ const styles = (theme) => ({
 		width: '31px',
 		left: '50%',
 		top: '35%'
-	},
-	dialogeStyle: {
-		maxWidth: '75%'
-	},
-	viewRoot: {
-		margin: 0,
-		padding: theme.spacing(2)
 	},
 	closeButton: {
 		position: 'absolute',

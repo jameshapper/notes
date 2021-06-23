@@ -11,10 +11,6 @@ const styles = (theme) => ({
 		flexGrow: 1,
 		padding: theme.spacing(3)
 	},
-	title: {
-		marginLeft: theme.spacing(2),
-		flex: 1
-	},
 	submitButton: {
 		display: 'block',
 		color: 'white',
@@ -23,29 +19,11 @@ const styles = (theme) => ({
 		top: 14,
 		right: 10
 	},
-	floatingButton: {
-		position: 'fixed',
-		bottom: 0,
-		right: 0
-	},
-	form: {
-		width: '98%',
-		marginLeft: 13,
-		marginTop: theme.spacing(3)
-	},
 	toolbar: theme.mixins.toolbar,
 	root: {
 		minWidth: 470
 	},
-	bullet: {
-		display: 'inline-block',
-		margin: '0 2px',
-		transform: 'scale(0.8)'
-	},
-	pos: {
-		marginBottom: 12
-	},
-	uiProgess: {
+	uiProgress: {
 		position: 'fixed',
 		zIndex: '1000',
 		height: '31px',
@@ -60,10 +38,6 @@ const styles = (theme) => ({
 		flexGrow: 0,
 		marginTop: 20
 	},
-	viewRoot: {
-		margin: 0,
-		padding: theme.spacing(2)
-	}
 });
 
 function Account(props) {
@@ -105,7 +79,7 @@ function Account(props) {
         return (
             <main className={classes.content}>
                 <div className={classes.toolbar} />
-                {loading && <CircularProgress size={150} className={classes.uiProgess} />}
+                {loading && <CircularProgress size={150} className={classes.uiProgress} />}
             </main>
         );
     } else {

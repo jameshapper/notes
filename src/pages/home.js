@@ -1,5 +1,6 @@
 import Note from '../components/note';
 import Account from '../components/account'
+import Badges from '../components/badges'
 //import Editor from '../components/editortest'
 import { useContext, useState } from 'react'
 import { useHistory } from "react-router-dom";
@@ -23,6 +24,7 @@ import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import NotesIcon from '@material-ui/icons/Notes';
 import Avatar from '@material-ui/core/avatar';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+//import ShieldIcon from '@material-ui/icons/Shield';
 
 //import CircularProgress from '@material-ui/core/CircularProgress';
 
@@ -42,24 +44,12 @@ const styles = (theme) => ({
 	drawerPaper: {
 		width: drawerWidth
 	},
-	content: {
-		flexGrow: 1,
-		padding: theme.spacing(3)
-	},
 	avatar: {
 		height: 110,
 		width: 100,
 		flexShrink: 0,
 		flexGrow: 0,
 		marginTop: 20
-	},
-	uiProgess: {
-		position: 'fixed',
-		zIndex: '1000',
-		height: '31px',
-		width: '31px',
-		left: '45%',
-		top: '35%'
 	},
 	toolbar: theme.mixins.toolbar
 });
@@ -68,6 +58,7 @@ function Home({ classes }) {
 
     const { currentUser, isAdmin, loading, avatar, logout } = useContext(UserContext);
     const [ accountOpen, setAccountOpen ] = useState(false)
+    const [ badgeOpen, setBadgeOpen ] = useState(false)
 
     let history = useHistory();
 
@@ -84,8 +75,15 @@ function Home({ classes }) {
 
     const loadAccountPage = (event) => {
 		console.log('Account Clicked');
+        setBadgeOpen(false)
         setAccountOpen(true)
 	};
+
+    const loadBadgePage = () => {
+        console.log('Badge clicked')
+        setAccountOpen(false)
+        setBadgeOpen(true)
+    }
 
 	const loadTodoPage = (event) => {
 		console.log('Todo Clicked');
@@ -155,8 +153,17 @@ function Home({ classes }) {
                                 <ListItemText primary="Logout" />
                             </ListItem>
                         </List>
+                        <List>
+                            <ListItem button key='Badge' onClick={loadBadgePage}>
+                                <ListItemIcon>
+                                    {' '}
+                                    <ExitToAppIcon  />{' '}
+                                </ListItemIcon>
+                                <ListItemText primary="Add Badge"/>
+                            </ListItem>
+                        </List>
                     </Drawer>
-                    <div>{accountOpen ? <Account/> : isAdmin ? <TeacherClasses/> : <Note />}  </div>
+                    <div>{badgeOpen ? <Badges/> : accountOpen ? <Account/> : isAdmin ? <TeacherClasses/> : <Note />}  </div>
                 </div>
     
             </div>
