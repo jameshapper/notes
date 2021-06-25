@@ -1,4 +1,5 @@
 import React from 'react'
+/** @jsxImportSource @emotion/react */
 
 import Chips from './chips';
 
@@ -12,30 +13,20 @@ import CardContent from '@material-ui/core/CardContent'
 import CardActions from '@material-ui/core/CardActions'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
-import { makeStyles } from '@material-ui/core';
 import Badge from '@material-ui/core/Badge'
 import Message from '@material-ui/icons/Message'
 
-const useStyles = makeStyles((theme) => ({
-	root: {
-		minWidth: 470
-	},
-
-}))
-
 export default function ListCards({notes, handleEditOpen, handleViewOpen, deleteNoteHandler, canEdit}) {
     
-    const classes = useStyles();
-
     return (
         <div>
             <Grid container spacing={2}>
                     {notes.map((note) => (
                         <Grid item xs={12} sm={6} key = {note.id}>
-                            <Card className={classes.root} variant="outlined">
+                            <Card css={{minWidth: 470}} variant="outlined">
                                 <CardHeader
                                     avatar={
-                                        <Avatar aria-label="recipe" className={classes.avatar} src={note.avatar} />
+                                        <Avatar aria-label="recipe" css={{height: 58, width: 58}} src={note.avatar} />
                                     }
                                     title={note.title}
                                     subheader= {dayjs(note.createdAt).fromNow()+" by "+note.author}

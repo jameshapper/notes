@@ -1,50 +1,21 @@
 import React, { useState, useContext } from 'react';
 import { db, storage } from '../firebase';
 
-import withStyles from '@material-ui/core/styles/withStyles';
+//import withStyles from '@material-ui/core/styles/withStyles';
 import Avatar from '@material-ui/core/Avatar';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { UserContext } from '../userContext';
 
-const styles = (theme) => ({
-	content: {
-		flexGrow: 1,
-		padding: theme.spacing(3)
-	},
-	submitButton: {
-		display: 'block',
-		color: 'white',
-		textAlign: 'center',
-		position: 'absolute',
-		top: 14,
-		right: 10
-	},
-	toolbar: theme.mixins.toolbar,
-	root: {
-		minWidth: 470
-	},
-	uiProgress: {
-		position: 'fixed',
-		zIndex: '1000',
-		height: '31px',
-		width: '31px',
-		left: '50%',
-		top: '35%'
-	},
-    avatar: {
-		height: 330,
-		width: 300,
-		flexShrink: 0,
-		flexGrow: 0,
-		marginTop: 20
-	},
-});
+//in styles = (theme) => etc. we had padding: theme.spacing(3). I don't know how to do this now.
+//I probably want this const Offset = styled('div')(({ theme }) => theme.mixins.toolbar);
+//see here https://next.material-ui.com/components/app-bar/
+//Note that this is for the divs that are meant to shift content below the appbar
 
 function Account(props) {
 
     const { currentUser, avatar, loading } = useContext(UserContext)
 
-    const { classes } = props;
+    //const { classes } = props;
 
 	const [ fileUpload, setFileUpload ] = useState(null)
   
@@ -77,18 +48,31 @@ function Account(props) {
 
     if (loading === true) {
         return (
-            <main className={classes.content}>
-                <div className={classes.toolbar} />
-                {loading && <CircularProgress size={150} className={classes.uiProgress} />}
+            <main style={{flexGrow:1, p:3}}>
+                <div style={{height:60}} />
+                {loading && <CircularProgress size={150} style={{
+					position: 'fixed',
+					zIndex: '1000',
+					height: '31px',
+					width: '31px',
+					left: '50%',
+					top: '35%'
+				}} />}
             </main>
         );
     } else {
         return (
-            <main className={classes.content}>
-                <div className={classes.toolbar} />
+            <main style={{flexGrow:1,p:3}}>
+                <div style={{height:60}} />
 
                 <center>
-                    <Avatar alt="User Avatar" src={avatar} className={classes.avatar} />
+                    <Avatar alt="User Avatar" src={avatar} style={{
+						height: 330,
+						width: 300,
+						flexShrink: 0,
+						flexGrow: 0,
+						marginTop: 20
+					}} />
                     <p>
                         {' '}
                         {currentUser && currentUser.displayName ? currentUser.displayName : "Welcome!"}
@@ -103,4 +87,4 @@ function Account(props) {
     }
 }
 
-export default withStyles(styles)(Account);
+export default Account;
