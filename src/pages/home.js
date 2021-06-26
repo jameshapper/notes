@@ -111,8 +111,12 @@ function Home({ classes }) {
                         </Toolbar>
                     </AppBar>
                     <Drawer
-                        style={{width: drawerWidth, flexShrink: 0}}
                         variant="permanent"
+                        sx={{
+                            width: drawerWidth,
+                            flexShrink: 0,
+                            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+                          }}
 
                     >
                         <div style={{height:60}} />
