@@ -4,6 +4,7 @@ import Button from '@material-ui/core/Button';
 import { useHistory } from "react-router-dom";
 import { UserContext } from "../userContext"
 import { Redirect } from 'react-router-dom';
+import { Box } from "@material-ui/core";
 
 function Login() {
 
@@ -55,11 +56,11 @@ function Login() {
 	}
 	
     return (
-		<div style={{minHeight: '100vh', backgroundImage: `url('/BaliSpace.jpeg')`, backgroundRepeat: 'no-repeat', backgroundSize: 'cover',}}>
-			<div style={{display: 'flex',  justifyContent:'center', alignItems:'center', height: '100vh'}}>
+		<Box sx={{minHeight: '100vh', backgroundImage: `url('/BaliSpace.jpeg')`, backgroundRepeat: 'no-repeat', backgroundSize: 'cover',}}>
+			<Box sx={{display: 'flex',  justifyContent:'center', alignItems:'center', height: '100vh'}}>
 				<Button variant="contained" color="primary" onClick={signInWithGoogle}>Sign in with Google</Button>
-			</div>
-		</div>
+			</Box>
+		</Box>
     )
   
   }

@@ -23,7 +23,7 @@ import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import NotesIcon from '@material-ui/icons/Notes';
 import Avatar from '@material-ui/core/Avatar';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-//import ShieldIcon from '@material-ui/icons/Shield';
+import ShieldIcon from '@material-ui/icons/Shield';
 
 //import CircularProgress from '@material-ui/core/CircularProgress';
 
@@ -132,7 +132,7 @@ function Home({ classes }) {
                         <ListItem button key='Badge' onClick={loadBadgePage}>
                             <ListItemIcon>
                                 {' '}
-                                <ExitToAppIcon  />{' '}
+                                <ShieldIcon  />{' '}
                             </ListItemIcon>
                             <ListItemText primary="Add Badge"/>
                         </ListItem>
