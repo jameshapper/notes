@@ -18,10 +18,10 @@ import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import withStyles from '@material-ui/core/styles/withStyles';
+//import withStyles from '@material-ui/core/styles/withStyles';
 import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import NotesIcon from '@material-ui/icons/Notes';
-import Avatar from '@material-ui/core/avatar';
+import Avatar from '@material-ui/core/Avatar';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 //import ShieldIcon from '@material-ui/icons/Shield';
 
@@ -29,7 +29,7 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 
 const drawerWidth = 240;
 
-const styles = (theme) => ({
+/* const styles = (theme) => ({
 	root: {
 		display: 'flex'
 	},
@@ -51,7 +51,7 @@ const styles = (theme) => ({
 		marginTop: 20
 	},
 	toolbar: theme.mixins.toolbar
-});
+}); */
 
 function Home({ classes }) {
 
@@ -113,9 +113,7 @@ function Home({ classes }) {
                     <Drawer
                         style={{width: drawerWidth, flexShrink: 0}}
                         variant="permanent"
-                        classes={{
-                            paper: classes.drawerPaper
-                        }}
+
                     >
                         <div style={{height:60}} />
                         <Divider />
@@ -175,4 +173,4 @@ function Home({ classes }) {
 
 }
 
-export default withStyles(styles)(Home);
+export default Home;
