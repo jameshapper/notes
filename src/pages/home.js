@@ -8,6 +8,7 @@ import { UserContext } from "../userContext"
 import TeacherClasses from "../components/classes"
 //import Grid from '@material-ui/core/Grid';
 
+import Box from '@material-ui/core/Box'
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -18,7 +19,6 @@ import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-//import withStyles from '@material-ui/core/styles/withStyles';
 import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import NotesIcon from '@material-ui/icons/Notes';
 import Avatar from '@material-ui/core/Avatar';
@@ -28,30 +28,6 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 //import CircularProgress from '@material-ui/core/CircularProgress';
 
 const drawerWidth = 240;
-
-/* const styles = (theme) => ({
-	root: {
-		display: 'flex'
-	},
-	appBar: {
-		zIndex: theme.zIndex.drawer + 1
-	},
-	drawer: {
-		width: drawerWidth,
-		flexShrink: 0
-	},
-	drawerPaper: {
-		width: drawerWidth
-	},
-	avatar: {
-		height: 110,
-		width: 100,
-		flexShrink: 0,
-		flexGrow: 0,
-		marginTop: 20
-	},
-	toolbar: theme.mixins.toolbar
-}); */
 
 function Home({ classes }) {
 
@@ -100,75 +76,70 @@ function Home({ classes }) {
 
     if(currentUser) {
         return (
-            <div>
-                <div style={{display:'flex'}}>
-                    <CssBaseline />
-                    <AppBar position="fixed" style={{zIndex:1201}} >
-                        <Toolbar>
-                            <Typography variant="h6" noWrap>
-                                NotesApp
-                            </Typography>
-                        </Toolbar>
-                    </AppBar>
-                    <Drawer
-                        variant="permanent"
-                        sx={{
-                            width: drawerWidth,
-                            flexShrink: 0,
-                            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-                          }}
-
-                    >
-                        <div style={{height:60}} />
-                        <Divider />
-                        <center>
-                            <Avatar alt="User Avatar" src={avatar} style={{height: 110, width: 100,	flexShrink: 0, flexGrow: 0,	marginTop: 20}} />
-                            <p>
+            <Box sx={{display:'flex'}}>
+                <CssBaseline />
+                <AppBar position="fixed" sx={{zIndex: (theme) => theme.zIndex.drawer + 1}} >
+                    <Toolbar>
+                        <Typography variant="h6" noWrap>
+                            NotesApp
+                        </Typography>
+                    </Toolbar>
+                </AppBar>
+                <Drawer
+                    variant="permanent"
+                    sx={{
+                        width: drawerWidth,
+                        flexShrink: 0,
+                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+                        }}
+                >
+                    <Toolbar />
+                    <Divider />
+                    <center>
+                        <Avatar alt="User Avatar" src={avatar} sx={{height: 110, width: 100, flexShrink: 0, flexGrow: 0, marginTop: 2}} />
+                        <p>
+                            {' '}
+                            {currentUser && currentUser.displayName ? currentUser.displayName : "Welcome!"}
+                        </p>
+                    </center>
+                    <Divider />
+                    <List>
+                        <ListItem button key="Todo" onClick={loadTodoPage}>
+                            <ListItemIcon>
                                 {' '}
-                                {currentUser && currentUser.displayName ? currentUser.displayName : "Welcome!"}
-                            </p>
-                        </center>
-                        <Divider />
-                        <List>
-                            <ListItem button key="Todo" onClick={loadTodoPage}>
-                                <ListItemIcon>
-                                    {' '}
-                                    <NotesIcon />{' '}
-                                </ListItemIcon>
-                                <ListItemText primary="Notes" />
-                            </ListItem>
-    
-                            <ListItem button key="Account" onClick={loadAccountPage}>
-                                <ListItemIcon>
-                                    {' '}
-                                    <AccountBoxIcon />{' '}
-                                </ListItemIcon>
-                                <ListItemText primary="Account" />
-                            </ListItem>
-    
-                            <ListItem button key="Logout" onClick={logoutHandler}>
-                                <ListItemIcon>
-                                    {' '}
-                                    <ExitToAppIcon />{' '}
-                                </ListItemIcon>
-                                <ListItemText primary="Logout" />
-                            </ListItem>
-                        </List>
-                        <List>
-                            <ListItem button key='Badge' onClick={loadBadgePage}>
-                                <ListItemIcon>
-                                    {' '}
-                                    <ExitToAppIcon  />{' '}
-                                </ListItemIcon>
-                                <ListItemText primary="Add Badge"/>
-                            </ListItem>
-                        </List>
-                    </Drawer>
-                    <div>{badgeOpen ? <Badges/> : accountOpen ? <Account/> : isAdmin ? <TeacherClasses/> : <Note />}  </div>
-                </div>
-    
-            </div>
-    
+                                <NotesIcon />{' '}
+                            </ListItemIcon>
+                            <ListItemText primary="Notes" />
+                        </ListItem>
+
+                        <ListItem button key="Account" onClick={loadAccountPage}>
+                            <ListItemIcon>
+                                {' '}
+                                <AccountBoxIcon />{' '}
+                            </ListItemIcon>
+                            <ListItemText primary="Account" />
+                        </ListItem>
+
+                        <ListItem button key="Logout" onClick={logoutHandler}>
+                            <ListItemIcon>
+                                {' '}
+                                <ExitToAppIcon />{' '}
+                            </ListItemIcon>
+                            <ListItemText primary="Logout" />
+                        </ListItem>
+                    </List>
+                    <List>
+                        <ListItem button key='Badge' onClick={loadBadgePage}>
+                            <ListItemIcon>
+                                {' '}
+                                <ExitToAppIcon  />{' '}
+                            </ListItemIcon>
+                            <ListItemText primary="Add Badge"/>
+                        </ListItem>
+                    </List>
+                </Drawer>
+                <div>{badgeOpen ? <Badges/> : accountOpen ? <Account/> : isAdmin ? <TeacherClasses/> : <Note />}  </div>
+            </Box>    
         )
     } else {
         return <div></div>
