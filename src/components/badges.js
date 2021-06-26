@@ -1,31 +1,15 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { db, storage } from '../firebase';
 
-import withStyles from '@material-ui/core/styles/withStyles';
+//import withStyles from '@material-ui/core/styles/withStyles';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { UserContext } from '../userContext';
-
-const styles = (theme) => ({
-	content: {
-		flexGrow: 1,
-		padding: theme.spacing(3)
-	},
-	toolbar: theme.mixins.toolbar,
-	uiProgess: {
-		position: 'fixed',
-		zIndex: '1000',
-		height: '31px',
-		width: '31px',
-		left: '50%',
-		top: '35%'
-	}
-});
 
 function Badges(props) {
 
     const { currentUser, loading } = useContext(UserContext)
 
-    const { classes } = props;
+    //const { classes } = props;
 
 	const [ fileUpload, setFileUpload ] = useState(null)
     const [ data, setData ] = useState([])
@@ -60,21 +44,26 @@ function Badges(props) {
 
 	  console.log('file upload name is '+fileUpload.name)
 
-
-
     };
 
     if (loading === true) {
         return (
-            <main className={classes.content}>
-                <div className={classes.toolbar} />
-                {loading && <CircularProgress size={150} className={classes.uiProgess} />}
+            <main style={{flexGrow:1, padding: 24}} >
+                <div style={{height: 60}} />
+                {loading && <CircularProgress size={150} style={{
+                    position: 'fixed',
+                    zIndex: '1000',
+                    height: '31px',
+                    width: '31px',
+                    left: '50%',
+                    top: '35%'
+                }} />}
             </main>
         );
     } else {
         return (
-            <main className={classes.content}>
-                <div className={classes.toolbar} />
+            <main style={{flexGrow:1, padding: 24}}>
+                <div style={{height: 60}}/>
 
                 <center>
                     <p>
@@ -96,4 +85,4 @@ function Badges(props) {
     }
 }
 
-export default withStyles(styles)(Badges);
+export default Badges;

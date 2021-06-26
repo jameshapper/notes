@@ -8,7 +8,6 @@ import { UserContext } from "../userContext"
 import TeacherClasses from "../components/classes"
 //import Grid from '@material-ui/core/Grid';
 
-
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
 import CssBaseline from '@material-ui/core/CssBaseline';

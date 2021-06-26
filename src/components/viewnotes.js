@@ -14,7 +14,7 @@ import Typography from '@material-ui/core/Typography'
 import IconButton from '@material-ui/core/IconButton'
 import CloseIcon from '@material-ui/icons/Close'
 import MuiDialogTitle from '@material-ui/core/DialogTitle'
-import withStyles from '@material-ui/core/styles/withStyles'
+//import withStyles from '@material-ui/core/styles/withStyles'
 //import { grey500 } from 'material-ui/styles/colors';
 
 /* const styles = (theme) => ({
