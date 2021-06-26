@@ -15,8 +15,9 @@ import IconButton from '@material-ui/core/IconButton'
 import CloseIcon from '@material-ui/icons/Close'
 import MuiDialogTitle from '@material-ui/core/DialogTitle'
 import withStyles from '@material-ui/core/styles/withStyles'
+//import { grey500 } from 'material-ui/styles/colors';
 
-const styles = (theme) => ({
+/* const styles = (theme) => ({
 	root: {
 		minWidth: 220
 	},
@@ -29,15 +30,20 @@ const styles = (theme) => ({
 		top: theme.spacing(1),
 		color: theme.palette.grey[500]
 	}
-});
+}); */
 
-const DialogTitle = withStyles(styles)((props) => {
+const DialogTitle = ((props) => {
     const { children, onClose, classes, ...other } = props;
     return (
-        <MuiDialogTitle disableTypography className={classes.root} {...other}>
+        <MuiDialogTitle disableTypography style={{minWidth:220}} {...other}>
             <Typography variant="h6">{children}</Typography>
             {onClose ? (
-                <IconButton aria-label="close" className={classes.closeButton} onClick={onClose}>
+                <IconButton aria-label="close" style={{
+                    position: 'absolute',
+                    right: 8,
+                    top: 8,
+                    color: '#9e9e9e'
+                }} onClick={onClose}>
                     <CloseIcon />
                 </IconButton>
             ) : null}
@@ -53,7 +59,7 @@ export default function ViewNotes({handleViewClose, viewOpen, title, author, cre
         aria-labelledby="customized-dialog-title"
         open={viewOpen}
         fullWidth
-        classes={{ paperFullWidth: classes.dialogeStyle }}
+        classes={{ paperFullWidth: {maxWidth: '75%'} }}
     >
         <Paper   elevation={2}
             style={{
@@ -64,7 +70,13 @@ export default function ViewNotes({handleViewClose, viewOpen, title, author, cre
             }}>
             <Grid container >
                 <Grid item xs={1}>
-                    <Avatar aria-label="recipe" className={classes.avatar} src={avatar} />
+                    <Avatar aria-label="recipe" style={{
+                        height: 55,
+                        width: 50,
+                        flexShrink: 0,
+                        flexGrow: 0,
+                        marginTop: 20}}
+                        src={avatar} />
                 </Grid>
                 <Grid item xs={11}>
                     <DialogTitle id="customized-dialog-title" onClose={handleViewClose}>
@@ -86,7 +98,13 @@ export default function ViewNotes({handleViewClose, viewOpen, title, author, cre
               {comments.map((comment) => (
                 <Grid container key={comment.id}>
                     <Grid item xs={1}>
-                    <Avatar aria-label="recipe" className={classes.avatar} src={comment.avatar} />
+                    <Avatar aria-label="recipe" style={{
+                        height: 55,
+                        width: 50,
+                        flexShrink: 0,
+                        flexGrow: 0,
+                        marginTop: 20
+                    }} src={comment.avatar} />
                     </Grid>
                     <Grid item xs={11}>
                         <Paper>

@@ -102,9 +102,9 @@ function Home({ classes }) {
     if(currentUser) {
         return (
             <div>
-                <div className={classes.root}>
+                <div style={{display:'flex'}}>
                     <CssBaseline />
-                    <AppBar position="fixed" className={classes.appBar}>
+                    <AppBar position="fixed" style={{zIndex:1201}} >
                         <Toolbar>
                             <Typography variant="h6" noWrap>
                                 NotesApp
@@ -112,16 +112,16 @@ function Home({ classes }) {
                         </Toolbar>
                     </AppBar>
                     <Drawer
-                        className={classes.drawer}
+                        style={{width: drawerWidth, flexShrink: 0}}
                         variant="permanent"
                         classes={{
                             paper: classes.drawerPaper
                         }}
                     >
-                        <div className={classes.toolbar} />
+                        <div style={{height:60}} />
                         <Divider />
                         <center>
-                            <Avatar alt="User Avatar" src={avatar} className={classes.avatar} />
+                            <Avatar alt="User Avatar" src={avatar} style={{height: 110, width: 100,	flexShrink: 0, flexGrow: 0,	marginTop: 20}} />
                             <p>
                                 {' '}
                                 {currentUser && currentUser.displayName ? currentUser.displayName : "Welcome!"}

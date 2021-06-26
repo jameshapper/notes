@@ -25,7 +25,7 @@ import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-const styles = (theme) => ({
+/* const styles = (theme) => ({
 	content: {
 		flexGrow: 1,
 		padding: theme.spacing(3)
@@ -64,7 +64,7 @@ const styles = (theme) => ({
 		left: '50%',
 		top: '35%'
 	}
-});
+}); */
 
 const Transition = React.forwardRef(function Transition(props, ref) {
 	return <Slide direction="up" ref={ref} {...props} />;
@@ -274,18 +274,29 @@ function Note(props) {
 
     if (uiLoading === true) {
         return (
-            <main className={classes.content}>
-                <div className={classes.toolbar} />
-                {uiLoading && <CircularProgress size={150} className={classes.uiProgess} />}
+            <main style={{flexGrow:1, padding:24}}>
+                <div style={{height:60}} />
+                {uiLoading && <CircularProgress size={150} style={{
+                    position: 'fixed',
+                    zIndex: '1000',
+                    height: '31px',
+                    width: '31px',
+                    left: '50%',
+                    top: '35%'
+                }} />}
             </main>
         );
     } else {
         return (
-            <main className={classes.content}>
-                <div className={classes.toolbar} />
+            <main style={{flexGrow:1, padding:24}} >
+                <div style={{height:60}} />
 
                 <IconButton
-                    className={classes.floatingButton}
+                    style={{
+                        position: 'fixed',
+                        bottom: 0,
+                        right: 0
+                    }}
                     color="primary"
                     aria-label="Add Note"
                     onClick={handleClickOpen}
@@ -294,26 +305,37 @@ function Note(props) {
                 </IconButton>
                 
                 <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
-                    <AppBar className={classes.appBar}>
+                    <AppBar style={{position: 'relative'}} >
                         <Toolbar>
                             <IconButton edge="start" color="inherit" onClick={handleClose} aria-label="close">
                                 <CloseIcon />
                             </IconButton>
-                            <Typography variant="h6" className={classes.title}>
+                            <Typography variant="h6" style={{marginLeft:16, flex:1}} >
                                 {buttonType === 'Edit' ? 'Edit Note' : 'Create a new Note '}
                             </Typography>
                             <Button
                                 autoFocus
                                 color="inherit"
                                 onClick={handleSubmit}
-                                className={classes.submitButton}
+                                style={{
+                                    display: 'block',
+                                    color: 'white',
+                                    textAlign: 'center',
+                                    position: 'absolute',
+                                    top: 14,
+                                    right: 10
+                                }}
                             >
                                 {buttonType === 'Edit' ? 'Save' : 'Submit'}
                             </Button>
                         </Toolbar>
                     </AppBar>
 
-                    <form className={classes.form} noValidate>
+                    <form style={{
+                        width: '98%',
+                        marginLeft: 13,
+                        marginTop: 24
+                    }} noValidate>
                         <Grid container spacing={2}>
                             <Grid item xs={12} key='title'>
                                 <TextField
@@ -352,4 +374,4 @@ function Note(props) {
     }
 }
 
-export default withStyles(styles)(Note);
+export default Note;

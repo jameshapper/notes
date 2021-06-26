@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 
-import { makeStyles } from '@material-ui/core/styles';
+//import { makeStyles } from '@material-ui/core/styles';
 import { Input, InputLabel, MenuItem, FormControl, ListItemText, Select, Checkbox, Chip, Paper } from '@material-ui/core';
 
-const useStyles = makeStyles((theme) => ({
+//in Paper we had  padding: theme.spacing(0.5),
+
+/* const useStyles = makeStyles((theme) => ({
   formControl: {
     margin: theme.spacing(1),
     minWidth: 120,
@@ -26,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
     flexFlow: 'row',
     justifyContent: 'left',
   }
-}));
+})); */
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -51,7 +53,7 @@ const MenuProps = {
 export default function MultipleSelect(props) {
   const allOptions = props.allOptions
 
-  const classes = useStyles();
+  //const classes = useStyles();
 
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [ paperView, setPaperView ] = useState(false)
@@ -67,9 +69,13 @@ export default function MultipleSelect(props) {
   };
 
   return (
-    <div className={classes.row}>
+    <div style={{
+      display: 'flex',
+      flexFlow: 'row',
+      justifyContent: 'left',
+    }} >
         <div style={{justifyContent: 'left'}}>
-        <FormControl className={classes.formControl}>
+        <FormControl style={{minWidth:120,maxWidth:300}} >
             <InputLabel id="demo-mutiple-checkbox-label">Add Aspirations</InputLabel>
             <Select
             labelId="demo-mutiple-checkbox-label"
@@ -92,11 +98,19 @@ export default function MultipleSelect(props) {
       </div>
       {paperView && 
       <div style={{justifyContent: 'center'}}>
-        <Paper component="ul" className = {classes.root}>
+        <Paper component="ul" style={{
+          display: 'flex',
+          justifyContent: 'center',
+          flexWrap: 'wrap',
+          listStyle: 'none',
+          padding: 5,
+          margin: 0,
+          minHeight: 50,
+        }} >
             {selectedOptions.map((data) => {
                 return (
                 <li key={data}>
-                    <Chip label={data} className={classes.chip}/>
+                    <Chip label={data} style={{margin:2}}/>
                 </li>
                 );
             })}
