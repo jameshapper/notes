@@ -2,6 +2,9 @@ import React, { useState, useContext } from 'react';
 import { db, storage } from '../firebase';
 
 import Avatar from '@material-ui/core/Avatar';
+import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
+import ButtonGroup from '@material-ui/core/ButtonGroup';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { UserContext } from '../userContext';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -62,23 +65,35 @@ function Account(props) {
         return (
             <main sx={{flexGrow:1,p:3}}>
                 <Toolbar />
+				<Grid container direction='column' align='center' spacing={2}>
+					<Grid item xs={12}>
+						<Avatar alt="User Avatar" src={avatar} sx={{
+							height: 330,
+							width: 300,
+							flexShrink: 0,
+							flexGrow: 0,
+							marginTop: 2
+						}} />
+						<p>
+							{' '}
+							{currentUser && currentUser.displayName ? currentUser.displayName : "Welcome!"}
+						</p>
+					</Grid>
+					<Grid item xs={12}>
 
-                <center>
-                    <Avatar alt="User Avatar" src={avatar} sx={{
-						height: 330,
-						width: 300,
-						flexShrink: 0,
-						flexGrow: 0,
-						marginTop: 2
-					}} />
-                    <p>
-                        {' '}
-                        {currentUser && currentUser.displayName ? currentUser.displayName : "Welcome!"}
-                    </p>
-                </center>
+						<ButtonGroup orientation='vertical'>
+							<Button variant='contained' component='label' sx={{m:1}}>
+								Upload New Image
+								<input type="file" hidden onChange={onFileChange} />
+							</Button>
+							
+							<Button variant='outlined' sx={{m:1}} onClick = {onSubmit}> Submit New Image </Button>
+						</ButtonGroup>
 
-				<input type="file" onChange={onFileChange} />
-				<button onClick = {onSubmit}> Submit New Image </button>
+					</Grid>
+
+				</Grid>
+
 
             </main>
         );
