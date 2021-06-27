@@ -11,7 +11,7 @@ import ViewNotes from './viewnotes'
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
-//import withStyles from '@material-ui/core/styles/withStyles';
+import Box from '@material-ui/core/Box'
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
@@ -24,47 +24,6 @@ import Slide from '@material-ui/core/Slide';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import CircularProgress from '@material-ui/core/CircularProgress';
-
-/* const styles = (theme) => ({
-	content: {
-		flexGrow: 1,
-		padding: theme.spacing(3)
-	},
-	appBar: {
-		position: 'relative'
-	},
-	title: {
-		marginLeft: theme.spacing(2),
-		flex: 1
-	},
-	submitButton: {
-		display: 'block',
-		color: 'white',
-		textAlign: 'center',
-		position: 'absolute',
-		top: 14,
-		right: 10
-	},
-	floatingButton: {
-		position: 'fixed',
-		bottom: 0,
-		right: 0
-	},
-	form: {
-		width: '98%',
-		marginLeft: 13,
-		marginTop: theme.spacing(3)
-	},
-	toolbar: theme.mixins.toolbar,
-	uiProgess: {
-		position: 'fixed',
-		zIndex: '1000',
-		height: '31px',
-		width: '31px',
-		left: '50%',
-		top: '35%'
-	}
-}); */
 
 const Transition = React.forwardRef(function Transition(props, ref) {
 	return <Slide direction="up" ref={ref} {...props} />;
@@ -274,9 +233,9 @@ function Note(props) {
 
     if (uiLoading === true) {
         return (
-            <main style={{flexGrow:1, padding:24}}>
-                <div style={{height:60}} />
-                {uiLoading && <CircularProgress size={150} style={{
+            <main sx={{flexGrow:1, p:3}}>
+                <Toolbar />
+                {uiLoading && <CircularProgress size={150} sx={{
                     position: 'fixed',
                     zIndex: '1000',
                     height: '31px',
@@ -288,11 +247,11 @@ function Note(props) {
         );
     } else {
         return (
-            <main style={{flexGrow:1, padding:24}} >
-                <div style={{height:60}} />
+            <main sx={{flexGrow:1, p:3}} >
+                <Toolbar />
 
                 <IconButton
-                    style={{
+                    sx={{
                         position: 'fixed',
                         bottom: 0,
                         right: 0
@@ -301,23 +260,23 @@ function Note(props) {
                     aria-label="Add Note"
                     onClick={handleClickOpen}
                 >
-                    <AddCircleIcon style={{ fontSize: 60 }} />
+                    <AddCircleIcon sx={{ fontSize: 60 }} />
                 </IconButton>
                 
                 <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
-                    <AppBar style={{position: 'relative'}} >
+                    <AppBar sx={{position: 'relative'}} >
                         <Toolbar>
                             <IconButton edge="start" color="inherit" onClick={handleClose} aria-label="close">
                                 <CloseIcon />
                             </IconButton>
-                            <Typography variant="h6" style={{marginLeft:16, flex:1}} >
+                            <Typography variant="h6" sx={{ml:2, flex:1}} >
                                 {buttonType === 'Edit' ? 'Edit Note' : 'Create a new Note '}
                             </Typography>
                             <Button
                                 autoFocus
                                 color="inherit"
                                 onClick={handleSubmit}
-                                style={{
+                                sx={{
                                     display: 'block',
                                     color: 'white',
                                     textAlign: 'center',
@@ -331,10 +290,10 @@ function Note(props) {
                         </Toolbar>
                     </AppBar>
 
-                    <form style={{
+                    <Box sx={{
                         width: '98%',
-                        marginLeft: 13,
-                        marginTop: 24
+                        marginLeft: 2,
+                        marginTop: 3
                     }} noValidate>
                         <Grid container spacing={2}>
                             <Grid item xs={12} key='title'>
@@ -355,14 +314,12 @@ function Note(props) {
                             <Grid item xs={12} key="chips">
                                 <MultipleSelect allOptions={dataList} getList={activities => setNewActivities(activities)}></MultipleSelect>
                             </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <Editor initText={rt} setRt={rt => setRt(rt)} setBody={body => setBody(body)}/>
+                            </Grid>
 
                         </Grid>
-                    </form>
-
-                    <Grid item xs={12} sm={6}>
-                        <Editor initText={rt} setRt={rt => setRt(rt)} setBody={body => setBody(body)}/>
-                    </Grid>
-
+                    </Box>
                 </Dialog>
 
                 <ListCards notes={notes} handleEditOpen={handleEditOpen} handleViewOpen={handleViewOpen} deleteNoteHandler={deleteNoteHandler} canEdit={true}/>

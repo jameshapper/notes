@@ -10,6 +10,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import MultiSelect from "react-multi-select-component";
 
+import Box from '@material-ui/core/Box'
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
@@ -295,10 +296,11 @@ function TeacherClasses(props) {
                         </Toolbar>
                     </AppBar>
 
-                    <form style={{
+                    <Box component="form"
+                    sx={{
                         width: '98%',
-                        marginLeft: 13,
-                        marginTop: 24
+                        marginLeft: 2,
+                        marginTop: 3
                     }} noValidate>
                         <Grid container spacing={2}>
                             <Grid item xs={12} key='date'>
@@ -329,7 +331,7 @@ function TeacherClasses(props) {
                                 </div>
                             </Grid>
                         </Grid>
-                    </form>
+                    </Box>
                 </Dialog>
 
                 <Grid container spacing={8} justify='center'>
@@ -353,9 +355,7 @@ function TeacherClasses(props) {
                 </Grid>
 
                 { notes && notes.length > 0 && 
-                <div>
                     <ListCards notes={notes} handleEditOpen={()=>alert('permission denied')} handleViewOpen={handleViewOpen} deleteNoteHandler={()=>alert('permission denied')} canEdit={false}/>
-                </div>  
                 }
   
                 <ViewNotes handleViewClose={handleViewClose} viewOpen={viewOpen} title={title} author={author} created={created} avatar={noteAvatar} comments={comments} rt={rt} classes={classes} handleSubmitComment={handleSubmitComment} setCommentBody={setCommentBody} setCommentRt={setCommentRt} commentRt={commentRt}/>

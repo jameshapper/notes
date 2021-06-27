@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { Input, InputLabel, MenuItem, FormControl, ListItemText, Select, Checkbox, Chip, Paper } from '@material-ui/core';
+import Box from '@material-ui/core/Box'
 
 //in Paper we had  padding: theme.spacing(0.5),
 
@@ -41,13 +42,14 @@ export default function MultipleSelect(props) {
   };
 
   return (
-    <div style={{
+    <Box component="form"
+    sx={{
       display: 'flex',
       flexFlow: 'row',
       justifyContent: 'left',
     }} >
-        <div style={{justifyContent: 'left'}}>
-        <FormControl style={{minWidth:120,maxWidth:300}} >
+        <Box sx={{justifyContent: 'left'}}>
+        <FormControl sx={{minWidth:120,maxWidth:300,m:1}} >
             <InputLabel id="demo-mutiple-checkbox-label">Add Aspirations</InputLabel>
             <Select
             labelId="demo-mutiple-checkbox-label"
@@ -67,16 +69,16 @@ export default function MultipleSelect(props) {
             ))}
             </Select>
         </FormControl>
-      </div>
+      </Box>
       {paperView && 
-      <div sx={{justifyContent: 'center'}}>
+      <Box sx={{justifyContent: 'center'}}>
         <Paper component="ul" sx={{
           display: 'flex',
           justifyContent: 'center',
           flexWrap: 'wrap',
           listStyle: 'none',
           padding: 0.25,
-          margin: 0,
+          margin: 1,
           minHeight: 40,
         }} >
             {selectedOptions.map((data) => {
@@ -87,8 +89,8 @@ export default function MultipleSelect(props) {
                 );
             })}
         </Paper>
-      </div>
+      </Box>
       }
-    </div>
+    </Box>
   );
 }
