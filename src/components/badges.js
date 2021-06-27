@@ -1,15 +1,13 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { db, storage } from '../firebase';
 
-//import withStyles from '@material-ui/core/styles/withStyles';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Toolbar from '@material-ui/core/Toolbar'
 import { UserContext } from '../userContext';
 
 function Badges(props) {
 
     const { currentUser, loading } = useContext(UserContext)
-
-    //const { classes } = props;
 
 	const [ fileUpload, setFileUpload ] = useState(null)
     const [ data, setData ] = useState([])
@@ -48,9 +46,9 @@ function Badges(props) {
 
     if (loading === true) {
         return (
-            <main style={{flexGrow:1, padding: 24}} >
-                <div style={{height: 60}} />
-                {loading && <CircularProgress size={150} style={{
+            <main sx={{flexGrow:1, p:3}} >
+                <Toolbar />
+                {loading && <CircularProgress size={150} sx={{
                     position: 'fixed',
                     zIndex: '1000',
                     height: '31px',
@@ -62,8 +60,8 @@ function Badges(props) {
         );
     } else {
         return (
-            <main style={{flexGrow:1, padding: 24}}>
-                <div style={{height: 60}}/>
+            <main sx={{flexGrow:1, p:3}}>
+                <Toolbar />
 
                 <center>
                     <p>

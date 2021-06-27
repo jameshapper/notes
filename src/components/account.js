@@ -1,10 +1,10 @@
 import React, { useState, useContext } from 'react';
 import { db, storage } from '../firebase';
 
-//import withStyles from '@material-ui/core/styles/withStyles';
 import Avatar from '@material-ui/core/Avatar';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { UserContext } from '../userContext';
+import Toolbar from '@material-ui/core/Toolbar';
 
 //in styles = (theme) => etc. we had padding: theme.spacing(3). I don't know how to do this now.
 //I probably want this const Offset = styled('div')(({ theme }) => theme.mixins.toolbar);
@@ -14,8 +14,6 @@ import { UserContext } from '../userContext';
 function Account(props) {
 
     const { currentUser, avatar, loading } = useContext(UserContext)
-
-    //const { classes } = props;
 
 	const [ fileUpload, setFileUpload ] = useState(null)
   
@@ -48,9 +46,9 @@ function Account(props) {
 
     if (loading === true) {
         return (
-            <main style={{flexGrow:1, p:3}}>
-                <div style={{height:60}} />
-                {loading && <CircularProgress size={150} style={{
+            <main sx={{flexGrow:1, p:3}}>
+                <Toolbar />
+                {loading && <CircularProgress size={150} sx={{
 					position: 'fixed',
 					zIndex: '1000',
 					height: '31px',
@@ -62,16 +60,16 @@ function Account(props) {
         );
     } else {
         return (
-            <main style={{flexGrow:1,p:3}}>
-                <div style={{height:60}} />
+            <main sx={{flexGrow:1,p:3}}>
+                <Toolbar />
 
                 <center>
-                    <Avatar alt="User Avatar" src={avatar} style={{
+                    <Avatar alt="User Avatar" src={avatar} sx={{
 						height: 330,
 						width: 300,
 						flexShrink: 0,
 						flexGrow: 0,
-						marginTop: 20
+						marginTop: 2
 					}} />
                     <p>
                         {' '}

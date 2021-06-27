@@ -23,10 +23,10 @@ export default function ListCards({notes, handleEditOpen, handleViewOpen, delete
             <Grid container spacing={2}>
                     {notes.map((note) => (
                         <Grid item xs={12} sm={6} key = {note.id}>
-                            <Card css={{minWidth: 470}} variant="outlined">
+                            <Card sx={{minWidth: 470}} variant="outlined">
                                 <CardHeader
                                     avatar={
-                                        <Avatar aria-label="recipe" css={{height: 58, width: 58}} src={note.avatar} />
+                                        <Avatar aria-label="recipe" sx={{height: 58, width: 58}} src={note.avatar} />
                                     }
                                     title={note.title}
                                     subheader= {dayjs(note.createdAt).fromNow()+" by "+note.author}

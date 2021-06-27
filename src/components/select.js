@@ -1,34 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
-//import { makeStyles } from '@material-ui/core/styles';
 import { Input, InputLabel, MenuItem, FormControl, ListItemText, Select, Checkbox, Chip, Paper } from '@material-ui/core';
 
 //in Paper we had  padding: theme.spacing(0.5),
-
-/* const useStyles = makeStyles((theme) => ({
-  formControl: {
-    margin: theme.spacing(1),
-    minWidth: 120,
-    maxWidth: 300,
-  },
-  chip: {
-    margin: 2,
-  },
-  root: {
-    display: 'flex',
-    justifyContent: 'center',
-    flexWrap: 'wrap',
-    listStyle: 'none',
-    padding: theme.spacing(0.5),
-    margin: 0,
-    minHeight: 50,
-  },
-  row: {
-    display: 'flex',
-    flexFlow: 'row',
-    justifyContent: 'left',
-  }
-})); */
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -52,8 +26,6 @@ const MenuProps = {
 
 export default function MultipleSelect(props) {
   const allOptions = props.allOptions
-
-  //const classes = useStyles();
 
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [ paperView, setPaperView ] = useState(false)
@@ -97,20 +69,20 @@ export default function MultipleSelect(props) {
         </FormControl>
       </div>
       {paperView && 
-      <div style={{justifyContent: 'center'}}>
-        <Paper component="ul" style={{
+      <div sx={{justifyContent: 'center'}}>
+        <Paper component="ul" sx={{
           display: 'flex',
           justifyContent: 'center',
           flexWrap: 'wrap',
           listStyle: 'none',
-          padding: 5,
+          padding: 0.25,
           margin: 0,
-          minHeight: 50,
+          minHeight: 40,
         }} >
             {selectedOptions.map((data) => {
                 return (
                 <li key={data}>
-                    <Chip label={data} style={{margin:2}}/>
+                    <Chip label={data} sx={{m:1}}/>
                 </li>
                 );
             })}

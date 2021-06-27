@@ -10,7 +10,6 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import MultiSelect from "react-multi-select-component";
 
-//import withStyles from '@material-ui/core/styles/withStyles';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
@@ -26,52 +25,6 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import CardContent from '@material-ui/core/CardContent';
 import MuiDialogTitle from '@material-ui/core/DialogTitle';
 import { PanoramaFishEyeSharp } from '@material-ui/icons';
-//import { grey500 } from 'material-ui/styles/colors';
-
-/* const styles = (theme) => ({
-	content: {
-		flexGrow: 1,
-		padding: theme.spacing(3)
-	},
-	appBar: {
-		position: 'relative'
-	},
-	title: {
-		marginLeft: theme.spacing(2),
-		flex: 1
-	},
-	submitButton: {
-		display: 'block',
-		color: 'white',
-		textAlign: 'center',
-		position: 'absolute',
-		top: 14,
-		right: 10
-	},
-	form: {
-		width: '98%',
-		marginLeft: 13,
-		marginTop: theme.spacing(3)
-	},
-	toolbar: theme.mixins.toolbar,
-	root: {
-		minWidth: 220
-	},
-	uiProgess: {
-		position: 'fixed',
-		zIndex: '1000',
-		height: '31px',
-		width: '31px',
-		left: '50%',
-		top: '35%'
-	},
-	closeButton: {
-		position: 'absolute',
-		right: theme.spacing(1),
-		top: theme.spacing(1),
-		color: theme.palette.grey[500]
-	}
-}); */
 
 const Transition = React.forwardRef(function Transition(props, ref) {
 	return <Slide direction="up" ref={ref} {...props} />;
@@ -145,10 +98,10 @@ function TeacherClasses(props) {
     const DialogTitle = ((props) => {
         const { children, onClose, classes, ...other } = props;
         return (
-            <MuiDialogTitle disableTypography style={{minWidth:220}} {...other}>
+            <MuiDialogTitle disableTypography sx={{minWidth:220}} {...other}>
                 <Typography variant="h6">{children}</Typography>
                 {onClose ? (
-                    <IconButton aria-label="close" style={{
+                    <IconButton aria-label="close" sx={{
                         position: 'absolute',
                         right: 8,
                         top: 9,
@@ -298,9 +251,9 @@ function TeacherClasses(props) {
 
     if (uiLoading === true) {
         return (
-            <main style={{flexGrow:1, padding: 24}} >
-                <div style={{height:60}} />
-                {uiLoading && <CircularProgress size={150} style={{
+            <main sx={{flexGrow:1, p:3}} >
+                <Toolbar />
+                {uiLoading && <CircularProgress size={150} sx={{
                     position: 'fixed',
                     zIndex: '1000',
                     height: '31px',
@@ -312,23 +265,23 @@ function TeacherClasses(props) {
         );
     } else {
         return (
-            <main style={{flexGrow:1, padding: 24}}>
-                <div style={{height:60}} />
+            <main sx={{flexGrow:1, p: 3}}>
+                <Toolbar />
 
                 <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
-                    <AppBar style={{position: 'relative'}} >
+                    <AppBar sx={{position: 'relative'}} >
                         <Toolbar>
                             <IconButton edge="start" color="inherit" onClick={handleClose} aria-label="close">
                                 <CloseIcon />
                             </IconButton>
-                            <Typography variant="h6" style={{marginLeft:16, flex:1}} >
+                            <Typography variant="h6" sx={{ml:2, flex:1}} >
                                 Select students to view recent notes
                             </Typography>
                             <Button
                                 autoFocus
                                 color="inherit"
                                 onClick={handleSubmit}
-                                style={{
+                                sx={{
                                     display: 'block',
                                     color: 'white',
                                     textAlign: 'center',
@@ -382,7 +335,7 @@ function TeacherClasses(props) {
                 <Grid container spacing={8} justify='center'>
                     {teacherClasses.map((teacherClass) => (
                         <Grid item xs={8} sm={6} key = {teacherClass.name}>
-                            <Card style={{minWidth:220}} variant="outlined">
+                            <Card sx={{minWidth:220}} variant="outlined">
                                 <CardContent>
                                     <Typography variant="h6" component="h3">
                                         {teacherClass.name}

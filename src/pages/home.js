@@ -138,7 +138,7 @@ function Home({ classes }) {
                         </ListItem>
                     </List>
                 </Drawer>
-                <div>{badgeOpen ? <Badges/> : accountOpen ? <Account/> : isAdmin ? <TeacherClasses/> : <Note />}  </div>
+                <Box sx={{m:2}} >{badgeOpen ? <Badges/> : accountOpen ? <Account/> : isAdmin ? <TeacherClasses/> : <Note />}  </Box>
             </Box>    
         )
     } else {

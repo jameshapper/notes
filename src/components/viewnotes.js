@@ -14,31 +14,14 @@ import Typography from '@material-ui/core/Typography'
 import IconButton from '@material-ui/core/IconButton'
 import CloseIcon from '@material-ui/icons/Close'
 import MuiDialogTitle from '@material-ui/core/DialogTitle'
-//import withStyles from '@material-ui/core/styles/withStyles'
-//import { grey500 } from 'material-ui/styles/colors';
-
-/* const styles = (theme) => ({
-	root: {
-		minWidth: 220
-	},
-	dialogeStyle: {
-		maxWidth: '75%'
-	},
-	closeButton: {
-		position: 'absolute',
-		right: theme.spacing(1),
-		top: theme.spacing(1),
-		color: theme.palette.grey[500]
-	}
-}); */
 
 const DialogTitle = ((props) => {
     const { children, onClose, classes, ...other } = props;
     return (
-        <MuiDialogTitle disableTypography style={{minWidth:220}} {...other}>
+        <MuiDialogTitle disableTypography sx={{minWidth:220}} {...other}>
             <Typography variant="h6">{children}</Typography>
             {onClose ? (
-                <IconButton aria-label="close" style={{
+                <IconButton aria-label="close" sx={{
                     position: 'absolute',
                     right: 8,
                     top: 8,
@@ -62,20 +45,20 @@ export default function ViewNotes({handleViewClose, viewOpen, title, author, cre
         classes={{ paperFullWidth: {maxWidth: '75%'} }}
     >
         <Paper   elevation={2}
-            style={{
-                padding: 8,
+            sx={{
+                padding: 1,
                 backgroundColor: "#e0e0e0",
                 border: "1px solid black",
                 margin: "2px 2px 8px 2px"
             }}>
             <Grid container >
                 <Grid item xs={1}>
-                    <Avatar aria-label="recipe" style={{
+                    <Avatar aria-label="recipe" sx={{
                         height: 55,
                         width: 50,
                         flexShrink: 0,
                         flexGrow: 0,
-                        marginTop: 20}}
+                        marginTop: 2}}
                         src={avatar} />
                 </Grid>
                 <Grid item xs={11}>
@@ -98,12 +81,12 @@ export default function ViewNotes({handleViewClose, viewOpen, title, author, cre
               {comments.map((comment) => (
                 <Grid container key={comment.id}>
                     <Grid item xs={1}>
-                    <Avatar aria-label="recipe" style={{
+                    <Avatar aria-label="recipe" sx={{
                         height: 55,
                         width: 50,
                         flexShrink: 0,
                         flexGrow: 0,
-                        marginTop: 20
+                        marginTop: 2
                     }} src={comment.avatar} />
                     </Grid>
                     <Grid item xs={11}>
