@@ -37,7 +37,7 @@ const DialogTitle = ((props) => {
 export default function ViewNotes({handleViewClose, viewOpen, title, author, created, avatar, comments, rt, classes, handleSubmitComment, setCommentBody, setCommentRt, commentRt}) {
     
     return (
-        <Dialog
+    <Dialog
         onClose={handleViewClose}
         aria-labelledby="customized-dialog-title"
         open={viewOpen}
