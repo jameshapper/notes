@@ -11,6 +11,7 @@ export default function UserProvider({ children }) {
   const [ avatar, setAvatar ] = useState("https://i.pravatar.cc/300")
 
   function logout() {
+    setIsAdmin(false)
     return auth.signOut()
   }
 
