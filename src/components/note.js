@@ -76,7 +76,7 @@ function Note(props) {
         // };
         // fetchData()
 
-        let recentDate = new Date('2021-02-29')
+        let recentDate = new Date('2021-04-29')
         
         console.log("user from firebase auth", currentUser)
         return db.collectionGroup("notes").where("uid", "==", currentUser.uid)

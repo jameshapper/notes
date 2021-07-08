@@ -1,54 +1,44 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { db, storage } from '../firebase';
+import { db } from '../firebase';
+import { Link } from 'react-router-dom'
 
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Toolbar from '@material-ui/core/Toolbar'
+import Grid from '@material-ui/core/Grid'
+import Card from '@material-ui/core/Card'
+import CardActions from '@material-ui/core/CardActions';
+import Button from '@material-ui/core/Button'
+import CardHeader from '@material-ui/core/CardHeader'
+import CardMedia from '@material-ui/core/CardMedia'
+import CardContent from '@material-ui/core/CardContent'
+import { Typography } from '@material-ui/core';
 import { UserContext } from '../userContext';
 
 function Badges(props) {
 
-    const { currentUser, loading } = useContext(UserContext)
+    const { loading } = useContext(UserContext)
 
-	const [ fileUpload, setFileUpload ] = useState(null)
-    const [ data, setData ] = useState([])
-  
-    const onFileChange = async (e) => {
-	  setFileUpload(e.target.files[0])
-    };
+    const [ badges, setBadges ] = useState([])
+    const [ uiLoading, setUiLoading ] = useState(loading)
 
-    const getData=()=>{
-        fetch(fileUpload
-        ,{
-          headers : { 
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-           }
-        }
-        )
-          .then(function(response){
-            console.log(response)
-            return response.json();
-          })
-          .then(function(myJson) {
-            console.log(myJson);
-            setData(myJson)
-          });
-      }
-      useEffect(()=>{
-        getData()
-      },[])
-  
-    const onSubmit = async () => {
+    useEffect(() => {
+        
+        return db.collection("badges")
 
-	  console.log('file upload name is '+fileUpload.name)
+        .onSnapshot(snapshot => {
+            const badgesData = [];
+            snapshot.forEach(doc => badgesData.push({ ...doc.data(), id: doc.id }));
+            setBadges(badgesData)
+            setUiLoading(false)
+            console.log('badges are '+badgesData)
+        })
+    }, []);
 
-    };
-
-    if (loading === true) {
+    if (uiLoading === true) {
         return (
             <main sx={{flexGrow:1, p:3}} >
                 <Toolbar />
-                {loading && <CircularProgress size={150} sx={{
+                {uiLoading && <CircularProgress size={150} sx={{
                     position: 'fixed',
                     zIndex: '1000',
                     height: '31px',
@@ -63,20 +53,32 @@ function Badges(props) {
             <main sx={{flexGrow:1, p:3}}>
                 <Toolbar />
 
-                <center>
-                    <p>
-                        {'Badges list table goes here '}
-                    </p>
-                </center>
-
-                <center>
-                    <div>
-                        {data && data.length>0 && data.map((item)=><p>{item.about}</p>)}
-                    </div>
-                </center>
-
-				<input type="file" onChange={onFileChange} />
-				<button onClick = {onSubmit}> Submit New Badge </button>
+            <Grid container spacing={2}>
+                    {badges && badges.length>0 && badges.map((badge) => (
+                        <Grid item xs={12} sm={6} key = {badge.id}>
+                            <Card sx={{ maxWidth: 345 }}>
+                            <CardMedia
+                                sx={{ height: 140 }}
+                                image={badge.ImageUrl}
+                                title="Contemplative Reptile"
+                            />
+                            <CardContent>
+                                <Typography gutterBottom variant="h5" component="div">
+                                {badge.Title}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                Lizards are a widespread group of squamate reptiles, with over 6,000
+                                species, ranging across all continents except Antarctica
+                                </Typography>
+                            </CardContent>
+                            <CardActions>
+                                <Button component={Link} to={`/badges/${badge.id}`} size="small">See Details</Button>
+                                <Button size="small">Add to My Badges</Button>
+                            </CardActions>
+                            </Card>
+                        </Grid>
+                    ))}
+                </Grid>
 
             </main>
         );
