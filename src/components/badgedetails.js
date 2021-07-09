@@ -1,18 +1,22 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { db } from '../firebase';
+import { UserContext } from '../userContext';
 
 import { useParams } from 'react-router-dom'
 import Box from '@material-ui/core/Box'
 import Toolbar from '@material-ui/core/Toolbar'
 import { Typography } from '@material-ui/core'
+import IconButton from '@material-ui/core/IconButton';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
 import { Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Paper, Card, CardMedia } from '@material-ui/core'
 
 
 export default function BadgeDetails() {
 
     const { badgeId } = useParams()
-    const [ criteria, setCriteria ]  = useState([])
-    const [ image, setImage ] = useState('')
+    const { currentUser } = useContext(UserContext)
+    const [ badgeDetails, setBadgeDetails ] = useState({})
+    const [ updateBadge, setUpdateBadge ] = useState(false)
     
     useEffect(() => {
         
@@ -21,8 +25,7 @@ export default function BadgeDetails() {
             .then((doc)=> {
                 if(doc.exists){
                     let badgeData = doc.data()
-                    setCriteria(badgeData.Criteria)
-                    setImage(badgeData.ImageUrl)
+                    setBadgeDetails({...badgeData, badgeId: badgeId})
                     console.log('badgeData title is '+badgeData.Title)
                 } else {
                     alert("I can't find that document")
@@ -32,23 +35,59 @@ export default function BadgeDetails() {
 
     }, [badgeId]);
 
+    useEffect(() => {
+        if(updateBadge){ return db.collection('users').doc(currentUser.uid)
+            .collection('myBadges').add({...badgeDetails,uid: currentUser.uid})
+            .then((doc)=>{
+                console.log('New badge aspiration added')
+                setUpdateBadge(false)
+            })
+        }
+    },[ updateBadge, currentUser.uid, badgeDetails ])
+
+    const handleAddBadge = (e) => {
+        e.preventDefault()
+        console.log('badgeDetails submitted object is '+JSON.stringify(badgeDetails))
+        let document = db.collection('users').doc(currentUser.uid)
+        document.collection('myBadges').where("Title","==",badgeDetails.Title).get()
+        .then((snapshot) => {
+            console.log('number of docs in snapshot is '+snapshot.size)
+            if(snapshot.size === 0){
+                setUpdateBadge(true)
+            } else {
+                setUpdateBadge(false)
+            }
+        })
+    }
 
     console.log('reached the BadgeDetails component with id of '+badgeId)
     return (
         <>
             <Toolbar />
+            <IconButton
+                sx={{
+                    position: 'fixed',
+                    bottom: 0,
+                    right: 0
+                }}
+                color="primary"
+                aria-label="Add Badge"
+                onClick={handleAddBadge}
+            >
+                <AddCircleIcon sx={{ fontSize: 60 }} />
+            </IconButton>
+
             <Box sx={{flexGrow:1, p:3}} >
                 <Box sx={{mx:'auto', width:180}}>
                     <Card sx={{ maxWidth: 345 }}>
                                 <CardMedia
                                     sx={{ height: 140 }}
-                                    justifyContent='center'
-                                    image={image}
+                                    image={badgeDetails.ImageUrl}
                                     title="Contemplative Reptile"
                                 />
                     </Card>
                 </Box>
-                {badgeId && criteria && 
+                {badgeId && badgeDetails.Criteria && 
                 <TableContainer component={Paper} sx={{borderRadius:2, m:1, maxWidth:950}}>
                     <Table sx={{ minWidth: 650 }} aria-label="simple table">
                         <TableHead>
@@ -60,7 +99,7 @@ export default function BadgeDetails() {
                         </TableRow>
                         </TableHead>
                         <TableBody>
-                        {criteria.map((row) => (
+                        {badgeDetails.Criteria.map((row) => (
                             <TableRow
                             key={row.Label}
                             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
