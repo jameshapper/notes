@@ -10,6 +10,8 @@ import Account from './components/account'
 import Badges from './components/badges'
 import TeacherClasses from './components/classes';
 import BadgeDetails from './components/badgedetails';
+import Feedback from './components/feedback';
+import Students from './components/students'
 
 const theme = createTheme({
 	palette: {
@@ -71,6 +73,9 @@ function App() {
                             <UserRoute exact path="/" component={NotesLayout}/>
                             <Route exact path="/account"><Layout><Account /></Layout></Route>
                             <Route exact path="/badges"><Layout><Badges /></Layout></Route>
+							<Route exact path="/students"><Layout><Students /></Layout></Route>
+                            <Route exact path="/feedback"><Layout><Feedback /></Layout></Route>
+
                             <AdminRoute exact path="/classes" component={ClassesLayout}/>
 							<Route exact path="/badges/:badgeId"><Layout><BadgeDetails /></Layout></Route>
 

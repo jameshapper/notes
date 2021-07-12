@@ -18,6 +18,7 @@ import NotesIcon from '@material-ui/icons/Notes';
 import Avatar from '@material-ui/core/Avatar';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import ShieldIcon from '@material-ui/icons/Shield';
+import { EmojiPeople, RateReview } from '@material-ui/icons';
 
 const drawerWidth = 240;
 
@@ -54,6 +55,16 @@ const menuItemsUser = [
         text: 'Badges',
         icon: <ShieldIcon color="secondary" />,
         path: '/badges'
+    },
+    {
+        text: 'Feedback',
+        icon: <RateReview color="secondary" />,
+        path: '/feedback'
+    },
+    {
+        text: 'Students',
+        icon: <EmojiPeople color="secondary" />,
+        path: '/students'
     }
   ];
 

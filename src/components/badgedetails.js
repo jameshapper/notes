@@ -49,7 +49,8 @@ export default function BadgeDetails() {
         e.preventDefault()
         console.log('badgeDetails submitted object is '+JSON.stringify(badgeDetails))
         let document = db.collection('users').doc(currentUser.uid)
-        document.collection('myBadges').where("Title","==",badgeDetails.Title).get()
+        document.collection('myBadges').where("uid","==",currentUser.uid)
+        .where("Title","==",badgeDetails.Title).get()
         .then((snapshot) => {
             console.log('number of docs in snapshot is '+snapshot.size)
             if(snapshot.size === 0){

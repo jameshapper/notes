@@ -9,6 +9,7 @@ import { Box } from "@material-ui/core";
 function Login() {
 
 	const value = useContext(UserContext);
+
 	if(value){console.log('Login value and loading '+value.currentUser +value.loading)}
 	
 	let history = useHistory()
@@ -47,7 +48,7 @@ function Login() {
 			return user
 		  } else {
 			//user doesn't exist - create a new user in firestore
-			addNewUserToFirestore(user);        
+			addNewUserToFirestore(user);
 		  }
 		})
 	  })
@@ -75,6 +76,7 @@ function Login() {
       email: profile.hasOwnProperty("email") ? profile.email : '',
     };
     collection.doc(user.user.uid).set(details);
+	db.collection('adminDocs').doc('studentList').update({students: firebase.firestore.FieldValue.arrayUnion({'uid':user.user.uid, 'firstName':details.firstName})})
     return {user, details};
   }
 
