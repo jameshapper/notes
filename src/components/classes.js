@@ -201,9 +201,7 @@ function TeacherClasses(props) {
     const handleSubmitComment = (event) => {
         event.preventDefault();
 
-        if (false) {
-
-        } else {
+        if (commentBody) {
             const newComment = {
                 body: commentBody,
                 createdAt: new Date().toISOString(),
@@ -230,7 +228,10 @@ function TeacherClasses(props) {
                 console.error(error);
                 alert('Something went wrong' );
             });
+        } else {
+            alert("No empty comments")
         }
+
     };
 
     const handleViewOpen = (note) => {

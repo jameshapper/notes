@@ -1,9 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { db } from '../firebase';
 import firebase from 'firebase';
-import { useHistory } from "react-router-dom";
-
-
+import { useHistory, Link } from "react-router-dom";
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { UserContext } from '../userContext';
@@ -243,8 +241,7 @@ EnhancedTableHead.propTypes = {
 };
 
 const EnhancedTableToolbar = (props) => {
-  const { numSelected } = props;
-  let history = useHistory();
+  const { numSelected, selected } = props;
 
   return (
     <Toolbar
@@ -279,7 +276,7 @@ const EnhancedTableToolbar = (props) => {
 
       {numSelected === 1 ? (
         <Tooltip title="Edit Record">
-          <IconButton onClick={() => history.push('/badges')} >
+          <IconButton component={Link} to={`/students/${selected[0].uid}`} >
             <Edit />
           </IconButton>
         </Tooltip>
@@ -387,7 +384,7 @@ export function EnhancedTable(props) {
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length} />
+        <EnhancedTableToolbar numSelected={selected.length} selected={selected} />
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
