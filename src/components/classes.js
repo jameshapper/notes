@@ -39,7 +39,6 @@ function TeacherClasses(props) {
     const [ body, setBody ] = useState('')
     const [ noteId, setNoteId ] = useState('')
     const [ studentId, setStudentId ] = useState('')
-    const [ selectedStudents, setSelectedStudents ] = useState([])
 
     const [ students10, setStudents10 ] = useState([])
     const [ students20, setStudents20 ] = useState([])
@@ -49,6 +48,7 @@ function TeacherClasses(props) {
     const [ created, setCreated ] = useState("")
     const [ author, setAuthor ] = useState("")
     const [ noteAvatar, setNoteAvatar ] = useState("")
+    const [ classForSelect, setClassForSelect ] = useState([])
 
     const [ errors, setErrors ] = useState([])
     const [ open, setOpen ] = useState(false)
@@ -67,7 +67,7 @@ function TeacherClasses(props) {
 
     const { avatar } = useContext(UserContext)
 
-    useEffect(() => {
+/*     useEffect(() => {
         
         console.log("User",user)
         if(user){
@@ -82,6 +82,26 @@ function TeacherClasses(props) {
                     // doc.data() will be undefined in this case
                     console.log("No such teacher document!");
                 }
+            })
+        }
+
+    }, [user]); */
+
+    //alternate way to get class data (if stored in teacherClasses collection?)
+    useEffect(() => {
+        
+        if(user){
+            return db.collection("users").doc(user.uid).collection('teacherClasses').get()
+            .then((snapshot) => {
+                const teacherData = []
+                snapshot.forEach((doc) => {
+                    teacherData.push({...doc.data(), id: doc.id})
+                })
+                setTeacherClasses(teacherData)
+                setUiLoading(false)
+            })
+            .catch((error) => {
+                console.log("No classes error: ", error);
             })
         }
 
@@ -246,6 +266,16 @@ function TeacherClasses(props) {
         }
     }, [noteId]);
 
+    useEffect(() => {
+        const toLabelValue = currentClass.map((student) => {
+            return {
+                label: student.firstName,
+                value: student.uid
+            }
+        })
+        setClassForSelect(toLabelValue)
+    },[currentClass])
+
     const handleViewClose = () => setViewOpen(false);
 
     const handleClose = (event) => setOpen(false);
@@ -323,7 +353,7 @@ function TeacherClasses(props) {
                                 <div>
                                     <h1>Select Students</h1>
                                     <MultiSelect
-                                    options={currentClass}
+                                    options={classForSelect}
                                     value={selected}
                                     onChange={setSelected}
                                     labelledBy={"Select"}

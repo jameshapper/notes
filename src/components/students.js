@@ -1,5 +1,8 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { db } from '../firebase';
+import firebase from 'firebase';
+import { useHistory } from "react-router-dom";
+
 
 import CircularProgress from '@material-ui/core/CircularProgress';
 
@@ -24,22 +27,64 @@ import Tooltip from '@material-ui/core/Tooltip';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import FilterListIcon from '@material-ui/icons/FilterList';
-import { CloudDownload } from '@material-ui/icons';
+import { CloudDownload, Edit } from '@material-ui/icons';
+import { FormControl, InputLabel, Select, MenuItem, Button, Grid } from '@material-ui/core';
 
 function Students(props) {
 
-    const { loading } = useContext(UserContext)
+    const { loading, currentUser } = useContext(UserContext)
 
     const [ uiLoading, setUiLoading ] = useState(loading)
     const [ rows, setRows ] = useState([])
+    const [ classes, setClasses ] = useState([])
+    const [ selectedClass, setSelectedClass ] = useState({name:"", students:[]})
+    const [ selectedStudents, setSelectedStudents ] = useState([])
 
     useEffect(() => {   
         return db.collection("adminDocs").doc("studentList").get()
         .then((doc) => {
             setRows(doc.data().students)
-            console.log(doc.data().students)
         })
     }, []);
+
+/*     useEffect(() => {
+        return db.collection("users").doc(currentUser.uid).get()
+        .then((doc) => {
+            setClasses(doc.data().classes)
+            console.log(doc.data().classes)
+        })
+    },[currentUser.uid]) */
+
+    useEffect(() => {
+        return db.collection("users").doc(currentUser.uid).collection("teacherClasses").get()
+        .then((snapshot) => {
+            const classData = []
+            snapshot.forEach((doc) => {
+                classData.push({...doc.data(), id: doc.id})
+            })
+            setClasses(classData)
+            console.log("class data is "+classData)
+        })
+    },[currentUser.uid])
+
+    const handleChange = (event) => {
+        setSelectedClass(event.target.value)
+        console.log('selected class id is '+event.target.value)
+    }
+
+    const handleSubmit = (event) => {
+        event.preventDefault()
+        if(selectedClass.length){
+          console.log('planning to submit to class id '+selectedClass)
+          console.log('and submit selected student ids are '+selectedStudents)
+          db.collection('users').doc(currentUser.uid).collection('teacherClasses')
+          .doc(selectedClass).update({
+              students: firebase.firestore.FieldValue.arrayUnion(...selectedStudents)
+          })
+        } else {
+          alert("Make sure to select a class")
+        }
+    }
 
     if (uiLoading === true) {
         return (
@@ -59,9 +104,34 @@ function Students(props) {
         return (
             <>
                 <Toolbar />
+                <Grid container spacing={2} alignItems='center'>
+                    <Grid item xs={2} key='classSelect'>
+                        <FormControl sx={{ m: 1, minWidth: 120 }}>
+                            <InputLabel id="demo-simple-select-label">Classes</InputLabel>
+                            <Select
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                value={selectedClass}
+                                label="Classes"
+                                onChange={handleChange}
+                            >
+                                {classes.map((eachclass) => (
+                                    <MenuItem key={eachclass.name} value={eachclass.id}>{eachclass.name}</MenuItem>
+                                ))
+                                }
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <Typography variant='h6' align='center'>Select students below to add to class</Typography>
+                    </Grid>
+                    <Grid item xs={4}>
+                        <Button variant='contained' onClick={handleSubmit}>Submit</Button>
+                    </Grid>
+                </Grid>
     
                 <Box sx={{flexGrow:1, p:3}} >
-                    <EnhancedTable rows={rows}/>
+                    <EnhancedTable rows={rows} setSelectedStudents={(selecteds) => setSelectedStudents(selecteds) } />
                 </Box>
     
             </>
@@ -174,6 +244,7 @@ EnhancedTableHead.propTypes = {
 
 const EnhancedTableToolbar = (props) => {
   const { numSelected } = props;
+  let history = useHistory();
 
   return (
     <Toolbar
@@ -206,7 +277,14 @@ const EnhancedTableToolbar = (props) => {
         </Typography>
       )}
 
-      {numSelected > 0 ? (
+      {numSelected === 1 ? (
+        <Tooltip title="Edit Record">
+          <IconButton onClick={() => history.push('/badges')} >
+            <Edit />
+          </IconButton>
+        </Tooltip>
+      ) :
+      numSelected > 0 ? (
         <Tooltip title="Download records">
           <IconButton>
             <CloudDownload />
@@ -245,15 +323,21 @@ export function EnhancedTable(props) {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = rows.map((n) => n.firstName);
+      //const newSelecteds = rows.map((n) => n.uid);
+      const newSelecteds = rows
       setSelected(newSelecteds);
+      props.setSelectedStudents(newSelecteds)
       return;
     }
     setSelected([]);
+    props.setSelectedStudents([])
   };
 
   const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
+    //const selectedIndex = selected.indexOf(name);
+    const selectedIndex = selected.findIndex(function(selection){
+      return selection.uid === name.uid
+    })
     let newSelected = [];
 
     if (selectedIndex === -1) {
@@ -270,6 +354,9 @@ export function EnhancedTable(props) {
     }
 
     setSelected(newSelected);
+    props.setSelectedStudents(newSelected)
+
+    console.log("newly selected are "+newSelected)
   };
 
   const handleChangePage = (event, newPage) => {
@@ -285,7 +372,13 @@ export function EnhancedTable(props) {
     setDense(event.target.checked);
   };
 
-  const isSelected = (name) => selected.indexOf(name) !== -1;
+  //const isSelected = (name) => selected.indexOf(name) !== -1;
+  const isSelected = (name) => {
+    const index = selected.findIndex(function (selection) {
+      return selection.uid===name.uid
+    })
+    return index !== -1
+  }
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -315,17 +408,17 @@ export function EnhancedTable(props) {
               {stableSort(rows, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
-                  const isItemSelected = isSelected(row.firstName);
+                  const isItemSelected = isSelected(row);
                   const labelId = `enhanced-table-checkbox-${index}`;
 
                   return (
                     <TableRow
                       hover
-                      onClick={(event) => handleClick(event, row.firstName)}
+                      onClick={(event) => handleClick(event, row)}
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
-                      key={row.firstName}
+                      key={row.uid}
                       selected={isItemSelected}
                     >
                       <TableCell padding="checkbox">
