@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { db } from '../firebase';
 import firebase from 'firebase';
-import { useHistory, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { UserContext } from '../userContext';
@@ -25,8 +25,9 @@ import Tooltip from '@material-ui/core/Tooltip';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import FilterListIcon from '@material-ui/icons/FilterList';
-import { CloudDownload, Edit } from '@material-ui/icons';
-import { FormControl, InputLabel, Select, MenuItem, Button, Grid } from '@material-ui/core';
+import CloseIcon from '@material-ui/icons/Close';
+import { AssignmentInd, CloudDownload, Edit, SecurityUpdate } from '@material-ui/icons';
+import { AppBar, TextField, Dialog, FormControl, InputLabel, Select, MenuItem, Button, Grid } from '@material-ui/core';
 
 function Students(props) {
 
@@ -39,8 +40,8 @@ function Students(props) {
     const [ selectedStudents, setSelectedStudents ] = useState([])
 
     useEffect(() => {   
-        return db.collection("adminDocs").doc("studentList").get()
-        .then((doc) => {
+        return db.collection("adminDocs").doc("studentList")
+        .onSnapshot((doc) => {
             setRows(doc.data().students)
         })
     }, []);
@@ -129,7 +130,7 @@ function Students(props) {
                 </Grid>
     
                 <Box sx={{flexGrow:1, p:3}} >
-                    <EnhancedTable rows={rows} setSelectedStudents={(selecteds) => setSelectedStudents(selecteds) } />
+                    <EnhancedTable rows={rows} setSelectedStudents={(selecteds) => setSelectedStudents(selecteds)} />
                 </Box>
     
             </>
@@ -241,7 +242,7 @@ EnhancedTableHead.propTypes = {
 };
 
 const EnhancedTableToolbar = (props) => {
-  const { numSelected, selected } = props;
+  const { numSelected, selected, handleClickOpen } = props;
 
   return (
     <Toolbar
@@ -275,11 +276,20 @@ const EnhancedTableToolbar = (props) => {
       )}
 
       {numSelected === 1 ? (
+        <>
         <Tooltip title="Edit Record">
-          <IconButton component={Link} to={`/students/${selected[0].uid}`} >
+          <IconButton
+            onClick={handleClickOpen}
+          >
             <Edit />
           </IconButton>
         </Tooltip>
+        <Tooltip title="View Details">
+          <IconButton component={Link} to={`/students/${selected[0].uid}`} >
+            <AssignmentInd />
+          </IconButton>
+        </Tooltip>
+        </>
       ) :
       numSelected > 0 ? (
         <Tooltip title="Download records">
@@ -303,14 +313,31 @@ EnhancedTableToolbar.propTypes = {
 };
 
 export function EnhancedTable(props) {
-  const [order, setOrder] = React.useState('asc');
-  const [orderBy, setOrderBy] = React.useState('year');
-  const [selected, setSelected] = React.useState([]);
-  const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [order, setOrder] = useState('asc');
+  const [orderBy, setOrderBy] = useState('year');
+  const [selected, setSelected] = useState([]);
+  const [page, setPage] = useState(0);
+  const [dense, setDense] = useState(false);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [clickOpen, setClickOpen] = useState(false)
+  const [gradYear, setGradYear] = useState(2000)
+  const [studentName, setStudentName] = useState("")
+  const [errors, setErrors] = useState([])
+  const [studentId, setStudentId] = useState('')
 
   const rows = props.rows
+
+  const handleClickOpen = () => {
+    setClickOpen(true)
+    setStudentName(selected[0].firstName)
+    setGradYear(selected[0].year)
+    setStudentId(selected[0].uid)
+  }
+
+  const handleClose = () => {
+    setClickOpen(false)
+    setSelected([])
+  }
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -356,6 +383,34 @@ export function EnhancedTable(props) {
     console.log("newly selected are "+newSelected)
   };
 
+  const handleYearChange = (event) => setGradYear(event.target.value)
+
+  const handleNameChange = (event) => setStudentName(event.target.value)
+
+  const handleSubmit = () => {
+    console.log("Halelujiah")
+    const studentUpdate = {
+      firstName:studentName,
+      uid:studentId,
+      year:gradYear
+    }
+    db.collection("adminDocs").doc("studentList").update({
+      students: firebase.firestore.FieldValue.arrayRemove({
+        firstName:selected[0].firstName,
+        uid:selected[0].uid,
+        year:selected[0].year
+      })
+    })
+    .then(() => {
+      db.collection("adminDocs").doc("studentList").update({
+        students: firebase.firestore.FieldValue.arrayUnion(studentUpdate)
+      })
+    })
+    .then(() => db.collection("users").doc(studentUpdate.uid).update(studentUpdate))
+    setClickOpen(false)
+    setSelected([])
+  }
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -384,7 +439,7 @@ export function EnhancedTable(props) {
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length} selected={selected} />
+        <EnhancedTableToolbar numSelected={selected.length} selected={selected} handleClickOpen={handleClickOpen} />
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
@@ -466,6 +521,75 @@ export function EnhancedTable(props) {
         control={<Switch checked={dense} onChange={handleChangeDense} />}
         label="Dense padding"
       />
+
+      <Dialog fullWidth={true} maxWidth='md' open={clickOpen} onClose={handleClose}>
+          <AppBar sx={{position: 'relative'}} >
+              <Toolbar>
+                  <IconButton edge="start" color="inherit" onClick={handleClose} aria-label="close">
+                      <CloseIcon />
+                  </IconButton>
+                  <Typography variant="h6" sx={{ml:2, flex:1}} >
+                      Edit Record
+                  </Typography>
+                  <Button
+                      autoFocus
+                      color="inherit"
+                      onClick={handleSubmit}
+                      sx={{
+                          display: 'block',
+                          color: 'white',
+                          textAlign: 'center',
+                          position: 'absolute',
+                          top: 14,
+                          right: 10
+                      }}
+                  >
+                      Save
+                  </Button>
+              </Toolbar>
+          </AppBar>
+
+          <Box sx={{
+              width: '88%',
+              marginLeft: 2,
+              marginTop: 3,
+              marginBottom: 3
+          }} noValidate>
+              <Grid container spacing={2}>
+                  <Grid item xs={6} key='studentname'>
+                      <TextField
+                          variant="outlined"
+                          required
+                          fullWidth
+                          id="studentName"
+                          label="Student Name"
+                          name="studentname"
+                          autoComplete="studentName"
+                          helperText={errors.title}
+                          value={studentName}
+                          error={errors.title ? true : false}
+                          onChange={handleNameChange}
+                      />
+                  </Grid>
+                  <Grid item xs={6} key='gradyear'>
+                      <TextField
+                          variant="outlined"
+                          required
+                          fullWidth
+                          id="gradYear"
+                          label="Grad Year"
+                          name="gradyear"
+                          autoComplete="gradYear"
+                          helperText={errors.title}
+                          value={gradYear}
+                          error={errors.title ? true : false}
+                          onChange={handleYearChange}
+                      />
+                  </Grid>
+
+              </Grid>
+          </Box>
+      </Dialog>
     </Box>
   );
 }
