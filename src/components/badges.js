@@ -52,6 +52,7 @@ function Badges(props) {
         return (
             <main sx={{flexGrow:1, p:3}}>
                 <Toolbar />
+                <Button component={Link} to={'/badgeForm'} size='small' variant='contained' >Add Badge</Button>
 
             <Grid container spacing={2}>
                     {badges && badges.length>0 && badges.map((badge) => (
