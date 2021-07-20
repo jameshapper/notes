@@ -13,7 +13,7 @@ import BadgeDetails from './components/badgedetails';
 import Feedback from './components/feedback';
 import Students from './components/students'
 import StudentDetails from './components/studentdetails'
-import BadgeForm from './components/badgeform'
+import BadgeForm from './components/badgeform2'
 
 const theme = createTheme({
 	palette: {

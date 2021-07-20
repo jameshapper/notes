@@ -60,16 +60,15 @@ function Badges(props) {
                             <Card sx={{ maxWidth: 345 }}>
                             <CardMedia
                                 sx={{ height: 140 }}
-                                image={badge.ImageUrl}
+                                image={badge.imageUrl}
                                 title="Contemplative Reptile"
                             />
                             <CardContent>
                                 <Typography gutterBottom variant="h5" component="div">
-                                {badge.Title}
+                                {badge.badgename}
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary">
-                                Lizards are a widespread group of squamate reptiles, with over 6,000
-                                species, ranging across all continents except Antarctica
+                                {badge.description}
                                 </Typography>
                             </CardContent>
                             <CardActions>

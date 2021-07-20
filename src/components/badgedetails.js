@@ -50,7 +50,7 @@ export default function BadgeDetails() {
         console.log('badgeDetails submitted object is '+JSON.stringify(badgeDetails))
         let document = db.collection('users').doc(currentUser.uid)
         document.collection('myBadges').where("uid","==",currentUser.uid)
-        .where("Title","==",badgeDetails.Title).get()
+        .where("Title","==",badgeDetails.title).get()
         .then((snapshot) => {
             console.log('number of docs in snapshot is '+snapshot.size)
             if(snapshot.size === 0){
@@ -83,12 +83,12 @@ export default function BadgeDetails() {
                     <Card sx={{ maxWidth: 345 }}>
                                 <CardMedia
                                     sx={{ height: 140 }}
-                                    image={badgeDetails.ImageUrl}
+                                    image={badgeDetails.imageUrl}
                                     title="Contemplative Reptile"
                                 />
                     </Card>
                 </Box>
-                {badgeId && badgeDetails.Criteria && 
+                {badgeId && badgeDetails.criteria && 
                 <TableContainer component={Paper} sx={{borderRadius:2, m:1, maxWidth:950}}>
                     <Table sx={{ minWidth: 650 }} aria-label="simple table">
                         <TableHead>
@@ -100,17 +100,17 @@ export default function BadgeDetails() {
                         </TableRow>
                         </TableHead>
                         <TableBody>
-                        {badgeDetails.Criteria.map((row) => (
+                        {badgeDetails.criteria.map((row) => (
                             <TableRow
-                            key={row.Label}
+                            key={row.label}
                             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                             >
                             <TableCell component="th" scope="row">
-                                {row.Label}
+                                {row.label}
                             </TableCell>
-                            <TableCell align="right">{row.Level}</TableCell>
-                            <TableCell align="left">{row.Description}</TableCell>
-                            <TableCell align="right" sx={{fontWeight:'bold'}}>{row.Crits}</TableCell>
+                            <TableCell align="right">{row.level}</TableCell>
+                            <TableCell align="left">{row.criterion}</TableCell>
+                            <TableCell align="right" sx={{fontWeight:'bold'}}>{row.crits}</TableCell>
                             </TableRow>
                         ))}
                         </TableBody>
