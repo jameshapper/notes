@@ -37,6 +37,11 @@ const menuItemsUser = [
         text: 'Badges',
         icon: <ShieldIcon color="secondary" />,
         path: '/badges'
+    },
+    {
+        text: 'MyBadges',
+        icon: <ShieldIcon color="primary" />,
+        path: '/myBadges'
     }
   ];
 

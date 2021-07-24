@@ -9,6 +9,7 @@ export default function UserProvider({ children }) {
   const [ loading, setLoading ] = useState(true)
   const [ isAdmin, setIsAdmin ] = useState(false)
   const [ avatar, setAvatar ] = useState("https://i.pravatar.cc/300")
+  const [ myBadges, setMyBadges ] = useState({})
 
   function logout() {
     setIsAdmin(false)
@@ -31,8 +32,11 @@ export default function UserProvider({ children }) {
               if(doc.data().hasOwnProperty("avatar")) {
                 setAvatar(doc.data().avatar)
               }
+              if(doc.data().hasOwnProperty("myBadgesMap")) {
+                setMyBadges(doc.data().myBadgesMap)
+              }
             }
-          })
+          }) 
 
         }
     })
@@ -44,6 +48,7 @@ export default function UserProvider({ children }) {
     currentUser,
     isAdmin,
     avatar,
+    myBadges,
     loading,
     logout
   }

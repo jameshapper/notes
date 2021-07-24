@@ -14,6 +14,8 @@ import Feedback from './components/feedback';
 import Students from './components/students'
 import StudentDetails from './components/studentdetails'
 import BadgeForm from './components/badgeform2'
+import MyBadges from './components/mybadges'
+import MyBadgeDetails from './components/mybadgedetails';
 
 const theme = createTheme({
 	palette: {
@@ -81,6 +83,8 @@ function App() {
                             <AdminRoute exact path="/classes" component={ClassesLayout}/>
 							<Route exact path="/badges/:badgeId"><Layout><BadgeDetails /></Layout></Route>
 							<Route exact path="/badgeForm"><Layout><BadgeForm></BadgeForm></Layout></Route>
+							<Route exact path="/myBadges"><Layout><MyBadges /></Layout></Route>
+							<Route exact path="/myBadges/:myBadgeId"><Layout><MyBadgeDetails /></Layout></Route>
 
                             <Route exact path="/login"><Login /></Route>
                         </Switch>

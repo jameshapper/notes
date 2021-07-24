@@ -1,31 +1,24 @@
-import React, { useEffect, useState, useContext } from 'react'
-import { db } from '../firebase';
-import { UserContext } from '../userContext';
-
+import React, { useContext, useState, useEffect } from 'react'
+import { db } from '../firebase'
+import { UserContext } from '../userContext'
 import { useParams } from 'react-router-dom'
-import Box from '@material-ui/core/Box'
-import Toolbar from '@material-ui/core/Toolbar'
-import { Typography } from '@material-ui/core'
-import IconButton from '@material-ui/core/IconButton';
-import AddCircleIcon from '@material-ui/icons/AddCircle';
-import { Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Paper, Card, CardMedia } from '@material-ui/core'
+import { Paper, Toolbar, Box, Card, CardMedia, Table, TableContainer, TableHead, TableBody, TableRow, TableCell } from '@material-ui/core'
 
+export default function MyBadgeDetails() {
 
-export default function BadgeDetails() {
-
-    const { badgeId } = useParams()
+    const { myBadgeId } = useParams()
     const { currentUser } = useContext(UserContext)
     const [ badgeDetails, setBadgeDetails ] = useState({})
     const [ updateBadge, setUpdateBadge ] = useState(false)
     
     useEffect(() => {
         
-        if(badgeId){
-            return db.collection("badges").doc(badgeId).get()
+        if(myBadgeId){
+            return db.collection("users").doc(currentUser.uid).collection("myBadges").doc(myBadgeId).get()
             .then((doc)=> {
                 if(doc.exists){
                     let badgeData = doc.data()
-                    setBadgeDetails({...badgeData, badgeId: badgeId})
+                    setBadgeDetails({...badgeData, badgeId: myBadgeId})
                     console.log('badgeData title is '+badgeData.badgename)
                 } else {
                     alert("I can't find that document")
@@ -33,59 +26,10 @@ export default function BadgeDetails() {
             })
         }
 
-    }, [badgeId]);
-
-    useEffect(() => {
-        if(updateBadge){ return db.collection('users').doc(currentUser.uid)
-            .collection('myBadges').add({...badgeDetails,uid: currentUser.uid})
-            .then((doc)=>{
-                console.log('New badge aspiration added')
-                const newBadge = {
-                    badgename:badgeDetails.badgename,
-                    myBadgeId:doc.id,
-                    crits:badgeDetails.totalcrits,
-                    critsAwarded: 0
-                  }
-                db.collection('users').doc(currentUser.uid).update({
-                    [`myBadgesMap.${badgeId}`]:newBadge
-                })
-                setUpdateBadge(false)
-            })
-        }
-    },[ updateBadge, currentUser.uid, badgeDetails, badgeId ])
-
-    const handleAddBadge = (e) => {
-        e.preventDefault()
-        console.log('badgeDetails submitted object is '+JSON.stringify(badgeDetails))
-        let document = db.collection('users').doc(currentUser.uid)
-        document.collection('myBadges').where("uid","==",currentUser.uid)
-        .where("badgename","==",badgeDetails.badgename).get()
-        .then((snapshot) => {
-            console.log('number of docs in snapshot is '+snapshot.size)
-            if(snapshot.size === 0){
-                setUpdateBadge(true)
-            } else {
-                setUpdateBadge(false)
-            }
-        })
-    }
-
-    console.log('reached the BadgeDetails component with id of '+badgeId)
+    }, [myBadgeId, currentUser.uid]);
     return (
         <>
             <Toolbar />
-            <IconButton
-                sx={{
-                    position: 'fixed',
-                    bottom: 0,
-                    right: 0
-                }}
-                color="primary"
-                aria-label="Add Badge"
-                onClick={handleAddBadge}
-            >
-                <AddCircleIcon sx={{ fontSize: 60 }} />
-            </IconButton>
 
             <Box sx={{flexGrow:1, p:3}} >
                 <Box sx={{mx:'auto', width:180}}>
@@ -97,7 +41,7 @@ export default function BadgeDetails() {
                                 />
                     </Card>
                 </Box>
-                {badgeId && badgeDetails.criteria && 
+                {myBadgeId && badgeDetails.criteria && 
                 <TableContainer component={Paper} sx={{borderRadius:2, m:1, maxWidth:950}}>
                     <Table sx={{ minWidth: 650 }} aria-label="simple table">
                         <TableHead>

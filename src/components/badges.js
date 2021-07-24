@@ -51,8 +51,8 @@ function Badges(props) {
     } else {
         return (
             <main sx={{flexGrow:1, p:3}}>
-                <Toolbar />
-                <Button component={Link} to={'/badgeForm'} size='small' variant='contained' >Add Badge</Button>
+            <Toolbar />
+            <Button component={Link} to={'/badgeForm'} size='small' variant='contained' >Add Badge</Button>
 
             <Grid container spacing={2}>
                     {badges && badges.length>0 && badges.map((badge) => (
@@ -73,11 +73,6 @@ function Badges(props) {
                             </CardContent>
                             <CardActions>
                                 <Button component={Link} to={`/badges/${badge.id}`} size="small">See Details</Button>
-                                <Button
-                                    size="small"
-                                >
-                                    Add to My Badges
-                                </Button>
                             </CardActions>
                             </Card>
                         </Grid>

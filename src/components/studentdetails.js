@@ -10,7 +10,7 @@ import Toolbar from '@material-ui/core/Toolbar'
 import { Typography } from '@material-ui/core'
 import IconButton from '@material-ui/core/IconButton';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
-import { Checkbox, TextField, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Paper, Card, CardMedia } from '@material-ui/core'
+import { Grid, Container, CssBaseline, Checkbox, TextField, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Paper, Card, CardMedia } from '@material-ui/core'
 
 
 export default function StudentDetails() {
@@ -43,36 +43,41 @@ export default function StudentDetails() {
     return (
         <>
             <Toolbar />
-
-            <Box sx={{flexGrow:1, p:3}} >
-                <p>Student Details</p>
-            </Box>
-
-            <form onSubmit={handleSubmit(onSubmit)}>
-            <Controller
-                name="MyCheckbox"
-                control={control}
-                defaultValue={false}
-                rules={{ required: true }}
-                render={({ field }) => <Checkbox {...field} />}
-            />
-            <section>
-            <label>MUI Checkbox</label>
-            <Controller
-            name="Checkbox"
-            control={control}
-            defaultValue={""}
-            render={({ field }) => (
-                <Checkbox
-                onChange={(e) => field.onChange(e.target.checked)}
-                checked={field.value}
-                />
-            )}
-            />
-            </section>
-            <input type="submit" />
-            </form>
-
+            <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+                <Grid container spacing={3}>
+                    {/* Chart */}
+                    <Grid item xs={12} md={8} lg={9}>
+                    <Paper
+                        sx={{
+                        p: 2,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        height: 240,
+                        }}
+                    >
+                        I'm going to write a lot of text to see what happens to the grid
+                    </Paper>
+                    </Grid>
+                    {/* Recent Deposits */}
+                    <Grid item xs={12} md={4} lg={3}>
+                    <Paper
+                        sx={{
+                        p: 2,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        height: 240,
+                        }}
+                    >
+                        I'll write some more here to see what happens with this text in the corresponding paper
+                    </Paper>
+                    </Grid>
+                    {/* Recent Orders */}
+                    <Grid item xs={12}>
+                    <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+                    </Paper>
+                    </Grid>
+                </Grid>
+            </Container>
         </>
     )
 }
