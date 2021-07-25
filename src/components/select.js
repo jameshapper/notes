@@ -50,7 +50,7 @@ export default function MultipleSelect(props) {
     }} >
         <Box sx={{justifyContent: 'left'}}>
         <FormControl sx={{minWidth:120,maxWidth:300,m:1}} >
-            <InputLabel id="demo-mutiple-checkbox-label">Add Aspirations</InputLabel>
+            <InputLabel id="demo-mutiple-checkbox-label">Add Badges</InputLabel>
             <Select
             labelId="demo-mutiple-checkbox-label"
             id="demo-mutiple-checkbox"

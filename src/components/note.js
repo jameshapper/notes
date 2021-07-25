@@ -24,7 +24,9 @@ import Slide from '@material-ui/core/Slide';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import MyBadgesList from './mybadgeslist';
+import Select from '@material-ui/core/Select'
+import MenuItem from '@material-ui/core/MenuItem'
+import { InputLabel } from '@material-ui/core';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
 	return <Slide direction="up" ref={ref} {...props} />;
@@ -53,15 +55,14 @@ function Note(props) {
     const [ comments, setComments ] = useState([])
     const [ commentBody, setCommentBody ] = useState("")
 
+    const [ status, setStatus ] = useState("Active")
+
     const { currentUser, avatar } = useContext(UserContext)
 
     const dataList = [
-        {label:'Hands-on',value: 'Hands-on'},
-        {label:'App-IT', value: 'App-IT'},
-        {label:'Study', value: 'Study'},
-        {label:'Problems', value: 'Problems'},
-        {label:'Sharing', value: 'Sharing'},
-        {label:'Connect', value: 'Connect'}
+        {label:'Arduino_101',value: 'Arduino_101'},
+        {label:'IGCSE_Bio', value: 'IGCSE_Bio'},
+        {label:'IGCSE_Phys', value: 'IGCSE_Phys'}
       ];
 
     dayjs.extend(relativeTime);
@@ -90,6 +91,10 @@ function Note(props) {
             setUiLoading(false)
         })
     }, [currentUser]);
+
+    useEffect(() => {
+        console.log('status changed to '+status)
+    }, [status])
 
     const handleTitleChange = (event) => setTitle(event.target.value);
     //const handleBodyChange = (event) => setBody(event.target.value);
@@ -312,8 +317,22 @@ function Note(props) {
                                     onChange={handleTitleChange}
                                 />
                             </Grid>
-                            <Grid item xs={12} key="chips">
+                            <Grid item xs={6} key="chips">
                                 <MultipleSelect allOptions={dataList} getList={activities => setNewActivities(activities)}></MultipleSelect>
+                            </Grid>
+                            <Grid item xs={6} key="status">
+                                <InputLabel id="demo-simple-select-label">Status</InputLabel>
+                                <Select
+                                    labelId="demo-simple-select-label"
+                                    id="demo-simple-select"
+                                    value={status}
+                                    label="Status"
+                                    onChange={(e) => setStatus(e.target.value)}
+                                >
+                                    <MenuItem value={"Active"}>Active</MenuItem>
+                                    <MenuItem value={"Archived"}>Archived</MenuItem>
+                                    <MenuItem value={"Paused"}>Paused</MenuItem>
+                                </Select>
                             </Grid>
                             <Grid item xs={12} sm={6}>
                                 <Editor initText={rt} setRt={rt => setRt(rt)} setBody={body => setBody(body)}/>
