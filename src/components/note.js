@@ -5,7 +5,7 @@ import "./styles.css";
 import Editor from "./editortest2"
 import MultipleSelect from './select';
 import { UserContext } from '../userContext';
-import ListCards from './listcards'
+import ListCards from './listcards2'
 import ViewNotes from './viewnotes'
 
 import dayjs from 'dayjs';
@@ -322,8 +322,6 @@ function Note(props) {
                         </Grid>
                     </Box>
                 </Dialog>
-
-                <MyBadgesList />
 
                 <ListCards notes={notes} handleEditOpen={handleEditOpen} handleViewOpen={handleViewOpen} deleteNoteHandler={deleteNoteHandler} canEdit={true}/>
 
