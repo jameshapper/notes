@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react'
 import { db } from '../firebase';
 import { UserContext } from '../userContext';
 
-import { useParams } from 'react-router-dom'
+import { useParams, useLocation } from 'react-router-dom'
 import { useForm, Controller } from "react-hook-form";
 
 import Box from '@material-ui/core/Box'
@@ -16,13 +16,16 @@ import { Grid, Container, CssBaseline, Checkbox, TextField, Table, TableContaine
 export default function StudentDetails() {
 
     const { studentId } = useParams()
-    const { currentUser } = useContext(UserContext)
+    //const { currentUser } = useContext(UserContext)
     const [ studentDetails, setStudentDetails ] = useState({})
     const [ updateStudent, setUpdateStudent ] = useState(false)
     const { handleSubmit, control, reset } = useForm();
     const onSubmit = data => console.log(data);
+    const location = useLocation()
+ 
+        console.log(location.state.something)
     
-    useEffect(() => {
+/*     useEffect(() => {
         
         if(studentId){
             return db.collection("users").doc(studentId).get()
@@ -36,10 +39,10 @@ export default function StudentDetails() {
             })
         }
 
-    }, [studentId]);
+    }, [studentId]); */
 
 
-    console.log('reached the studentDetails component with id of '+studentId)
+    //console.log('reached the studentDetails component with id of '+studentId)
     return (
         <>
             <Toolbar />
@@ -74,6 +77,7 @@ export default function StudentDetails() {
                     {/* Recent Orders */}
                     <Grid item xs={12}>
                     <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+                        idFromStudent is {location.state.something}
                     </Paper>
                     </Grid>
                 </Grid>

@@ -3,6 +3,7 @@ import { db } from '../firebase';
 import firebase from 'firebase';
 import { Link } from "react-router-dom";
 import CircularProgress from '@material-ui/core/CircularProgress';
+import { StudentContext } from '../studentcontext';
 
 import { UserContext } from '../userContext';
 import PropTypes from 'prop-types';
@@ -244,6 +245,15 @@ EnhancedTableHead.propTypes = {
 const EnhancedTableToolbar = (props) => {
   const { numSelected, selected, handleClickOpen } = props;
 
+  // <IconButton component={Link} to={`/students/${selected[0].uid}`} >
+  // <IconButton component={Link} to={{pathname: `/students/${selected[0].uid}`, state: {something: `${selected[0].uid}`} }} >
+
+  const { setAStudentId, setAStudentName } = useContext(StudentContext)
+  const handleStudentSelect = () => {
+    setAStudentId(`${selected[0].uid}`)
+    setAStudentName(`${selected[0].firstName}`)
+  }
+
   return (
     <Toolbar
       sx={{
@@ -285,7 +295,7 @@ const EnhancedTableToolbar = (props) => {
           </IconButton>
         </Tooltip>
         <Tooltip title="View Details">
-          <IconButton component={Link} to={`/students/${selected[0].uid}`} >
+          <IconButton component={Link} onClick={handleStudentSelect} to={{pathname: '/myBadges', state: {selectedStudentId: `${selected[0].uid}`, selectedStudentName: `${selected[0].firstName}`} }} >
             <AssignmentInd />
           </IconButton>
         </Tooltip>

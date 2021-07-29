@@ -1,20 +1,19 @@
 import React, { useEffect, useState, useContext } from 'react'
-import { db } from '../firebase';
+import { db, storage } from '../firebase';
 import { UserContext } from '../userContext';
 
 import { useParams } from 'react-router-dom'
 import Box from '@material-ui/core/Box'
 import Toolbar from '@material-ui/core/Toolbar'
-import { Typography } from '@material-ui/core'
 import IconButton from '@material-ui/core/IconButton';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
-import { Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Paper, Card, CardMedia } from '@material-ui/core'
+import { Button, ButtonGroup, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Paper, Card, CardMedia } from '@material-ui/core'
 
 
 export default function BadgeDetails() {
 
     const { badgeId } = useParams()
-    const { currentUser } = useContext(UserContext)
+    const { currentUser, isAdmin } = useContext(UserContext)
     const [ badgeDetails, setBadgeDetails ] = useState({})
     const [ updateBadge, setUpdateBadge ] = useState(false)
     
@@ -70,6 +69,32 @@ export default function BadgeDetails() {
         })
     }
 
+    const [ fileUpload, setFileUpload ] = useState(null)
+  
+    const onFileChange = async (e) => {
+	  setFileUpload(e.target.files[0])
+    };
+
+    const onSubmit = async () => {
+
+        console.log('file upload name is '+fileUpload.name)
+  
+        const storageRef = storage.ref();
+        const fileRef = storageRef.child(fileUpload.name);
+        await fileRef.put(fileUpload);
+        let downloadUrl = await fileRef.getDownloadURL()
+        console.log('waiting for download url '+await downloadUrl)
+        db.collection("badges").doc(badgeId).update({
+            imageUrl: await downloadUrl
+          })
+        .then(function() {
+          console.log("update appears successful")
+        }).catch(function(error) {
+          console.log('problem updating image')
+        });
+  
+      };
+
     console.log('reached the BadgeDetails component with id of '+badgeId)
     return (
         <>
@@ -87,14 +112,26 @@ export default function BadgeDetails() {
                 <AddCircleIcon sx={{ fontSize: 60 }} />
             </IconButton>
 
+            {isAdmin && 
+            <ButtonGroup orientation='vertical'>
+                <Button variant='contained' component='label' sx={{m:1}}>
+                    Upload New Image
+                    <input type="file" hidden onChange={onFileChange} />
+                </Button>
+                
+                <Button variant='outlined' sx={{m:1}} onClick = {onSubmit}> Submit New Image </Button>
+            </ButtonGroup>
+            }
+
             <Box sx={{flexGrow:1, p:3}} >
-                <Box sx={{mx:'auto', width:180}}>
-                    <Card sx={{ maxWidth: 345 }}>
-                                <CardMedia
-                                    sx={{ height: 140 }}
-                                    image={badgeDetails.imageUrl}
-                                    title="Contemplative Reptile"
-                                />
+                <Box sx={{mx:'auto', width:280}}>
+                    <Card sx={{ maxWidth: 280 }}>
+                        <CardMedia
+                            sx={{ height: 200 }}
+                            image={badgeDetails.imageUrl}
+                            title="Badge Image"
+                            component="img"
+                        />
                     </Card>
                 </Box>
                 {badgeId && badgeDetails.criteria && 

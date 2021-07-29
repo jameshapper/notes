@@ -68,7 +68,7 @@ function Badges(props) {
                                 {badge.badgename}
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary">
-                                {badge.description}
+                                {badge.description.substring(0, 200)+"..."}
                                 </Typography>
                             </CardContent>
                             <CardActions>

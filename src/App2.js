@@ -1,9 +1,10 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { BrowserRouter as Router, Route, Switch, Redirect, useLocation } from 'react-router-dom';
 import { ThemeProvider } from '@material-ui/core/styles';
 import createTheme from '@material-ui/core/styles/createTheme';
 import Login from './pages/login';
 import UserProvider, { UserContext } from './userContext'
+import StudentProvider, { StudentContext} from './studentcontext';
 import Layout from './components/layout'
 import Note from './components/note'
 import Account from './components/account'
@@ -68,9 +69,14 @@ function AdminRoute({ component: Component, ...rest }) {
 
 function App() {
 
+	const [ aStudentId, setAStudentId ] = useState("")
+	const [ aStudentName, setAStudentName ] = useState("")
+	console.log("in App, aStudentId is "+aStudentId)
+
 	return (
 		<ThemeProvider theme={theme}>
 			<UserProvider>
+				<StudentProvider value={{aStudentId, setAStudentId, aStudentName, setAStudentName}}>
                 <Router>
                     <div>
                         <Switch>
@@ -90,6 +96,7 @@ function App() {
                         </Switch>
                     </div>
                 </Router>
+				</StudentProvider>
 			</UserProvider>
 		</ThemeProvider>
 	);
