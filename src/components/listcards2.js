@@ -1,18 +1,15 @@
 import React from 'react'
 /** @jsxImportSource @emotion/react */
 
-import Chips from './chips';
-
 import dayjs from 'dayjs';
 
 import Grid from '@material-ui/core/Grid'
 import Avatar from '@material-ui/core/Avatar'
 import Typography from '@material-ui/core/Typography'
-import Button from '@material-ui/core/Button'
 import Badge from '@material-ui/core/Badge'
 import Message from '@material-ui/icons/Message'
 import { Box, Chip } from '@material-ui/core'
-import { List, ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
+import { List, ListItem, ListItemIcon } from '@material-ui/core';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import EditIcon from '@material-ui/icons/Edit'
 import ShieldIcon from '@material-ui/icons/Shield';

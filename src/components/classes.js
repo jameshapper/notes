@@ -3,6 +3,7 @@ import firebase, { db, auth } from '../firebase';
 import { UserContext } from '../userContext';
 import ListCards from './listcards'
 import ViewNotes from './viewnotes'
+import { Link } from "react-router-dom";
 
 import Datepicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -25,7 +26,6 @@ import CardActions from '@material-ui/core/CardActions';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import CardContent from '@material-ui/core/CardContent';
 import MuiDialogTitle from '@material-ui/core/DialogTitle';
-import { PanoramaFishEyeSharp } from '@material-ui/icons';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
 	return <Slide direction="up" ref={ref} {...props} />;
@@ -67,27 +67,7 @@ function TeacherClasses(props) {
 
     const { avatar } = useContext(UserContext)
 
-/*     useEffect(() => {
-        
-        console.log("User",user)
-        if(user){
-            return db.collection("users").doc(user.uid).get()
-            .then((doc) => {
-                if (doc.exists) {
-                    let teacherData = doc.data()
-                    console.log("Document data:", teacherData);
-                    setTeacherClasses(teacherData.classes)
-                    setUiLoading(false)
-                } else {
-                    // doc.data() will be undefined in this case
-                    console.log("No such teacher document!");
-                }
-            })
-        }
-
-    }, [user]); */
-
-    //alternate way to get class data (if stored in teacherClasses collection?)
+    //get class data (if stored in teacherClasses collection?)
     useEffect(() => {
         
         if(user){
@@ -299,6 +279,8 @@ function TeacherClasses(props) {
         return (
             <main sx={{flexGrow:1, p: 3}}>
                 <Toolbar />
+
+                <Button variant="contained" component={Link} to='/addclass'>Add new class</Button>
 
                 <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
                     <AppBar sx={{position: 'relative'}} >

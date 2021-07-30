@@ -65,12 +65,12 @@ export default function MyBadges() {
                                 </Typography>
                             </CardContent>
                             <CardMedia
-                                image="https://firebasestorage.googleapis.com/v0/b/progressnotes-b6fc9.appspot.com/o/ProfileCartoon100kb.png?alt=media&token=b7a9fbca-effb-49ba-8a18-361637132a11"
+                                image={studentBadge.imageUrl}
                                 sx={{ margin:'auto', width: 150, height: 150, alignItems:'center' }}
                             />
                             </CardActionArea>
                             <CardContent>
-                                <Progress done='80' />
+                                <Progress done={studentBadge.progress} />
                             </CardContent>
 
                         </Card>

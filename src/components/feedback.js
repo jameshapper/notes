@@ -65,6 +65,13 @@ export default function Feedback() {
         })
         //console.log("badgeDetails update? "+JSON.stringify(badgeDetails.criteria))
 
+        const totalCrits = badgeDetails.criteria.map(criterion => {
+            return criterion.critsAwarded
+        })
+
+        const sumCrits = totalCrits.reduce((a,b) => a + b, 0)
+        badgeDetails.progress = parseInt(100 * ( sumCrits / parseInt(badgeDetails.totalcrits) ))
+
         const feedback = {
             studentId: selectedStudentId,
             studentName: selectedStudentName,

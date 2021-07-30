@@ -16,6 +16,7 @@ export default function BadgeDetails() {
     const { currentUser, isAdmin } = useContext(UserContext)
     const [ badgeDetails, setBadgeDetails ] = useState({})
     const [ updateBadge, setUpdateBadge ] = useState(false)
+    const [ refresh, setRefresh ] = useState(false)
     
     useEffect(() => {
         
@@ -89,6 +90,7 @@ export default function BadgeDetails() {
           })
         .then(function() {
           console.log("update appears successful")
+          setRefresh(!refresh)
         }).catch(function(error) {
           console.log('problem updating image')
         });

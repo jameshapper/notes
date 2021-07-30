@@ -1,26 +1,14 @@
-import React, { useEffect, useState, useContext } from 'react'
-import { db } from '../firebase';
-import { UserContext } from '../userContext';
+import React, { useState } from 'react'
 
 import { useParams, useLocation } from 'react-router-dom'
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
-import Box from '@material-ui/core/Box'
 import Toolbar from '@material-ui/core/Toolbar'
-import { Typography } from '@material-ui/core'
-import IconButton from '@material-ui/core/IconButton';
-import AddCircleIcon from '@material-ui/icons/AddCircle';
-import { Grid, Container, CssBaseline, Checkbox, TextField, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Paper, Card, CardMedia } from '@material-ui/core'
+import { Grid, Container, Paper } from '@material-ui/core'
 
 
 export default function StudentDetails() {
 
-    const { studentId } = useParams()
-    //const { currentUser } = useContext(UserContext)
-    const [ studentDetails, setStudentDetails ] = useState({})
-    const [ updateStudent, setUpdateStudent ] = useState(false)
-    const { handleSubmit, control, reset } = useForm();
-    const onSubmit = data => console.log(data);
     const location = useLocation()
  
         console.log(location.state.something)

@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
-import firebase, { db } from '../firebase';
+import React from 'react'
+import { db } from '../firebase';
+import { useHistory } from 'react-router';
 
 import Toolbar from '@material-ui/core/Toolbar'
 import { useForm, Controller, useFieldArray } from 'react-hook-form'
@@ -7,7 +8,7 @@ import { Box, Typography, Grid, TextField, Button } from '@material-ui/core';
 
 export default function BadgeForm() {
 
-    const { handleSubmit, control, register } = useForm({
+    const { handleSubmit, control } = useForm({
         defaultValues: {
           criteria: [{ label: "AMI_TTM1", crits: 10, level: 100, criterion:"what to do" }]
         }
@@ -20,6 +21,8 @@ export default function BadgeForm() {
     }
     );
 
+    const history = useHistory()
+
     const onSubmit = data => {
 
         data.criteria.forEach(function(criterion) {criterion.critsAwarded=0})
@@ -28,6 +31,9 @@ export default function BadgeForm() {
         db.collection("badges").add({imageUrl:"https://upload.wikimedia.org/wikipedia/commons/c/cf/Arduino_Logo_hi.svg",...data})
         .then(doc => {
             console.log("check to see if new badge added correctly")
+        })
+        .then(() => {
+            history.push('/badges')
         })
         .catch(error => {
             console.log("error loading new badge", +error)

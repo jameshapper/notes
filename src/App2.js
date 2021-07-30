@@ -4,12 +4,13 @@ import { ThemeProvider } from '@material-ui/core/styles';
 import createTheme from '@material-ui/core/styles/createTheme';
 import Login from './pages/login';
 import UserProvider, { UserContext } from './userContext'
-import StudentProvider, { StudentContext} from './studentcontext';
+import StudentProvider from './studentcontext';
 import Layout from './components/layout'
 import Note from './components/note'
 import Account from './components/account'
 import Badges from './components/badges'
 import TeacherClasses from './components/classes';
+import AddClass from './components/addclass'
 import BadgeDetails from './components/badgedetails';
 import Feedback from './components/feedback';
 import Students from './components/students'
@@ -29,25 +30,13 @@ const theme = createTheme({
   }
 });
 
-const NotesLayout = () => {
-	return(
-		<Layout><Note/></Layout>
-	)
-}
-
-const ClassesLayout = () => {
-	return(
-		<Layout><TeacherClasses/></Layout>
-	)
-}
-
 function UserRoute({ component: Component, ...rest }) {
 	const { isAdmin } = useContext(UserContext)
 	const location = useLocation()
 	console.log('in UserRoute isAdmin is '+isAdmin)
 	return (
 		<Route {...rest}>
-			{!isAdmin === true ? <Component /> : 
+			{!isAdmin === true ? <Layout><Component /></Layout> : 
 			<Redirect to={{ pathname: "/classes", state: { from: location } }} />
 			}
 		</Route>
@@ -60,7 +49,7 @@ function AdminRoute({ component: Component, ...rest }) {
 	console.log('in AdminRoute isAdmin is '+isAdmin)
 	return (
 		<Route {...rest}>
-			{isAdmin === true ? <Component /> : 
+			{isAdmin === true ? <Layout><Component /></Layout> : 
 			<Redirect to={{ pathname: "/", state: { from: location } }} />
 			}
 		</Route>
@@ -80,13 +69,14 @@ function App() {
                 <Router>
                     <div>
                         <Switch>
-                            <UserRoute exact path="/" component={NotesLayout}/>
+                            <UserRoute exact path="/" component={Note}/>
                             <Route exact path="/account"><Layout><Account /></Layout></Route>
                             <Route exact path="/badges"><Layout><Badges /></Layout></Route>
 							<Route exact path="/students"><Layout><Students /></Layout></Route>
                             <Route exact path="/feedback"><Layout><Feedback /></Layout></Route>
 							<Route exact path="/students/:studentId"><Layout><StudentDetails /></Layout></Route>
-                            <AdminRoute exact path="/classes" component={ClassesLayout}/>
+                            <AdminRoute exact path="/classes" component={TeacherClasses}/>
+							<AdminRoute exact path="/addclass" component={AddClass}/>
 							<Route exact path="/badges/:badgeId"><Layout><BadgeDetails /></Layout></Route>
 							<Route exact path="/badgeForm"><Layout><BadgeForm></BadgeForm></Layout></Route>
 							<Route exact path="/myBadges"><Layout><MyBadges /></Layout></Route>

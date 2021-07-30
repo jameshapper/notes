@@ -4,12 +4,12 @@ import { UserContext } from '../userContext'
 import { StudentContext } from '../studentcontext'
 import { useParams, useLocation, Link } from 'react-router-dom'
 import { AssignmentInd } from '@material-ui/icons';
-import { Typography, IconButton, Paper, Toolbar, Box, Card, CardMedia, Table, TableContainer, TableHead, TableBody, TableRow, TableCell } from '@material-ui/core'
+import { Typography, IconButton, Paper, Toolbar, Box, Table, TableContainer, TableHead, TableBody, TableRow, TableCell } from '@material-ui/core'
 
 export default function MyBadgeDetails() {
 
     const { myBadgeId } = useParams()
-    const { currentUser, userName } = useContext(UserContext)
+    const { currentUser, userName, isAdmin } = useContext(UserContext)
     const [ badgeDetails, setBadgeDetails ] = useState({})
     const { aStudentId, aStudentName } = useContext(StudentContext)
 
@@ -61,9 +61,11 @@ export default function MyBadgeDetails() {
 
                 {myBadgeId && badgeDetails.criteria && 
                 <>
+                {isAdmin &&
                 <IconButton component={Link} to={{pathname: '/feedback', state: {selectedStudentId: lookupId.current, badgeDetails: badgeDetails, selectedStudentName: selectedStudentName} }} >
                     <AssignmentInd />
                 </IconButton>
+                }
                 <TableContainer component={Paper} sx={{borderRadius:2, m:1, maxWidth:950}}>
                     <Table sx={{ minWidth: 650 }} aria-label="simple table">
                         <TableHead>

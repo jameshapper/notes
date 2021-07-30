@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { db } from '../firebase';
 import firebase from 'firebase';
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { StudentContext } from '../studentcontext';
 
@@ -27,7 +27,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import CloseIcon from '@material-ui/icons/Close';
-import { AssignmentInd, CloudDownload, Edit, SecurityUpdate } from '@material-ui/icons';
+import { AssignmentInd, CloudDownload, Edit } from '@material-ui/icons';
 import { AppBar, TextField, Dialog, FormControl, InputLabel, Select, MenuItem, Button, Grid } from '@material-ui/core';
 
 function Students(props) {
@@ -39,6 +39,8 @@ function Students(props) {
     const [ classes, setClasses ] = useState([])
     const [ selectedClass, setSelectedClass ] = useState({name:"", students:[]})
     const [ selectedStudents, setSelectedStudents ] = useState([])
+
+    const history = useHistory()
 
     useEffect(() => {   
         return db.collection("adminDocs").doc("studentList")
@@ -80,6 +82,9 @@ function Students(props) {
           db.collection('users').doc(currentUser.uid).collection('teacherClasses')
           .doc(selectedClass).update({
               students: firebase.firestore.FieldValue.arrayUnion(...selectedStudents)
+          })
+          .then(() => {
+            history.push('/classes')
           })
         } else {
           alert("Make sure to select a class")
