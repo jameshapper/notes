@@ -252,8 +252,14 @@ const EnhancedTableToolbar = (props) => {
 
   // <IconButton component={Link} to={`/students/${selected[0].uid}`} >
   // <IconButton component={Link} to={{pathname: `/students/${selected[0].uid}`, state: {something: `${selected[0].uid}`} }} >
+  // <IconButton component={Link} onClick={handleStudentSelect} to={{pathname: '/myBadges', state: {selectedStudentId: `${selected[0].uid}`, selectedStudentName: `${selected[0].firstName}`} }} >
 
-  const { setAStudentId, setAStudentName } = useContext(StudentContext)
+
+  //const { setAStudentId, setAStudentName } = useContext(StudentContext)
+  const [ aStudentId, setAStudentId ] = useState("")
+  const [ aStudentName, setAStudentName ] = useState("")
+
+
   const handleStudentSelect = () => {
     setAStudentId(`${selected[0].uid}`)
     setAStudentName(`${selected[0].firstName}`)
@@ -300,7 +306,7 @@ const EnhancedTableToolbar = (props) => {
           </IconButton>
         </Tooltip>
         <Tooltip title="View Details">
-          <IconButton component={Link} onClick={handleStudentSelect} to={{pathname: '/myBadges', state: {selectedStudentId: `${selected[0].uid}`, selectedStudentName: `${selected[0].firstName}`} }} >
+          <IconButton component={Link} onClick={handleStudentSelect} to={`/students/${selected[0].uid}/myBadges`} >
             <AssignmentInd />
           </IconButton>
         </Tooltip>

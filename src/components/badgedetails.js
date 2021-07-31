@@ -44,7 +44,8 @@ export default function BadgeDetails() {
                     badgename:badgeDetails.badgename,
                     myBadgeId:doc.id,
                     crits:badgeDetails.totalcrits,
-                    critsAwarded: 0
+                    critsAwarded: 0,
+                    evidence: []
                   }
                 db.collection('users').doc(currentUser.uid).update({
                     [`myBadgesMap.${badgeId}`]:newBadge

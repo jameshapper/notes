@@ -49,6 +49,8 @@ export default function Feedback() {
         console.log(data);
         console.log(data.criteria)
 
+        const createdAt = new Date().toISOString()
+
         //const oldBadgeDetails = JSON.parse(JSON.stringify(badgeDetails.criteria))
         //console.log("original badgeDetails "+JSON.stringify(oldBadgeDetails))
 
@@ -77,7 +79,7 @@ export default function Feedback() {
             studentName: selectedStudentName,
             artifactLinks: data.Quill,
             assessorComments: data.assessorComments,
-            createdAt: new Date().toISOString(),
+            createdAt: createdAt,
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             studentBadgeId: badgeDetails.badgeId,
             badgeName: badgeDetails.badgename,
@@ -87,15 +89,18 @@ export default function Feedback() {
         }
         db.collection('users').doc(selectedStudentId).collection('myBadges').doc(badgeDetails.badgeId).collection("feedback").add(feedback)
         .then((doc)=>{
+            const feedbackSummary = {
+                critsAwarded: data.criteria,
+                feedbackId: doc.id,
+                createdAt: createdAt
+            }
             console.log("New feedback added to db")
-            //setUpdateBadgeDetails(true)
-        })
-        .then(()=> {
+            console.log('feedback summary is '+JSON.stringify(feedbackSummary))
             db.collection('users').doc(selectedStudentId).collection('myBadges').doc(badgeDetails.badgeId)
-            .update(badgeDetails)
+            .update({evidence: firebase.firestore.FieldValue.arrayUnion(feedbackSummary), progress: badgeDetails.progress, criteria: badgeDetails.criteria})
         })
         .then(() => {
-            history.push(`/myBadges/${badgeDetails.badgeId}`)
+            history.push(`students/${selectedStudentId}/myBadges/${badgeDetails.badgeId}`)
         })
         .catch((error) => {
             console.error(error);

@@ -4,6 +4,8 @@ import { ThemeProvider } from '@material-ui/core/styles';
 import createTheme from '@material-ui/core/styles/createTheme';
 import Login from './pages/login';
 import UserProvider, { UserContext } from './userContext'
+import Logout from './pages/logout'
+import MyBadgesRedirect from './pages/mybadgesredirect';
 import StudentProvider from './studentcontext';
 import Layout from './components/layout'
 import Note from './components/note'
@@ -58,14 +60,13 @@ function AdminRoute({ component: Component, ...rest }) {
 
 function App() {
 
-	const [ aStudentId, setAStudentId ] = useState("")
-	const [ aStudentName, setAStudentName ] = useState("")
+	const [ aStudentId, setAStudentId ] = useState()
+	const [ aStudentName, setAStudentName ] = useState()
 	console.log("in App, aStudentId is "+aStudentId)
 
 	return (
 		<ThemeProvider theme={theme}>
 			<UserProvider>
-				<StudentProvider value={{aStudentId, setAStudentId, aStudentName, setAStudentName}}>
                 <Router>
                     <div>
                         <Switch>
@@ -79,14 +80,16 @@ function App() {
 							<AdminRoute exact path="/addclass" component={AddClass}/>
 							<Route exact path="/badges/:badgeId"><Layout><BadgeDetails /></Layout></Route>
 							<Route exact path="/badgeForm"><Layout><BadgeForm></BadgeForm></Layout></Route>
-							<Route exact path="/myBadges"><Layout><MyBadges /></Layout></Route>
+							<Route exact path="/myBadges"><MyBadgesRedirect /></Route>
 							<Route exact path="/myBadges/:myBadgeId"><Layout><MyBadgeDetails /></Layout></Route>
+							<Route exact path="/students/:studentId/myBadges/:myBadgeId"><Layout><MyBadgeDetails /></Layout></Route>
+							<Route exact path="/students/:studentId/myBadges"><Layout><MyBadges /></Layout></Route>
+							<Route exact path="logout"><Logout /></Route>
 
                             <Route exact path="/login"><Login /></Route>
                         </Switch>
                     </div>
                 </Router>
-				</StudentProvider>
 			</UserProvider>
 		</ThemeProvider>
 	);

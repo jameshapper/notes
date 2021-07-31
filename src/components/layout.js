@@ -22,7 +22,7 @@ import { EmojiPeople, RateReview } from '@material-ui/icons';
 
 const drawerWidth = 240;
 
-const menuItemsUser = [
+ const menuItemsUser = [
     { 
         text: 'My Plans', 
         icon: <NotesIcon color="secondary" />, 
@@ -71,13 +71,15 @@ const menuItemsUser = [
         icon: <EmojiPeople color="secondary" />,
         path: '/students'
     }
-  ];
+  ]
 
 function Layout({ children }) {
 
     const { currentUser, isAdmin, loading, avatar, logout } = useContext(UserContext);
     const location = useLocation()
     const [ menuItems, setMenuItems ] = useState([])
+
+
 
     let history = useHistory();
 

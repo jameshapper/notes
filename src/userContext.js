@@ -14,6 +14,7 @@ export default function UserProvider({ children }) {
 
   function logout() {
     setIsAdmin(false)
+
     return auth.signOut()
   }
 

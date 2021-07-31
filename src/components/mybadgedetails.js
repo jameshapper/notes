@@ -8,32 +8,37 @@ import { Typography, IconButton, Paper, Toolbar, Box, Table, TableContainer, Tab
 
 export default function MyBadgeDetails() {
 
-    const { myBadgeId } = useParams()
+    const { myBadgeId, studentId } = useParams()
     const { currentUser, userName, isAdmin } = useContext(UserContext)
     const [ badgeDetails, setBadgeDetails ] = useState({})
-    const { aStudentId, aStudentName } = useContext(StudentContext)
+    const [ studentName, setStudentName ] = useState("userName")
 
-    console.log('context aStudentId is '+aStudentId)
-    console.log('context aStudentName is '+aStudentName)
+    //const { aStudentId, aStudentName } = useContext(StudentContext)
 
-    const location = useLocation()
+/*     console.log('context aStudentId is '+aStudentId)
+    console.log('context aStudentName is '+aStudentName) */
+
+/*     const location = useLocation()
     const { selectedStudentId='', selectedStudentName='A Student' } = location.state || ''
     //const lookupId = useRef(selectedStudentId)
     const lookupId = useRef(aStudentId)
-    const studentNameRef = useRef(aStudentName)
+    const studentNameRef = useRef(aStudentName) */
 
+    //console.log('selectedStudentId is '+selectedStudentId)
 
+    useEffect(() => {
 
-    console.log('selectedStudentId is '+selectedStudentId)
+        db.collection("users").doc(studentId).get()
+        .then(doc => {
+            setStudentName(doc.data().firstName)
+        })
+
+    },  [studentId])
     
     useEffect(() => {
-        if(aStudentId === '') {
-            lookupId.current = currentUser.uid
-            studentNameRef.current = userName
-        }
         
         if(myBadgeId){
-            return db.collection("users").doc(lookupId.current).collection("myBadges").doc(myBadgeId).get()
+            return db.collection("users").doc(studentId).collection("myBadges").doc(myBadgeId).get()
             .then((doc)=> {
                 if(doc.exists){
                     let badgeData = doc.data()
@@ -45,7 +50,7 @@ export default function MyBadgeDetails() {
             })
         }
 
-    }, [myBadgeId, currentUser.uid, aStudentId, userName]);
+    }, [ myBadgeId, studentId ]);
     return (
         <>
             <Toolbar />
@@ -54,7 +59,7 @@ export default function MyBadgeDetails() {
                 {badgeDetails.badgename}
             </Typography>
             <Typography variant="h6">
-                Student: {studentNameRef.current}
+                Student: {studentName}
             </Typography>
 
             <Box sx={{flexGrow:1, p:3}} >
@@ -62,7 +67,7 @@ export default function MyBadgeDetails() {
                 {myBadgeId && badgeDetails.criteria && 
                 <>
                 {isAdmin &&
-                <IconButton component={Link} to={{pathname: '/feedback', state: {selectedStudentId: lookupId.current, badgeDetails: badgeDetails, selectedStudentName: selectedStudentName} }} >
+                <IconButton component={Link} to={{pathname: '/feedback', state: {selectedStudentId: studentId, badgeDetails: badgeDetails, selectedStudentName: studentName} }} >
                     <AssignmentInd />
                 </IconButton>
                 }
@@ -74,7 +79,7 @@ export default function MyBadgeDetails() {
                             <TableCell align="right" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Level</TableCell>
                             <TableCell align="left" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Description</TableCell>
                             <TableCell align="right" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Total Crits</TableCell>
-                            <TableCell align="right" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Awarded Crits</TableCell>
+                            <TableCell align="right" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.primary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.primary.main)}}>Awarded Crits</TableCell>
                         </TableRow>
                         </TableHead>
                         <TableBody>
@@ -89,7 +94,7 @@ export default function MyBadgeDetails() {
                             <TableCell align="right">{row.level}</TableCell>
                             <TableCell align="left">{row.criterion}</TableCell>
                             <TableCell align="right" sx={{fontWeight:'bold'}}>{row.crits}</TableCell>
-                            <TableCell align="right" sx={{fontWeight:'bold'}}>{row.critsAwarded}</TableCell>
+                            <TableCell align="center" sx={{fontWeight:'bold', fontSize:24, color:(theme)=>theme.palette.primary.main}}>{row.critsAwarded}</TableCell>
                             </TableRow>
                         ))}
                         </TableBody>
@@ -98,6 +103,45 @@ export default function MyBadgeDetails() {
                 </>
                 }
             </Box>
+
+            <Typography variant="h4">
+                Evidence and Feedback
+            </Typography>
+
+           <Box sx={{flexGrow:1, p:3}} >
+
+                {myBadgeId && badgeDetails.criteria && 
+                <>
+                <TableContainer component={Paper} sx={{borderRadius:2, m:1, maxWidth:950}}>
+                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                        <TableHead>
+                        <TableRow>
+                            <TableCell align="left" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Date</TableCell>
+
+                            {badgeDetails.criteria.map(criterion => (
+                                <TableCell align="right" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>{criterion.label}</TableCell>
+                            ))}
+                        </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {badgeDetails.evidence.map(evidence => (
+                                <TableRow>
+                                <TableCell>
+                                    {evidence.createdAt.slice(0,10)}
+                                </TableCell>
+                                {badgeDetails.criteria.map(criterion => {
+                                    const key = criterion.label
+                                    return <TableCell align='center'>{evidence.critsAwarded[key]}</TableCell>
+                                })}
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+                </>
+                }
+            </Box>
+
 
         </>
     )
