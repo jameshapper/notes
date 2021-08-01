@@ -1,7 +1,6 @@
 import React, { useContext, useState, useEffect, useRef } from 'react'
 import { db } from '../firebase'
 import { UserContext } from '../userContext'
-import { StudentContext } from '../studentcontext'
 import { useParams, useLocation, Link } from 'react-router-dom'
 import { AssignmentInd } from '@material-ui/icons';
 import { Typography, IconButton, Paper, Toolbar, Box, Table, TableContainer, TableHead, TableBody, TableRow, TableCell } from '@material-ui/core'
@@ -133,6 +132,9 @@ export default function MyBadgeDetails() {
                                     const key = criterion.label
                                     return <TableCell align='center'>{evidence.critsAwarded[key]}</TableCell>
                                 })}
+                                <TableCell >
+                                    <Link to={`/students/${studentId}/myBadges/${myBadgeId}/feedback/${evidence.feedbackId}`}>Details</Link>
+                                </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -141,8 +143,6 @@ export default function MyBadgeDetails() {
                 </>
                 }
             </Box>
-
-
         </>
     )
 }

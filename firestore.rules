@@ -2,12 +2,12 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function editOnlyChangesFields(allowedFields){
+    function editOnlyAllowedFields(allowedFields){
       let affectedKeys = request.resource.data.diff(resource.data).affectedKeys();
       return affectedKeys.hasOnly(allowedFields);
     }
 
-    function documentFieldsCheckout(requiredFields, optionalFields) {
+    function documentFieldsCheckin(requiredFields, optionalFields) {
       let allFields = requiredFields.concat(optionalFields);
       return request.resource.data.keys().hasAll(requiredFields) && request.resource.data.keys().hasOnly(allFields);
     }
@@ -22,6 +22,7 @@ service cloud.firestore {
 
     function isAdmin() {
       //uses Map.get(returned value if field exists, default), but may be a string so we check "truthiness"?
+      //previous try get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get("admin",false) ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.admin == true : false
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get("admin",false);
     }
 
@@ -38,20 +39,22 @@ service cloud.firestore {
       allow read: if resourceHasAuthUid()
       allow read: if isAdmin()
 
-      allow create: if requestResourceHasAuthUid() && documentFieldsCheckout([],optional())
-      allow update, delete: if resourceHasAuthUid() && documentFieldsCheckout([],optional()) && editOnlyChangesFields(onlyEdit())
+      allow create: if requestResourceHasAuthUid() && documentFieldsCheckin([],optional())
+      allow update, delete: if resourceHasAuthUid() && documentFieldsCheckin([],optional()) && editOnlyAllowedFields(onlyEdit())
+      allow update: if isAdmin()
 
     }
 
     match /users/{userId} {
 
       function optional() {
-        return ['firstName', 'lastName', 'fullName', 'email','avatar']
+        return ['firstName', 'lastName', 'fullName', 'email','avatar','myBadgesMap']
       }
 
-      allow read: if (request.auth.uid == userId)
-      allow create: if request.auth.uid == userId && documentFieldsCheckout([],optional())
-      allow update: if request.auth.uid == userId && editOnlyChangesFields(['avatar'])
+      allow read: if (request.auth.uid == userId) || isAdmin()
+      allow create: if request.auth.uid == userId && documentFieldsCheckin([],optional())
+      allow update: if request.auth.uid == userId && editOnlyAllowedFields(['avatar','myBadgesMap'])
+      allow update: if isAdmin()
     }
 
     match /{somePath=**}/comments/{commentId} {
@@ -68,8 +71,8 @@ service cloud.firestore {
       allow read: if request.auth.uid == resource.data.studentId
       allow read: if isAdmin()
 
-      allow create: if requestResourceHasAuthUid() && documentFieldsCheckout([],optional())
-      allow update: if resourceHasAuthUid() && noteHasOnlyAllowedFields() && editOnlyChangesFields(onlyEdit())
+      allow create: if requestResourceHasAuthUid() && documentFieldsCheckin([],optional())
+      allow update: if resourceHasAuthUid() && documentFieldsCheckin([],optional()) && editOnlyAllowedFields(onlyEdit())
 
     }
 
@@ -84,7 +87,7 @@ service cloud.firestore {
       allow read: if resourceHasAuthUid()
       allow read: if isAdmin()
       allow create: if requestResourceHasAuthUid()
-      allow update, delete: if resourceHasAuthUid()
+      allow update, delete: if resourceHasAuthUid() || isAdmin()
 
     }
 
@@ -94,6 +97,30 @@ service cloud.firestore {
       allow read: if isAdmin()
 
       allow create, update: if isAdmin()
+    }
+
+    match /adminDocs/studentList {
+
+      allow read: if true
+      allow create, update: if isAdmin()
+    }
+    
+    match /{somePath=**}/teacherClasses/{classId} {
+
+      allow read: if resourceHasAuthUid()
+      allow read: if isAdmin()
+
+      allow write: if isAdmin()
+
+    }
+
+    match /{somePath=**}/feedback/{feedbackId} {
+
+      allow read: if resourceHasAuthUid()
+      allow read: if isAdmin()
+
+      allow write: if isAdmin()
+
     }
   }
 }

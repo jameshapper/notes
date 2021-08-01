@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from 'react'
+import React, { useContext } from 'react'
 import firebase, { db } from '../firebase';
 import { useHistory, useLocation } from 'react-router-dom';
 import { UserContext } from '../userContext';
@@ -17,7 +17,6 @@ export default function Feedback() {
     const location = useLocation()
     const history = useHistory()
     const { selectedStudentId='', badgeDetails, selectedStudentName="A Student" } = location.state || ''
-    const lookupId = useRef(selectedStudentId)
 
     console.log('selectedStudentId is '+selectedStudentId)
     const modules = {

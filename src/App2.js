@@ -6,7 +6,6 @@ import Login from './pages/login';
 import UserProvider, { UserContext } from './userContext'
 import Logout from './pages/logout'
 import MyBadgesRedirect from './pages/mybadgesredirect';
-import StudentProvider from './studentcontext';
 import Layout from './components/layout'
 import Note from './components/note'
 import Account from './components/account'
@@ -20,6 +19,7 @@ import StudentDetails from './components/studentdetails'
 import BadgeForm from './components/badgeform2'
 import MyBadges from './components/mybadges'
 import MyBadgeDetails from './components/mybadgedetails';
+import FeedbackView from './components/feedbackview';
 
 const theme = createTheme({
 	palette: {
@@ -84,6 +84,7 @@ function App() {
 							<Route exact path="/myBadges/:myBadgeId"><Layout><MyBadgeDetails /></Layout></Route>
 							<Route exact path="/students/:studentId/myBadges/:myBadgeId"><Layout><MyBadgeDetails /></Layout></Route>
 							<Route exact path="/students/:studentId/myBadges"><Layout><MyBadges /></Layout></Route>
+							<Route exact path="/students/:studentId/myBadges/:myBadgeId/feedback/:feedbackId"><Layout><FeedbackView /></Layout></Route>
 							<Route exact path="logout"><Logout /></Route>
 
                             <Route exact path="/login"><Login /></Route>
