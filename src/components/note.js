@@ -114,6 +114,8 @@ function Note(props) {
         setRt(note.rt)
         setButtonType('Edit')
         setOpen(true)
+        setStatus(note.status)
+        setNewActivities(note.activities)
 	}
 
     const handleViewOpen = (note) => {
@@ -125,6 +127,7 @@ function Note(props) {
         setViewOpen(true)
         setCreated(note.createdAt)
         setAuthor(note.author)
+        setStatus(note.status)
 	}
 
     useEffect(() => {
@@ -168,7 +171,7 @@ function Note(props) {
 
         if (buttonType === 'Edit') {
             let document = db.collection('users').doc(currentUser.uid).collection('notes').doc(noteId);
-            document.update( {title : title, body : body, activities: newActivities, rt:rt} )
+            document.update( {title : title, body : body, activities: newActivities, rt:rt, status:status} )
             .then((doc)=>{
                 console.log("Note edited")
                 setOpen(false);
@@ -186,7 +189,8 @@ function Note(props) {
                 activities: newActivities,
                 author: currentUser.displayName,
                 avatar: avatar,
-                rt: rt
+                rt: rt,
+                status: status
             }
             db.collection('users').doc(currentUser.uid).collection('notes').add(newNote)
             .then((doc)=>{
@@ -318,7 +322,7 @@ function Note(props) {
                                 />
                             </Grid>
                             <Grid item xs={6} key="chips">
-                                <MultipleSelect allOptions={dataList} getList={activities => setNewActivities(activities)}></MultipleSelect>
+                                <MultipleSelect allOptions={dataList} getList={activities => setNewActivities(activities)} currentActivities={newActivities}></MultipleSelect>
                             </Grid>
                             <Grid item xs={6} key="status">
                                 <InputLabel id="demo-simple-select-label">Status</InputLabel>

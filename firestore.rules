@@ -91,6 +91,15 @@ service cloud.firestore {
 
     }
 
+    match /{somePath=**}/myBadges {
+      
+      allow read: if resourceHasAuthUid()
+      allow read: if isAdmin()
+      allow create: if requestResourceHasAuthUid()
+      allow update, delete: if resourceHasAuthUid() || isAdmin()
+
+    }
+
     match /{somePath=**}/fbForms/{fbFormId} {
 
       allow read: if resourceHasAuthUid()
@@ -117,6 +126,7 @@ service cloud.firestore {
     match /{somePath=**}/feedback/{feedbackId} {
 
       allow read: if resourceHasAuthUid()
+      allow read: if request.auth.uid == resource.data.studentId
       allow read: if isAdmin()
 
       allow write: if isAdmin()

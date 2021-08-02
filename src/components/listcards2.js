@@ -15,6 +15,19 @@ import EditIcon from '@material-ui/icons/Edit'
 import ShieldIcon from '@material-ui/icons/Shield';
 
 export default function ListCards({notes, handleEditOpen, handleViewOpen, deleteNoteHandler, canEdit}) {
+
+    function colorForStatus(status) {
+        switch (status) {
+            case "Active":
+                return "primary"
+            case "Archived":
+                return "secondary"
+            case "Paused":
+                return "info"
+            default:
+                return "info"
+        }
+    }
     
     return (
         <div>
@@ -76,7 +89,9 @@ export default function ListCards({notes, handleEditOpen, handleViewOpen, delete
                                 </Box>
                             </Box>
                             <Box sx={{display:'flex', flexDirection: { xs: 'row', md: 'column' }}}>
-                                <Chip label="Active" color="primary" /> 
+                                {note.status &&
+                                <Chip label={note.status} color={colorForStatus(note.status)} /> 
+                                }
                             </Box>
                             <Box sx={{ mr:2, width: 40 }}>
                                 <List sx={{display:'flex', flexDirection: { xs: 'row', md: 'column' }}}>

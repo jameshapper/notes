@@ -28,7 +28,7 @@ const MenuProps = {
 export default function MultipleSelect(props) {
   const allOptions = props.allOptions
 
-  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [selectedOptions, setSelectedOptions] = useState(props.currentActivities);
   const [ paperView, setPaperView ] = useState(false)
 
   useEffect(() => {
