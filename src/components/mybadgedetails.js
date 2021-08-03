@@ -3,7 +3,7 @@ import { db } from '../firebase'
 import { UserContext } from '../userContext'
 import { useParams, useLocation, Link } from 'react-router-dom'
 import { AssignmentInd } from '@material-ui/icons';
-import { Typography, IconButton, Paper, Toolbar, Box, Table, TableContainer, TableHead, TableBody, TableRow, TableCell } from '@material-ui/core'
+import { Typography, Button, IconButton, Paper, Toolbar, Box, Table, TableContainer, TableHead, TableBody, TableRow, TableCell } from '@material-ui/core'
 
 export default function MyBadgeDetails() {
 
@@ -66,9 +66,9 @@ export default function MyBadgeDetails() {
                 {myBadgeId && badgeDetails.criteria && 
                 <>
                 {isAdmin &&
-                <IconButton component={Link} to={{pathname: '/feedback', state: {selectedStudentId: studentId, badgeDetails: badgeDetails, selectedStudentName: studentName} }} >
-                    <AssignmentInd />
-                </IconButton>
+                <Button component={Link} to={{pathname: '/feedback', state: {selectedStudentId: studentId, badgeDetails: badgeDetails, selectedStudentName: studentName} }} >
+                    Add Feedback
+                </Button>
                 }
                 <TableContainer component={Paper} sx={{borderRadius:2, m:1, maxWidth:950}}>
                     <Table sx={{ minWidth: 650 }} aria-label="simple table">

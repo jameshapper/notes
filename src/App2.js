@@ -75,6 +75,7 @@ function App() {
                             <Route exact path="/badges"><Layout><Badges /></Layout></Route>
 							<Route exact path="/students"><Layout><Students /></Layout></Route>
                             <Route exact path="/feedback"><Layout><Feedback /></Layout></Route>
+							<Route exact path="/feedback/:feedbackId"><Layout><Feedback /></Layout></Route>
 							<Route exact path="/students/:studentId"><Layout><StudentDetails /></Layout></Route>
                             <AdminRoute exact path="/classes" component={TeacherClasses}/>
 							<AdminRoute exact path="/addclass" component={AddClass}/>

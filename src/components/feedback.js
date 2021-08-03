@@ -1,6 +1,6 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import firebase, { db } from '../firebase';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useHistory, useLocation, useParams } from 'react-router-dom';
 import { UserContext } from '../userContext';
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
@@ -13,12 +13,15 @@ import { Paper, Toolbar, Box, Table, TableContainer, TableHead, TableBody, Table
 export default function Feedback() {
 
     const { currentUser } = useContext(UserContext)
+    const [ previousFeedbackSummary, setPreviousFeedbackSummary ] = useState({})
 
+    const { feedbackId } = useParams()
     const location = useLocation()
     const history = useHistory()
     const { selectedStudentId='', badgeDetails, selectedStudentName="A Student" } = location.state || ''
 
     console.log('selectedStudentId is '+selectedStudentId)
+    //console.log('badgeDetails are '+JSON.stringify(badgeDetails))
     const modules = {
         toolbar: {
             container: [
@@ -41,12 +44,40 @@ export default function Feedback() {
       "link",
     ];
 
-    const { handleSubmit, control } = useForm();
+    const { handleSubmit, control, setValue } = useForm();
 
-    const onSubmit = data => {
+    const isAddMode = !feedbackId
+
+    useEffect(() => {
+        if(!isAddMode) {
+            db.collection("users").doc(selectedStudentId).collection("myBadges").doc(badgeDetails.badgeId).collection("feedback").doc(feedbackId).get()
+            .then(feedback => {
+                const fields = ['artifactLinks','assessorComments','critsAwarded']
+                fields.forEach(field => {
+                    setValue(field, feedback.data()[field]);
+                    console.log("value of a field is "+JSON.stringify(feedback.data()[field]))
+                })
+                const previous = {
+                    critsAwarded: feedback.data().critsAwarded,
+                    feedbackId: feedbackId,
+                    createdAt: feedback.data().createdAt
+                }
+                setPreviousFeedbackSummary(previous)
+                console.log('previous is '+JSON.stringify(previous))
+            })
+        }
+    },[badgeDetails.badgeId, feedbackId, isAddMode, selectedStudentId, setValue])
+
+    function onSubmit(data) {
+        return isAddMode
+            ? newFeedback(data)
+            : updateFeedback(feedbackId, data);
+    }
+
+    const newFeedback = data => {
 
         console.log(data);
-        console.log(data.criteria)
+        console.log(data.critsAwarded)
 
         const createdAt = new Date().toISOString()
 
@@ -55,14 +86,14 @@ export default function Feedback() {
 
         const newValues = badgeDetails.criteria.map(criterion => {
             const key = criterion.label
-            return criterion.critsAwarded += parseInt(data.criteria[key])
+            return criterion.critsAwarded += parseInt(data.critsAwarded[key])
         })
         console.log("newValues "+newValues)
 
 
         badgeDetails.criteria.map(criterion => {
             const key = criterion.label
-            return badgeDetails.criteria.critsAwarded += parseInt(data.criteria[key])
+            return criterion.critsAwarded += parseInt(data.critsAwarded[key])
         })
         //console.log("badgeDetails update? "+JSON.stringify(badgeDetails.criteria))
 
@@ -76,7 +107,7 @@ export default function Feedback() {
         const feedback = {
             studentId: selectedStudentId,
             studentName: selectedStudentName,
-            artifactLinks: data.Quill,
+            artifactLinks: data.artifactLinks,
             assessorComments: data.assessorComments,
             createdAt: createdAt,
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
@@ -84,22 +115,21 @@ export default function Feedback() {
             badgeName: badgeDetails.badgename,
             assessorName: currentUser.displayName,
             assessorId: currentUser.uid,
-            critsAwarded: data.criteria
+            critsAwarded: data.critsAwarded
         }
         db.collection('users').doc(selectedStudentId).collection('myBadges').doc(badgeDetails.badgeId).collection("feedback").add(feedback)
         .then((doc)=>{
             const feedbackSummary = {
-                critsAwarded: data.criteria,
+                critsAwarded: data.critsAwarded,
                 feedbackId: doc.id,
                 createdAt: createdAt
             }
             console.log("New feedback added to db")
-            console.log('feedback summary is '+JSON.stringify(feedbackSummary))
             db.collection('users').doc(selectedStudentId).collection('myBadges').doc(badgeDetails.badgeId)
             .update({evidence: firebase.firestore.FieldValue.arrayUnion(feedbackSummary), progress: badgeDetails.progress, criteria: badgeDetails.criteria})
         })
         .then(() => {
-            history.push(`students/${selectedStudentId}/myBadges/${badgeDetails.badgeId}`)
+            history.push(`/students/${selectedStudentId}/myBadges/${badgeDetails.badgeId}`)
         })
         .catch((error) => {
             console.error(error);
@@ -107,12 +137,63 @@ export default function Feedback() {
         });
     };
 
-/*     useEffect(() => {
-        if(updateBadgeDetails){
-            db.collection('users').doc(selectedStudentId).collection('myBadges').doc(badgeDetails.badgeId)
-            .update(badgeDetails)
+    const updateFeedback = (docId, data) => {
+
+        console.log('data is '+JSON.stringify(data))
+        console.log('badgeDetails.criteria start as '+JSON.stringify(badgeDetails.criteria))
+
+        const createdAt = new Date().toISOString()
+
+        badgeDetails.criteria.map(criterion => {
+            const key = criterion.label
+            return (
+                criterion.critsAwarded += (parseInt(data.critsAwarded[key]) - parseInt(previousFeedbackSummary.critsAwarded[key]))
+        )})
+
+        const totalCrits = badgeDetails.criteria.map(criterion => {
+            return criterion.critsAwarded
+        })
+
+        const sumCrits = totalCrits.reduce((a,b) => a + b, 0)
+        badgeDetails.progress = parseInt(100 * ( sumCrits / parseInt(badgeDetails.totalcrits) ))
+
+        const feedback = {
+            studentId: selectedStudentId,
+            studentName: selectedStudentName,
+            artifactLinks: data.artifactLinks,
+            assessorComments: data.assessorComments,
+            createdAt: createdAt,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            studentBadgeId: badgeDetails.badgeId,
+            badgeName: badgeDetails.badgename,
+            assessorName: currentUser.displayName,
+            assessorId: currentUser.uid,
+            critsAwarded: data.critsAwarded
         }
-    },[badgeDetails, badgeDetails.badgeId, selectedStudentId, updateBadgeDetails]) */
+
+        db.collection('users').doc(selectedStudentId).collection('myBadges').doc(badgeDetails.badgeId).collection("feedback").doc(feedbackId).update(feedback)
+        .then((doc)=>{
+            db.collection('users').doc(selectedStudentId).collection('myBadges').doc(badgeDetails.badgeId)
+            .update({evidence: firebase.firestore.FieldValue.arrayRemove(previousFeedbackSummary)})
+            .then(() => {
+                const feedbackSummary = {
+                    critsAwarded: data.critsAwarded,
+                    feedbackId: feedbackId,
+                    createdAt: createdAt
+                }
+                db.collection('users').doc(selectedStudentId).collection('myBadges').doc(badgeDetails.badgeId)
+                .update({evidence: firebase.firestore.FieldValue.arrayUnion(feedbackSummary), progress: badgeDetails.progress, criteria: badgeDetails.criteria})
+            })
+            .then(() => console.log('badgeDetails.criteria are now '+JSON.stringify(badgeDetails.criteria)))
+        })
+        .then(() => {
+            history.push(`/students/${selectedStudentId}/myBadges/${badgeDetails.badgeId}`)
+        })
+        .catch((error) => {
+            console.error(error);
+            alert('Something went wrong' );
+        });
+    };
 
     return (
         <div>
@@ -139,7 +220,7 @@ export default function Feedback() {
 
                 <Grid item xs={12} sm={12}>
                     <Controller
-                        name="Quill"
+                        name="artifactLinks"
                         control={control}
                         defaultValue=""
                         render={({ field: { onChange, value }, fieldState: { error } }) => (
@@ -201,7 +282,7 @@ export default function Feedback() {
                             <TableCell align="right" sx={{fontWeight:'bold'}}>{row.critsAwarded}</TableCell>
                             <TableCell align='right'>
                                 <Controller
-                                    name={`criteria.${row.label}`}
+                                    name={`critsAwarded.${row.label}`}
                                     control={control}
                                     defaultValue=""
                                     render={({ field: { onChange, value }, fieldState: { error } }) => (

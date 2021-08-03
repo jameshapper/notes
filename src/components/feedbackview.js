@@ -1,14 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { db } from '../firebase';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { UserContext } from '../userContext';
 
-import { Typography, Grid } from '@material-ui/core';
+import { Button, Typography, Grid } from '@material-ui/core';
 import { Paper, Toolbar, Box, Table, TableContainer, TableHead, TableBody, TableRow, TableCell } from '@material-ui/core'
 
 export default function FeedbackView() {
 
-    const { currentUser } = useContext(UserContext)
+    const { currentUser, isAdmin } = useContext(UserContext)
     const { myBadgeId, studentId, feedbackId } = useParams()
 
     const [ feedback, setFeedback ] = useState()
@@ -54,7 +54,10 @@ export default function FeedbackView() {
                 Feedback Item for: {feedback.studentName}
             </Typography>
             <Typography variant="subtitle1">Assessor: {feedback.assessorName}</Typography>
-
+            
+            {isAdmin &&
+            <Button component={Link} to={{pathname:`/feedback/${feedbackId}`, state: {selectedStudentId: studentId, badgeDetails: badgeDetails, selectedStudentName: feedback.studentName} }}>Edit</Button>
+            }
 
             <Grid container sx={{m:2}}>
                 <Grid item>
