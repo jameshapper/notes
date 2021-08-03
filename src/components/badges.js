@@ -72,6 +72,7 @@ function Badges(props) {
                             </CardContent>
                             <CardActions>
                                 <Button component={Link} to={`/badges/${badge.id}`} size="small">See Details</Button>
+                                <Button component={Link} to={`/badgeForm/${badge.id}`} size="small">Edit</Button>
                             </CardActions>
                             </Card>
                         </Grid>

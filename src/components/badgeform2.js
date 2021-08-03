@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { db } from '../firebase';
-import { useHistory } from 'react-router';
+import { useHistory, useParams } from 'react-router';
 
 import Toolbar from '@material-ui/core/Toolbar'
 import { useForm, Controller, useFieldArray } from 'react-hook-form'
@@ -8,9 +8,8 @@ import { Box, Typography, Grid, TextField, Button } from '@material-ui/core';
 
 export default function BadgeForm() {
 
-    const { handleSubmit, control } = useForm({
+    const { handleSubmit, control, setValue } = useForm({
         defaultValues: {
-          criteria: [{ label: "AMI_TTM1", crits: 10, level: 100, criterion:"what to do" }]
         }
       });
 
@@ -22,6 +21,24 @@ export default function BadgeForm() {
     );
 
     const history = useHistory()
+    const { badgeId } = useParams()
+    const isAddMode = !badgeId
+
+    console.log("isAddMode is "+isAddMode)
+    console.log("and badgeId is "+badgeId)
+
+    useEffect(() => {
+        if(!isAddMode) {
+            db.collection("badges").doc(badgeId).get()
+            .then(badge => {
+                const fields = ['badgename', 'badgelevel', 'description', 'issuer', 'totalcrits','criteria']
+                fields.forEach(field => {
+                    setValue(field, badge.data()[field]);
+                    console.log("value of a field is "+JSON.stringify(badge.data()[field]))
+                })
+            })
+        }
+    },[badgeId, isAddMode, setValue])
 
     const onSubmit = data => {
 
@@ -209,7 +226,7 @@ export default function BadgeForm() {
                             />}
                         name={`criteria.${index}.criterion`}
                         control={control}
-                        defaultValue=" " // make sure to set up defaultValue
+                        defaultValue={item.criterion} // make sure to set up defaultValue
                     />
                     </Grid>
                     <Grid item md={1}>

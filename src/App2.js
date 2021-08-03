@@ -79,7 +79,8 @@ function App() {
                             <AdminRoute exact path="/classes" component={TeacherClasses}/>
 							<AdminRoute exact path="/addclass" component={AddClass}/>
 							<Route exact path="/badges/:badgeId"><Layout><BadgeDetails /></Layout></Route>
-							<Route exact path="/badgeForm"><Layout><BadgeForm></BadgeForm></Layout></Route>
+							<Route exact path="/badgeForm"><Layout><BadgeForm /></Layout></Route>
+							<Route exact path="/badgeForm/:badgeId"><Layout><BadgeForm /></Layout></Route>
 							<Route exact path="/myBadges"><MyBadgesRedirect /></Route>
 							<Route exact path="/myBadges/:myBadgeId"><Layout><MyBadgeDetails /></Layout></Route>
 							<Route exact path="/students/:studentId/myBadges/:myBadgeId"><Layout><MyBadgeDetails /></Layout></Route>
