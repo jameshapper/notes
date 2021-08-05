@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { db } from '../firebase'
+import { UserContext } from '../userContext';
 import { Link, useParams } from 'react-router-dom';
 import Progress from './progressbar';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { Toolbar, Grid, CardActionArea, CardMedia, Card, CardContent, Typography } from '@material-ui/core';
 //import { StudentContext } from '../studentcontext';
@@ -11,7 +13,10 @@ export default function MyBadges() {
 
     const [ badgeData, setBadgeData ] = useState([])
     const { studentId } = useParams()
-    const [ studentName, setStudentName ] = useState("userName")
+    const [ studentName, setStudentName ] = useState("")
+
+    const { loading } = useContext(UserContext)
+    const [ uiLoading, setUiLoading ] = useState(loading)
 
 /*     const { aStudentId, aStudentName } = useContext(StudentContext)
 
@@ -28,16 +33,19 @@ export default function MyBadges() {
     //console.log('selectedStudentId is '+selectedStudentId)
 
     useEffect(() => {
-
+        setUiLoading(true)
         db.collection("users").doc(studentId).get()
         .then(doc => {
             setStudentName(doc.data().firstName)
+            setUiLoading(false)
+
         })
 
     },  [studentId])
 
     useEffect(() => {
-        
+        setUiLoading(true)
+
         db.collection("users").doc(studentId).collection('myBadges').get()
         .then((snapshot) => {
             const badgeData = []
@@ -45,6 +53,8 @@ export default function MyBadges() {
                 badgeData.push({...doc.data(), id: doc.id})
             })
             setBadgeData(badgeData)
+            setUiLoading(false)
+
         })
         .catch((error) => {
             console.log("My badges error: ", error);
@@ -52,6 +62,21 @@ export default function MyBadges() {
 
     }, [studentId]);
 
+    if (uiLoading === true) {
+        return (
+            <main sx={{flexGrow:1, p:3}} >
+                <Toolbar />
+                {uiLoading && <CircularProgress size={150} sx={{
+                    position: 'fixed',
+                    zIndex: '1000',
+                    height: '31px',
+                    width: '31px',
+                    left: '50%',
+                    top: '35%'
+                }} />}
+            </main>
+        );
+    } else {
     return (
         <div>
             <Toolbar />
@@ -80,5 +105,5 @@ export default function MyBadges() {
                 ))}
             </Grid>
         </div>
-    )
+    )}
 }

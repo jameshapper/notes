@@ -7,7 +7,8 @@ import Box from '@material-ui/core/Box'
 import Toolbar from '@material-ui/core/Toolbar'
 import IconButton from '@material-ui/core/IconButton';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
-import { Button, ButtonGroup, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Paper, Card, CardMedia } from '@material-ui/core'
+import CircularProgress from '@material-ui/core/CircularProgress';
+import { Typography, Button, ButtonGroup, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Paper, Card, CardMedia } from '@material-ui/core'
 
 
 export default function BadgeDetails() {
@@ -18,10 +19,12 @@ export default function BadgeDetails() {
     const [ updateBadge, setUpdateBadge ] = useState(false)
     const [ refresh, setRefresh ] = useState(false)
     const [ previousBadgeSummary, setPreviousBadgeSummary ] = useState()
+    const [ uiLoading, setUiLoading ] = useState(true)
+
 
     
     useEffect(() => {
-        
+        setUiLoading(true)
         if(badgeId){
             return db.collection("badges").doc(badgeId).get()
             .then((doc)=> {
@@ -36,9 +39,11 @@ export default function BadgeDetails() {
                         imageUrl: doc.data().imageUrl
                     }
                     setPreviousBadgeSummary(previous)
+                    setUiLoading(false)
                 } else {
                     alert("I can't find that document")
                 }
+                setUiLoading(false)
             })
         }
 
@@ -123,6 +128,21 @@ export default function BadgeDetails() {
     };
 
     console.log('reached the BadgeDetails component with id of '+badgeId)
+    if (uiLoading === true) {
+        return (
+            <main sx={{flexGrow:1, p:3}} >
+                <Toolbar />
+                {uiLoading && <CircularProgress size={150} sx={{
+                    position: 'fixed',
+                    zIndex: '1000',
+                    height: '31px',
+                    width: '31px',
+                    left: '50%',
+                    top: '35%'
+                }} />}
+            </main>
+        );
+    } else {
     return (
         <>
             <Toolbar />
@@ -150,7 +170,11 @@ export default function BadgeDetails() {
             </ButtonGroup>
             }
 
-            <Box sx={{flexGrow:1, p:3}} >
+            <Box sx={{ flexGrow:1, p:3}} >
+                <Box sx={{display:'flex', justifyContent: 'space-between'}}>
+                <Box sx={{m:2, width:140}}>
+                    <Typography variant='h4' >{badgeDetails.badgename}</Typography>
+                </Box>
                 <Box sx={{mx:'auto', width:280}}>
                     <Card sx={{ maxWidth: 280 }}>
                         <CardMedia
@@ -161,6 +185,12 @@ export default function BadgeDetails() {
                         />
                     </Card>
                 </Box>
+                <Box sx={{m:2, width:140}}>
+                    <Typography variant='h6' >Level: {badgeDetails.badgelevel}</Typography>
+                    <Typography variant='h6' >Total Crits: {badgeDetails.totalcrits}</Typography>
+                </Box>
+                </Box>
+                <Typography sx={{m:2, p:2}} variant='body1' >Description: {badgeDetails.description}</Typography>
                 {badgeId && badgeDetails.criteria && 
                 <TableContainer component={Paper} sx={{borderRadius:2, m:1, maxWidth:950}}>
                     <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -193,5 +223,5 @@ export default function BadgeDetails() {
             </Box>
 
         </>
-    )
+    )}
 }

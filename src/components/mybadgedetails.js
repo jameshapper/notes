@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react'
 import { db } from '../firebase'
 import { UserContext } from '../userContext'
 import Progress from './progressbar'
+import CircularProgress from '@material-ui/core/CircularProgress';
 import { useParams, Link } from 'react-router-dom'
 //import { AssignmentInd } from '@material-ui/icons';
 import { Typography, Button, Paper, Toolbar, Box, Table, TableContainer, TableHead, TableBody, TableRow, TableCell } from '@material-ui/core'
@@ -9,9 +10,11 @@ import { Typography, Button, Paper, Toolbar, Box, Table, TableContainer, TableHe
 export default function MyBadgeDetails() {
 
     const { myBadgeId, studentId } = useParams()
-    const { isAdmin } = useContext(UserContext)
+    const { isAdmin, loading } = useContext(UserContext)
+    const [ uiLoading, setUiLoading ] = useState(true)
+
     const [ badgeDetails, setBadgeDetails ] = useState({})
-    const [ studentName, setStudentName ] = useState("userName")
+    const [ studentName, setStudentName ] = useState("")
 
     //const { aStudentId, aStudentName } = useContext(StudentContext)
 
@@ -26,31 +29,61 @@ export default function MyBadgeDetails() {
 
     //console.log('selectedStudentId is '+selectedStudentId)
 
+/*     useEffect(() => {
+        setUiLoading(true)
+        db.collection("users").doc(studentId).get()
+        .then(doc => {
+            setStudentName(doc.data().firstName)
+            setUiLoading(false)
+        })
+
+    },  [studentId]) */
+    
     useEffect(() => {
 
+        setUiLoading(true)
         db.collection("users").doc(studentId).get()
         .then(doc => {
             setStudentName(doc.data().firstName)
         })
+        .then(() => {
+            if(myBadgeId){
 
-    },  [studentId])
+                return db.collection("users").doc(studentId).collection("myBadges").doc(myBadgeId).get()
+                .then((doc)=> {
+                    if(doc.exists){
+                        let badgeData = doc.data()
+                        setBadgeDetails({...badgeData, badgeId: myBadgeId})
+                        console.log('badgeData title is '+badgeData.badgename)
+                        setUiLoading(false)
+                    } else {
+                        alert("I can't find that document")
+                    }
     
-    useEffect(() => {
-        
-        if(myBadgeId){
-            return db.collection("users").doc(studentId).collection("myBadges").doc(myBadgeId).get()
-            .then((doc)=> {
-                if(doc.exists){
-                    let badgeData = doc.data()
-                    setBadgeDetails({...badgeData, badgeId: myBadgeId})
-                    console.log('badgeData title is '+badgeData.badgename)
-                } else {
-                    alert("I can't find that document")
-                }
-            })
-        }
+                })
+            }
+            setUiLoading(false)
+        })
+
 
     }, [ myBadgeId, studentId ]);
+
+
+    if (uiLoading === true) {
+        return (
+            <main sx={{flexGrow:1, p:3}} >
+                <Toolbar />
+                {uiLoading && <CircularProgress size={150} sx={{
+                    position: 'fixed',
+                    zIndex: '1000',
+                    height: '31px',
+                    width: '31px',
+                    left: '50%',
+                    top: '35%'
+                }} />}
+            </main>
+        );
+    } else {
     return (
         <>
             <Toolbar />
@@ -155,5 +188,5 @@ export default function MyBadgeDetails() {
                 }
             </Box>
         </>
-    )
+    )}
 }
