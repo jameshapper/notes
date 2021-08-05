@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react'
 import { db } from '../firebase'
 import { UserContext } from '../userContext'
+import Progress from './progressbar'
 import { useParams, Link } from 'react-router-dom'
 //import { AssignmentInd } from '@material-ui/icons';
 import { Typography, Button, Paper, Toolbar, Box, Table, TableContainer, TableHead, TableBody, TableRow, TableCell } from '@material-ui/core'
@@ -54,13 +55,23 @@ export default function MyBadgeDetails() {
         <>
             <Toolbar />
 
+            <Box sx={{m:2, display: 'flex', justifyContent: 'space-between'}}>
             <Typography variant="h4">
                 {badgeDetails.badgename}
             </Typography>
-            <Typography variant="h6">
+            <Box>
+                <Typography>Current Progress</Typography>
+                <Progress done={badgeDetails.progress} />
+            </Box>
+            <Typography variant="h5">
                 Student: {studentName}
             </Typography>
-
+            </Box>
+            <Box sx={{m:2}}>
+            <Typography variant='h6' >Level: {badgeDetails.badgelevel}</Typography>
+            <Typography variant='h6' >Total Crits: {badgeDetails.totalcrits}</Typography>
+            <Typography variant='body1'>Description: {badgeDetails.description}</Typography>
+            </Box>
             <Box sx={{flexGrow:1, p:3}} >
 
                 {myBadgeId && badgeDetails.criteria && 
