@@ -1,6 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { db } from '../firebase'
-import { UserContext } from '../userContext';
 import { Link, useParams } from 'react-router-dom';
 import Progress from './progressbar';
 
@@ -10,7 +9,6 @@ import { Toolbar, Grid, CardActionArea, CardMedia, Card, CardContent, Typography
 
 export default function MyBadges() {
 
-    const { currentUser, userName, isAdmin } = useContext(UserContext)
     const [ badgeData, setBadgeData ] = useState([])
     const { studentId } = useParams()
     const [ studentName, setStudentName ] = useState("userName")

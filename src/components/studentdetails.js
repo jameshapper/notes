@@ -1,7 +1,6 @@
-import React, { useState } from 'react'
+import React from 'react'
 
-import { useParams, useLocation } from 'react-router-dom'
-import { useForm } from "react-hook-form";
+import { useLocation } from 'react-router-dom'
 
 import Toolbar from '@material-ui/core/Toolbar'
 import { Grid, Container, Paper } from '@material-ui/core'

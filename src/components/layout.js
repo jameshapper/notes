@@ -7,6 +7,7 @@ import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Toolbar from '@material-ui/core/Toolbar';
+import Button from '@material-ui/core/Button'
 import List from '@material-ui/core/List';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
@@ -18,7 +19,7 @@ import NotesIcon from '@material-ui/icons/Notes';
 import Avatar from '@material-ui/core/Avatar';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import ShieldIcon from '@material-ui/icons/Shield';
-import { EmojiPeople, RateReview } from '@material-ui/icons';
+import { EmojiPeople } from '@material-ui/icons';
 
 const drawerWidth = 240;
 
@@ -32,11 +33,6 @@ const drawerWidth = 240;
         text: 'Account', 
         icon: <AccountBoxIcon color="secondary" />, 
         path: '/account' 
-    },
-    {
-        text: 'Badges',
-        icon: <ShieldIcon color="secondary" />,
-        path: '/badges'
     },
     {
         text: 'MyBadges',
@@ -55,16 +51,6 @@ const drawerWidth = 240;
         text: 'Account', 
         icon: <AccountBoxIcon color="secondary" />, 
         path: '/account' 
-    },
-    {
-        text: 'Badges',
-        icon: <ShieldIcon color="secondary" />,
-        path: '/badges'
-    },
-    {
-        text: 'Feedback',
-        icon: <RateReview color="secondary" />,
-        path: '/feedback'
     },
     {
         text: 'Students',
@@ -115,6 +101,8 @@ function Layout({ children }) {
                         <Typography variant="h6" noWrap>
                             NotesApp
                         </Typography>
+                        <Box sx={{flexGrow:1}}/>
+                        <Button color='inherit' onClick={() => history.push('/badges')} >Badges</Button>
                     </Toolbar>
                 </AppBar>
                 <Drawer
@@ -141,7 +129,7 @@ function Layout({ children }) {
                         button 
                         key={item.text} 
                         onClick={() => history.push(item.path)}
-                        className={location.pathname == item.path ? null : null}
+                        className={location.pathname === item.path ? null : null}
                         >
                         <ListItemIcon>{item.icon}</ListItemIcon>
                         <ListItemText primary={item.text} />
@@ -150,7 +138,7 @@ function Layout({ children }) {
                         <ListItem
                         button
                         key='logout'
-                        onClick={logoutHandler}
+                        onClick={() => logoutHandler()}
                         >
                             <ListItemIcon>
                                 {' '}

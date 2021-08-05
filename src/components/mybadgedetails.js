@@ -1,14 +1,14 @@
-import React, { useContext, useState, useEffect, useRef } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import { db } from '../firebase'
 import { UserContext } from '../userContext'
-import { useParams, useLocation, Link } from 'react-router-dom'
-import { AssignmentInd } from '@material-ui/icons';
-import { Typography, Button, IconButton, Paper, Toolbar, Box, Table, TableContainer, TableHead, TableBody, TableRow, TableCell } from '@material-ui/core'
+import { useParams, Link } from 'react-router-dom'
+//import { AssignmentInd } from '@material-ui/icons';
+import { Typography, Button, Paper, Toolbar, Box, Table, TableContainer, TableHead, TableBody, TableRow, TableCell } from '@material-ui/core'
 
 export default function MyBadgeDetails() {
 
     const { myBadgeId, studentId } = useParams()
-    const { currentUser, userName, isAdmin } = useContext(UserContext)
+    const { isAdmin } = useContext(UserContext)
     const [ badgeDetails, setBadgeDetails ] = useState({})
     const [ studentName, setStudentName ] = useState("userName")
 
@@ -118,19 +118,19 @@ export default function MyBadgeDetails() {
                             <TableCell align="left" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Date</TableCell>
 
                             {badgeDetails.criteria.map(criterion => (
-                                <TableCell align="right" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>{criterion.label}</TableCell>
+                                <TableCell key={criterion.label} align="right" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>{criterion.label}</TableCell>
                             ))}
                         </TableRow>
                         </TableHead>
                         <TableBody>
                             {badgeDetails.evidence.map(evidence => (
-                                <TableRow>
+                                <TableRow key={evidence.feedbackId}>
                                 <TableCell>
                                     {evidence.createdAt.slice(0,10)}
                                 </TableCell>
                                 {badgeDetails.criteria.map(criterion => {
                                     const key = criterion.label
-                                    return <TableCell align='center'>{evidence.critsAwarded[key]}</TableCell>
+                                    return <TableCell key={criterion.label} align='center'>{evidence.critsAwarded[key]}</TableCell>
                                 })}
                                 <TableCell >
                                     <Link to={`/students/${studentId}/myBadges/${myBadgeId}/feedback/${evidence.feedbackId}`}>Details</Link>

@@ -1,12 +1,10 @@
 import Note from '../components/note';
 import Account from '../components/account'
 import Badges from '../components/badges'
-//import Editor from '../components/editortest'
 import { useContext, useState } from 'react'
 import { useHistory } from "react-router-dom";
 import { UserContext } from "../userContext"
 import TeacherClasses from "../components/classes"
-//import Grid from '@material-ui/core/Grid';
 
 import Box from '@material-ui/core/Box'
 import Drawer from '@material-ui/core/Drawer';

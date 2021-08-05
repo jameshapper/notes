@@ -8,7 +8,7 @@ import { Paper, Toolbar, Box, Table, TableContainer, TableHead, TableBody, Table
 
 export default function FeedbackView() {
 
-    const { currentUser, isAdmin } = useContext(UserContext)
+    const { isAdmin } = useContext(UserContext)
     const { myBadgeId, studentId, feedbackId } = useParams()
 
     const [ feedback, setFeedback ] = useState()

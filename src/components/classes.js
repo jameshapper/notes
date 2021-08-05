@@ -36,7 +36,6 @@ function TeacherClasses(props) {
     const [ user ] = useState(auth.currentUser)
 
     const [ title, setTitle ] = useState('')
-    const [ body, setBody ] = useState('')
     const [ noteId, setNoteId ] = useState('')
     const [ studentId, setStudentId ] = useState('')
 
@@ -206,6 +205,7 @@ function TeacherClasses(props) {
                 setErrors(error)
                 setOpen(true)
                 console.error(error);
+                console.log('errors in handleSubmitComment of classes '+errors)
                 alert('Something went wrong' );
             });
         } else {
@@ -216,7 +216,6 @@ function TeacherClasses(props) {
 
     const handleViewOpen = (note) => {
         setTitle(note.title)
-        setBody(note.body)
         setNoteId(note.id)
         setStudentId(note.uid)
         setCreated(note.createdAt)

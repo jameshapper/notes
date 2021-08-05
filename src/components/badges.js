@@ -20,7 +20,7 @@ function Badges(props) {
     const [ badges, setBadges ] = useState([])
     const [ uiLoading, setUiLoading ] = useState(loading)
 
-    useEffect(() => {
+/*     useEffect(() => {
         
         return db.collection("badges")
 
@@ -30,6 +30,16 @@ function Badges(props) {
             setBadges(badgesData)
             setUiLoading(false)
             console.log('badges are '+badgesData)
+        })
+    }, []); */
+
+    useEffect(() => {
+        setUiLoading(true)
+        return db.collection("adminDocs").doc("badgeList")
+
+        .onSnapshot(snapshot => {
+            setBadges(snapshot.data().badges)
+            setUiLoading(false)
         })
     }, []);
 

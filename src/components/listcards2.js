@@ -84,7 +84,7 @@ export default function ListCards({notes, handleEditOpen, handleViewOpen, delete
                                 <Box sx={{display:'flex', alignItems: 'center', flexDirection: { xs: 'row', md: 'column' }}}>
                                     {note.activities && note.activities.length > 0 && <ShieldIcon />}
                                     {note.activities && note.activities.length > 0 && note.activities.map(activity => (
-                                        <Typography sx={{m: {xs: 1, md:0}}}>{activity}</Typography>
+                                        <Typography key={activity} sx={{m: {xs: 1, md:0}}}>{activity}</Typography>
                                     ))}
                                 </Box>
                             </Box>

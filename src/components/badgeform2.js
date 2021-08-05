@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react'
-import { db } from '../firebase';
+import React, { useEffect, useState } from 'react'
+import firebase, { db } from '../firebase';
 import { useHistory, useParams } from 'react-router';
 
 import Toolbar from '@material-ui/core/Toolbar'
@@ -7,6 +7,8 @@ import { useForm, Controller, useFieldArray } from 'react-hook-form'
 import { Box, Typography, Grid, TextField, Button } from '@material-ui/core';
 
 export default function BadgeForm() {
+
+    const [ previousBadgeSummary, setPreviousBadgeSummary ] = useState()
 
     const { handleSubmit, control, setValue } = useForm({
         defaultValues: {
@@ -36,18 +38,41 @@ export default function BadgeForm() {
                     setValue(field, badge.data()[field]);
                     console.log("value of a field is "+JSON.stringify(badge.data()[field]))
                 })
+                const previous = {
+                    badgename: badge.data().badgename,
+                    id: badgeId,
+                    description: badge.data().description,
+                    imageUrl: badge.data().imageUrl
+                }
+                setPreviousBadgeSummary(previous)
+                console.log('previous is '+JSON.stringify(previous))
             })
         }
     },[badgeId, isAddMode, setValue])
 
-    const onSubmit = data => {
+    function onSubmit(data) {
+        return isAddMode
+            ? newBadge(data)
+            : updateBadge(badgeId, data);
+    }
+
+    const newBadge = data => {
 
         data.criteria.forEach(function(criterion) {criterion.critsAwarded=0})
         console.log(data);
 
-        db.collection("badges").add({imageUrl:"https://upload.wikimedia.org/wikipedia/commons/c/cf/Arduino_Logo_hi.svg",...data})
+        db.collection("badges").add({imageUrl:"https://via.placeholder.com/150",...data})
         .then(doc => {
             console.log("check to see if new badge added correctly")
+            const newBadgeListItem = {
+                badgename: data.badgename,
+                imageUrl: "https://via.placeholder.com/150",
+                description: data.description,
+                id: doc.id
+            }
+            db.collection("adminDocs").doc("badgeList").update({
+                badges: firebase.firestore.FieldValue.arrayUnion(newBadgeListItem)
+            })
         })
         .then(() => {
             history.push('/badges')
@@ -55,8 +80,36 @@ export default function BadgeForm() {
         .catch(error => {
             console.log("error loading new badge", +error)
         })
+    };
 
+    const updateBadge = (docId, data) => {
 
+        console.log("update badge data is "+JSON.stringify(data));
+
+        db.collection("badges").doc(badgeId).update({...data})
+        .then(doc => {
+            alert("check to see if badge updated correctly")
+            db.collection("adminDocs").doc("badgeList").update({
+                badges: firebase.firestore.FieldValue.arrayRemove(previousBadgeSummary)
+            })
+            .then(() => {
+                const updatedBadgeListItem = {
+                    badgename: data.badgename,
+                    description: data.description,
+                    id: docId,
+                    imageUrl: previousBadgeSummary.imageUrl
+                }
+                db.collection("adminDocs").doc("badgeList").update({
+                    badges: firebase.firestore.FieldValue.arrayUnion(updatedBadgeListItem)
+                })
+            })
+        })
+        .then(() => {
+            history.push('/badges')
+        })
+        .catch(error => {
+            console.log("error updating badge", +error)
+        })
     };
 
     return (
@@ -66,7 +119,7 @@ export default function BadgeForm() {
             <Typography>New Badge Form</Typography>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <Box sx={{px:2}}>
-                    <Button variant="contained" sx={{m:2}}>
+                    <Button onClick={() => history.push('/badges')} variant="contained" sx={{m:2}}>
                     Cancel
                     </Button>
                     <Button type="submit" variant="contained" color="primary" sx={{m:2}}>

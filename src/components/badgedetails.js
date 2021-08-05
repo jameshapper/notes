@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react'
-import { db, storage } from '../firebase';
+import firebase, { db, storage } from '../firebase';
 import { UserContext } from '../userContext';
 
 import { useParams } from 'react-router-dom'
@@ -17,6 +17,8 @@ export default function BadgeDetails() {
     const [ badgeDetails, setBadgeDetails ] = useState({})
     const [ updateBadge, setUpdateBadge ] = useState(false)
     const [ refresh, setRefresh ] = useState(false)
+    const [ previousBadgeSummary, setPreviousBadgeSummary ] = useState()
+
     
     useEffect(() => {
         
@@ -27,6 +29,13 @@ export default function BadgeDetails() {
                     let badgeData = doc.data()
                     setBadgeDetails({...badgeData, badgeId: badgeId})
                     console.log('badgeData title is '+badgeData.badgename)
+                    const previous = {
+                        badgename: doc.data().badgename,
+                        id: badgeId,
+                        description: doc.data().description,
+                        imageUrl: doc.data().imageUrl
+                    }
+                    setPreviousBadgeSummary(previous)
                 } else {
                     alert("I can't find that document")
                 }
@@ -88,7 +97,22 @@ export default function BadgeDetails() {
         console.log('waiting for download url '+await downloadUrl)
         db.collection("badges").doc(badgeId).update({
             imageUrl: await downloadUrl
-          })
+        })
+        .then(doc => {
+            alert("check to see if badge updated correctly")
+            db.collection("adminDocs").doc("badgeList").update({
+                badges: firebase.firestore.FieldValue.arrayRemove(previousBadgeSummary)
+            })
+            .then(() => {
+                const updatedBadgeListItem = {
+                    ...previousBadgeSummary,
+                    imageUrl: downloadUrl
+                }
+                db.collection("adminDocs").doc("badgeList").update({
+                    badges: firebase.firestore.FieldValue.arrayUnion(updatedBadgeListItem)
+                })
+            })
+        })
         .then(function() {
           console.log("update appears successful")
           setRefresh(!refresh)
@@ -96,7 +120,7 @@ export default function BadgeDetails() {
           console.log('problem updating image')
         });
   
-      };
+    };
 
     console.log('reached the BadgeDetails component with id of '+badgeId)
     return (

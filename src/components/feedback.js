@@ -76,19 +76,16 @@ export default function Feedback() {
 
     const newFeedback = data => {
 
-        console.log(data);
-        console.log(data.critsAwarded)
-
         const createdAt = new Date().toISOString()
 
         //const oldBadgeDetails = JSON.parse(JSON.stringify(badgeDetails.criteria))
         //console.log("original badgeDetails "+JSON.stringify(oldBadgeDetails))
 
-        const newValues = badgeDetails.criteria.map(criterion => {
+/*         const newValues = badgeDetails.criteria.map(criterion => {
             const key = criterion.label
             return criterion.critsAwarded += parseInt(data.critsAwarded[key])
         })
-        console.log("newValues "+newValues)
+        console.log("newValues "+newValues) */
 
 
         badgeDetails.criteria.map(criterion => {

@@ -1,9 +1,8 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { db } from '../firebase';
-import firebase from 'firebase';
+import firebase, { db } from '../firebase';
+//import firebase from 'firebase';
 import { Link, useHistory } from "react-router-dom";
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { StudentContext } from '../studentcontext';
 
 import { UserContext } from '../userContext';
 import PropTypes from 'prop-types';
@@ -34,10 +33,10 @@ function Students(props) {
 
     const { loading, currentUser } = useContext(UserContext)
 
-    const [ uiLoading, setUiLoading ] = useState(loading)
+    const [ uiLoading ] = useState(loading)
     const [ rows, setRows ] = useState([])
     const [ classes, setClasses ] = useState([])
-    const [ selectedClass, setSelectedClass ] = useState({name:"", students:[]})
+    const [ selectedClass, setSelectedClass ] = useState()
     const [ selectedStudents, setSelectedStudents ] = useState([])
 
     const history = useHistory()
@@ -48,14 +47,6 @@ function Students(props) {
             setRows(doc.data().students)
         })
     }, []);
-
-/*     useEffect(() => {
-        return db.collection("users").doc(currentUser.uid).get()
-        .then((doc) => {
-            setClasses(doc.data().classes)
-            console.log(doc.data().classes)
-        })
-    },[currentUser.uid]) */
 
     useEffect(() => {
         return db.collection("users").doc(currentUser.uid).collection("teacherClasses").get()
@@ -114,11 +105,12 @@ function Students(props) {
                         <FormControl sx={{ m: 1, minWidth: 120 }}>
                             <InputLabel id="demo-simple-select-label">Classes</InputLabel>
                             <Select
-                                labelId="demo-simple-select-label"
-                                id="demo-simple-select"
+                                labelId="select class"
+                                id="select-class"
                                 value={selectedClass}
                                 label="Classes"
                                 onChange={handleChange}
+                                defaultValue=""
                             >
                                 {classes.map((eachclass) => (
                                     <MenuItem key={eachclass.name} value={eachclass.id}>{eachclass.name}</MenuItem>
@@ -254,17 +246,6 @@ const EnhancedTableToolbar = (props) => {
   // <IconButton component={Link} to={{pathname: `/students/${selected[0].uid}`, state: {something: `${selected[0].uid}`} }} >
   // <IconButton component={Link} onClick={handleStudentSelect} to={{pathname: '/myBadges', state: {selectedStudentId: `${selected[0].uid}`, selectedStudentName: `${selected[0].firstName}`} }} >
 
-
-  //const { setAStudentId, setAStudentName } = useContext(StudentContext)
-  const [ aStudentId, setAStudentId ] = useState("")
-  const [ aStudentName, setAStudentName ] = useState("")
-
-
-  const handleStudentSelect = () => {
-    setAStudentId(`${selected[0].uid}`)
-    setAStudentName(`${selected[0].firstName}`)
-  }
-
   return (
     <Toolbar
       sx={{
@@ -306,7 +287,7 @@ const EnhancedTableToolbar = (props) => {
           </IconButton>
         </Tooltip>
         <Tooltip title="View Details">
-          <IconButton component={Link} onClick={handleStudentSelect} to={`/students/${selected[0].uid}/myBadges`} >
+          <IconButton component={Link} to={`/students/${selected[0].uid}/myBadges`} >
             <AssignmentInd />
           </IconButton>
         </Tooltip>
@@ -343,7 +324,7 @@ export function EnhancedTable(props) {
   const [clickOpen, setClickOpen] = useState(false)
   const [gradYear, setGradYear] = useState(2000)
   const [studentName, setStudentName] = useState("")
-  const [errors, setErrors] = useState([])
+  const [error, setError] = useState([])
   const [studentId, setStudentId] = useState('')
 
   const rows = props.rows
@@ -401,7 +382,6 @@ export function EnhancedTable(props) {
     setSelected(newSelected);
     props.setSelectedStudents(newSelected)
 
-    console.log("newly selected are "+newSelected)
   };
 
   const handleYearChange = (event) => setGradYear(event.target.value)
@@ -586,9 +566,9 @@ export function EnhancedTable(props) {
                           label="Student Name"
                           name="studentname"
                           autoComplete="studentName"
-                          helperText={errors.title}
+                          helperText={error.title}
                           value={studentName}
-                          error={errors.title ? true : false}
+                          error={error.title ? true : false}
                           onChange={handleNameChange}
                       />
                   </Grid>
@@ -601,9 +581,9 @@ export function EnhancedTable(props) {
                           label="Grad Year"
                           name="gradyear"
                           autoComplete="gradYear"
-                          helperText={errors.title}
+                          helperText={error.title}
                           value={gradYear}
-                          error={errors.title ? true : false}
+                          error={error.title ? true : false}
                           onChange={handleYearChange}
                       />
                   </Grid>

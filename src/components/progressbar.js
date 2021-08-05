@@ -5,10 +5,10 @@ export default function Progress({done}) {
 
     console.log('done is '+done)
 
-	const [style, setStyle] = useState({
+/* 	const [style, setStyle] = useState({
         opacity: 0,
         width:0
-    });
+    }); */
 	
 /* 	setTimeout(() => {
 		const newStyle = {

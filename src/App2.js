@@ -1,5 +1,6 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { BrowserRouter as Router, Route, Switch, Redirect, useLocation } from 'react-router-dom';
+import {ErrorBoundary} from 'react-error-boundary'
 import { ThemeProvider } from '@material-ui/core/styles';
 import createTheme from '@material-ui/core/styles/createTheme';
 import Login from './pages/login';
@@ -58,14 +59,24 @@ function AdminRoute({ component: Component, ...rest }) {
 	)
 }
 
-function App() {
+//https://kentcdodds.com/blog/use-react-error-boundary-to-handle-errors-in-react
+//https://medium.com/technofunnel/error-handling-in-react-hooks-e42ab91c48f4
+//https://learnwithparam.com/blog/error-handling-in-react-hooks/
 
-	const [ aStudentId, setAStudentId ] = useState()
-	const [ aStudentName, setAStudentName ] = useState()
-	console.log("in App, aStudentId is "+aStudentId)
+function ErrorFallback({error}) {
+	return (
+	  <div role="alert">
+		<p>PLease tell Mr. Happer that something went wrong:</p>
+		<pre style={{color: 'red'}}>{error.message}</pre>
+	  </div>
+	)
+}
+
+function App() {
 
 	return (
 		<ThemeProvider theme={theme}>
+			<ErrorBoundary FallbackComponent={ErrorFallback}>
 			<UserProvider>
                 <Router>
                     <div>
@@ -94,6 +105,7 @@ function App() {
                     </div>
                 </Router>
 			</UserProvider>
+			</ErrorBoundary>
 		</ThemeProvider>
 	);
 }
