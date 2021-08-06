@@ -10,7 +10,7 @@ import CardActions from '@material-ui/core/CardActions';
 import Button from '@material-ui/core/Button'
 import CardMedia from '@material-ui/core/CardMedia'
 import CardContent from '@material-ui/core/CardContent'
-import { Typography } from '@material-ui/core';
+import { Box, Typography } from '@material-ui/core';
 import { UserContext } from '../userContext';
 
 function Badges(props) {
@@ -70,12 +70,20 @@ function Badges(props) {
                             <CardMedia
                                 sx={{ height: 140 }}
                                 image={badge.imageUrl}
-                                title="Contemplative Reptile"
+                                title="Badge Image"
                             />
                             <CardContent>
                                 <Typography gutterBottom variant="h5" component="div">
                                 {badge.badgename}
                                 </Typography>
+                                <Box sx={{display: 'flex', justifyContent:'space-between'}}>
+                                    <Box>
+                                        <Typography variant='h6'>Level: {badge.badgelevel}</Typography>
+                                    </Box>
+                                    <Box>
+                                        <Typography variant='h6'>Crits: {badge.totalcrits}</Typography>
+                                    </Box>
+                                </Box>
                                 <Typography variant="body2" color="text.secondary">
                                 {badge.description.substring(0, 200)+"..."}
                                 </Typography>

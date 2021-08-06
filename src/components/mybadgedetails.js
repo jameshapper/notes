@@ -10,7 +10,7 @@ import { Typography, Button, Paper, Toolbar, Box, Table, TableContainer, TableHe
 export default function MyBadgeDetails() {
 
     const { myBadgeId, studentId } = useParams()
-    const { isAdmin, loading } = useContext(UserContext)
+    const { isAdmin } = useContext(UserContext)
     const [ uiLoading, setUiLoading ] = useState(true)
 
     const [ badgeDetails, setBadgeDetails ] = useState({})

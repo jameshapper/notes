@@ -8,7 +8,7 @@ import Toolbar from '@material-ui/core/Toolbar'
 import IconButton from '@material-ui/core/IconButton';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { Typography, Button, ButtonGroup, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Paper, Card, CardMedia } from '@material-ui/core'
+import { Dialog, Typography, Button, ButtonGroup, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Paper, Card, CardMedia, DialogContent } from '@material-ui/core'
 
 
 export default function BadgeDetails() {
@@ -20,6 +20,7 @@ export default function BadgeDetails() {
     const [ refresh, setRefresh ] = useState(false)
     const [ previousBadgeSummary, setPreviousBadgeSummary ] = useState()
     const [ uiLoading, setUiLoading ] = useState(true)
+    const [ badgeAddDialog, setAddBadgeDialog ] = useState(false)
 
 
     
@@ -69,9 +70,11 @@ export default function BadgeDetails() {
         }
     },[ updateBadge, currentUser.uid, badgeDetails, badgeId ])
 
+    const handleViewClose = () => setAddBadgeDialog(false);
+
+
     const handleAddBadge = (e) => {
         e.preventDefault()
-        console.log('badgeDetails submitted object is '+JSON.stringify(badgeDetails))
         let document = db.collection('users').doc(currentUser.uid)
         document.collection('myBadges').where("uid","==",currentUser.uid)
         .where("badgename","==",badgeDetails.badgename).get()
@@ -154,10 +157,31 @@ export default function BadgeDetails() {
                 }}
                 color="primary"
                 aria-label="Add Badge"
-                onClick={handleAddBadge}
+                onClick={() => setAddBadgeDialog(true)}
             >
                 <AddCircleIcon sx={{ fontSize: 60 }} />
             </IconButton>
+
+            <Dialog
+                onClose={handleViewClose}
+                aria-labelledby="customized-dialog-title"
+                open={badgeAddDialog}
+                fullWidth
+                classes={{ paperFullWidth: {maxWidth: '75%'} }}
+            >
+                <Paper elevation={2}
+                sx={{
+                    padding: 1,
+                    backgroundColor: "#e0e0e0",
+                    border: "1px solid black",
+                    margin: "2px 2px 8px 2px"
+                }}>
+                    <DialogContent>
+                        Do you want to add this as a "Badge Aspiration"? Once it is added, only the teacher will be able to remove it! But if you are ready to go for it, click "Add" and enjoy the challenge!
+                    </DialogContent>
+                    <Button variant='contained' onClick={handleAddBadge}>Add Badge</Button>
+                </Paper>
+            </Dialog>
 
             {isAdmin && 
             <ButtonGroup orientation='vertical'>
@@ -220,6 +244,7 @@ export default function BadgeDetails() {
                     </Table>
                 </TableContainer>
                 }
+                <Button onClick={() => setAddBadgeDialog(true)}>Add Badge?</Button>
             </Box>
 
         </>

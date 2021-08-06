@@ -68,6 +68,8 @@ export default function BadgeForm() {
                 badgename: data.badgename,
                 imageUrl: "https://via.placeholder.com/150",
                 description: data.description,
+                badgelevel: data.badgelevel,
+                totalcrits: data.totalcrits,
                 id: doc.id
             }
             db.collection("adminDocs").doc("badgeList").update({
@@ -97,6 +99,8 @@ export default function BadgeForm() {
                     badgename: data.badgename,
                     description: data.description,
                     id: docId,
+                    badgelevel: data.badgelevel,
+                    totalcrits: data.totalcrits,
                     imageUrl: previousBadgeSummary.imageUrl
                 }
                 db.collection("adminDocs").doc("badgeList").update({
