@@ -281,4 +281,44 @@ describe("Student notes app", () => {
     await firebase.assertFails(fbDoc.set({Title: "a new fb_form"}));
   })
 
+  //ADMIN DOCS
+
+  it("Can read the student list if admin", async() => {
+    const admin = getAdminFirestore()
+    const adminDoc = admin.collection("users").doc(myId)
+    await adminDoc.set({admin : true})
+
+    const db = getFirestore(myAuth)
+    const studentList = db.collection("adminDocs").doc("studentList");
+    await firebase.assertSucceeds(studentList.get());
+
+  })
+
+  it("Allows user to add a new element to the students array in the studentList document", async() => {
+    const admin = getAdminFirestore()
+    await admin.collection("adminDocs").doc("studentList").set({students:[{uid: anotherStudentAuth, year: 2022}]})
+
+    const db = getFirestore(studentAuth)
+    const newRecord = db.collection("adminDocs").doc("studentList")
+    await firebase.assertSucceeds(newRecord.update({students: firebase.firestore.FieldValue.arrayUnion({uid: "hello", year: 2022})}))
+  })
+
+  it("Does NOT allow user to add two elements to the students array in the studentList document", async() => {
+    const admin = getAdminFirestore()
+    await admin.collection("adminDocs").doc("studentList").set({students:[{uid: anotherStudentAuth, year: 2022}]})
+
+    const db = getFirestore(studentAuth)
+    const newRecord = db.collection("adminDocs").doc("studentList")
+    await firebase.assertFails(newRecord.update({students: firebase.firestore.FieldValue.arrayUnion({uid: "hello", year: 2022},{uid: "hello again", year:2022})}))
+  })
+
+  it("Does NOT allow user to update previous element of students array in the studentList document", async() => {
+    const admin = getAdminFirestore()
+    await admin.collection("adminDocs").doc("studentList").set({students:[{uid: anotherStudentAuth, year: 2022}]})
+
+    const db = getFirestore(studentAuth)
+    const newRecord = db.collection("adminDocs").doc("studentList")
+    await firebase.assertFails(newRecord.update({students: firebase.firestore.FieldValue.arrayRemove({uid: anotherStudentAuth, year: 2022})}))
+  })
+
 })

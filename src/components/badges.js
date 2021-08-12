@@ -15,7 +15,7 @@ import { UserContext } from '../userContext';
 
 function Badges(props) {
 
-    const { loading } = useContext(UserContext)
+    const { loading, isAdmin } = useContext(UserContext)
 
     const [ badges, setBadges ] = useState([])
     const [ uiLoading, setUiLoading ] = useState(loading)
@@ -61,16 +61,19 @@ function Badges(props) {
         return (
             <main sx={{flexGrow:1, p:3}}>
             <Toolbar />
-            <Button component={Link} to={'/badgeForm'} size='small' variant='contained' >Add Badge</Button>
+            {isAdmin &&
+                <Button component={Link} to={'/badgeForm'} size='small' variant='contained' >Add Badge</Button>
+            }
 
             <Grid container spacing={2}>
                     {badges && badges.length>0 && badges.map((badge) => (
                         <Grid item xs={12} sm={6} key = {badge.id}>
                             <Card sx={{ maxWidth: 345 }}>
                             <CardMedia
-                                sx={{ height: 140 }}
+                                sx={{ height: 140, width: 'auto', m:'auto' }}
                                 image={badge.imageUrl}
                                 title="Badge Image"
+                                component='img'
                             />
                             <CardContent>
                                 <Typography gutterBottom variant="h5" component="div">
@@ -90,7 +93,9 @@ function Badges(props) {
                             </CardContent>
                             <CardActions>
                                 <Button component={Link} to={`/badges/${badge.id}`} size="small">See Details</Button>
-                                <Button component={Link} to={`/badgeForm/${badge.id}`} size="small">Edit</Button>
+                                {isAdmin && 
+                                    <Button component={Link} to={`/badgeForm/${badge.id}`} size="small">Edit</Button>
+                                }
                             </CardActions>
                             </Card>
                         </Grid>

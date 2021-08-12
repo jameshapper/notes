@@ -76,7 +76,7 @@ function Login() {
       email: profile.hasOwnProperty("email") ? profile.email : '',
     };
     collection.doc(user.user.uid).set(details);
-	db.collection('adminDocs').doc('studentList').update({students: firebase.firestore.FieldValue.arrayUnion({'uid':user.user.uid, 'firstName':details.firstName})})
+	db.collection('adminDocs').doc('studentList').update({students: firebase.firestore.FieldValue.arrayUnion({'uid':user.user.uid, 'firstName':details.firstName, 'year':2022})})
     return {user, details};
   }
 

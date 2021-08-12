@@ -281,7 +281,7 @@ export default function Feedback() {
                                 <Controller
                                     name={`critsAwarded.${row.label}`}
                                     control={control}
-                                    defaultValue=""
+                                    defaultValue={0}
                                     render={({ field: { onChange, value }, fieldState: { error } }) => (
                                     <TextField
                                         label="Crits"

@@ -84,7 +84,7 @@ service cloud.firestore {
     
     match /{somePath=**}/myBadges/{badgeId} {
 
-      allow read: if true
+      //allow read: if true
       allow read: if resourceHasAuthUid()
       allow read: if isAdmin()
       allow create: if requestResourceHasAuthUid()
@@ -113,6 +113,8 @@ service cloud.firestore {
 
       allow read: if true
       allow create, update: if isAdmin()
+      allow update: if request.auth != null && request.resource.data.students.size() - resource.data.students.size() == 1 
+
     }
     
     match /{somePath=**}/teacherClasses/{classId} {

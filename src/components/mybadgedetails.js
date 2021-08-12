@@ -167,7 +167,7 @@ export default function MyBadgeDetails() {
                         </TableRow>
                         </TableHead>
                         <TableBody>
-                            {badgeDetails.evidence.map(evidence => (
+                            {badgeDetails.evidence && badgeDetails.evidence.map(evidence => (
                                 <TableRow key={evidence.feedbackId}>
                                 <TableCell>
                                     {evidence.createdAt.slice(0,10)}

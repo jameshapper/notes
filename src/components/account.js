@@ -23,28 +23,42 @@ function Account(props) {
     const onFileChange = async (e) => {
 	  setFileUpload(e.target.files[0])
     };
+
+	const Filevalidation = (file) => {
+        // Check if any file is selected.
+        if (file) {  
+			const fsize = file.size;
+			const fileKb = Math.round((fsize / 1024));
+			// The size of the file.
+			if (fileKb >= 1024) {
+				alert(
+					"File too Big, please reduce file size to less than 1mb");
+			} else {return true}
+		} else {return false}
+    }
   
     const onSubmit = async () => {
 
 	  console.log('file upload name is '+fileUpload.name)
 
- 	  const storageRef = storage.ref();
-      const fileRef = storageRef.child(fileUpload.name);
-      await fileRef.put(fileUpload);
-	  let downloadUrl = await fileRef.getDownloadURL()
-	  console.log('waiting for download url '+await downloadUrl)
-      db.collection("users").doc(currentUser.uid).update({
-		  avatar: await downloadUrl
+	  if (Filevalidation(fileUpload)) {
+		const storageRef = storage.ref();
+		const fileRef = storageRef.child(fileUpload.name);
+		await fileRef.put(fileUpload);
+		let downloadUrl = await fileRef.getDownloadURL()
+		console.log('waiting for download url '+await downloadUrl)
+		db.collection("users").doc(currentUser.uid).update({
+			avatar: await downloadUrl
+		  });
+		  await currentUser.updateProfile({
+			photoURL: await downloadUrl
+		})
+		.then(function() {
+		  console.log("update appears successful")
+		}).catch(function(error) {
+		  console.log('problem updating image')
 		});
-  	  await currentUser.updateProfile({
-		  photoURL: await downloadUrl
-	  })
-	  .then(function() {
-		console.log("update appears successful")
-	  }).catch(function(error) {
-		console.log('problem updating image')
-	  });
-
+	  }
     };
 
     if (loading === true) {

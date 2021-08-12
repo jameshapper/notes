@@ -37,7 +37,9 @@ export default function BadgeDetails() {
                         badgename: doc.data().badgename,
                         id: badgeId,
                         description: doc.data().description,
-                        imageUrl: doc.data().imageUrl
+                        imageUrl: doc.data().imageUrl,
+                        badgelevel: doc.data().badgelevel,
+                        totalcrits: doc.data().totalcrits
                     }
                     setPreviousBadgeSummary(previous)
                     setUiLoading(false)
@@ -52,7 +54,7 @@ export default function BadgeDetails() {
 
     useEffect(() => {
         if(updateBadge){ return db.collection('users').doc(currentUser.uid)
-            .collection('myBadges').add({...badgeDetails,uid: currentUser.uid})
+            .collection('myBadges').add({...badgeDetails,uid: currentUser.uid, progress:0})
             .then((doc)=>{
                 console.log('New badge aspiration added')
                 const newBadge = {
@@ -60,6 +62,7 @@ export default function BadgeDetails() {
                     myBadgeId:doc.id,
                     crits:badgeDetails.totalcrits,
                     critsAwarded: 0,
+                    progress: 0,
                     evidence: []
                   }
                 db.collection('users').doc(currentUser.uid).update({
@@ -149,7 +152,8 @@ export default function BadgeDetails() {
     return (
         <>
             <Toolbar />
-            <IconButton
+            {!isAdmin &&
+                <IconButton
                 sx={{
                     position: 'fixed',
                     bottom: 0,
@@ -158,9 +162,11 @@ export default function BadgeDetails() {
                 color="primary"
                 aria-label="Add Badge"
                 onClick={() => setAddBadgeDialog(true)}
-            >
-                <AddCircleIcon sx={{ fontSize: 60 }} />
-            </IconButton>
+                >
+                    <AddCircleIcon sx={{ fontSize: 60 }} />
+                </IconButton>
+            }
+
 
             <Dialog
                 onClose={handleViewClose}
@@ -202,7 +208,7 @@ export default function BadgeDetails() {
                 <Box sx={{mx:'auto', width:280}}>
                     <Card sx={{ maxWidth: 280 }}>
                         <CardMedia
-                            sx={{ height: 200 }}
+                            sx={{ p:1 }}
                             image={badgeDetails.imageUrl}
                             title="Badge Image"
                             component="img"
@@ -244,7 +250,9 @@ export default function BadgeDetails() {
                     </Table>
                 </TableContainer>
                 }
-                <Button onClick={() => setAddBadgeDialog(true)}>Add Badge?</Button>
+                {!isAdmin &&
+                    <Button onClick={() => setAddBadgeDialog(true)}>Add Badge?</Button>
+                }
             </Box>
 
         </>
