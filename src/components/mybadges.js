@@ -14,8 +14,9 @@ export default function MyBadges() {
     const [ badgeData, setBadgeData ] = useState([])
     const { studentId } = useParams()
     const [ studentName, setStudentName ] = useState("")
+    const [ studentUid, setStudentUid ] = useState("")
 
-    const { loading } = useContext(UserContext)
+    const { loading, currentUser, isAdmin } = useContext(UserContext)
     const [ uiLoading, setUiLoading ] = useState(loading)
 
 /*     const { aStudentId, aStudentName } = useContext(StudentContext)
@@ -33,34 +34,55 @@ export default function MyBadges() {
     //console.log('selectedStudentId is '+selectedStudentId)
 
     useEffect(() => {
-        setUiLoading(true)
-        db.collection("users").doc(studentId).get()
-        .then(doc => {
-            setStudentName(doc.data().firstName)
-            setUiLoading(false)
+        if(currentUser && !isAdmin){
+            setStudentUid(currentUser.uid)
+            console.log("there is a student user in myBadges")
+        } else {
+            setStudentUid(studentId)
+        }
+    },[currentUser, isAdmin, studentId])
 
-        })
-
-    },  [studentId])
 
     useEffect(() => {
-        setUiLoading(true)
 
-        db.collection("users").doc(studentId).collection('myBadges').get()
-        .then((snapshot) => {
-            const badgeData = []
-            snapshot.forEach((doc) => {
-                badgeData.push({...doc.data(), id: doc.id})
+        if(studentUid){
+            setUiLoading(true)
+            db.collection("users").doc(studentUid).get()
+            .then(doc => {
+                setStudentName(doc.data().firstName)
+                setUiLoading(false)
+                console.log("studentName is "+doc.data().firstName)
+    
             })
-            setBadgeData(badgeData)
-            setUiLoading(false)
 
-        })
-        .catch((error) => {
-            console.log("My badges error: ", error);
-        })
+        }
 
-    }, [studentId]);
+
+    },  [studentUid])
+
+    useEffect(() => {
+
+        if(studentUid){
+            setUiLoading(true)
+            console.log("studentUid is "+studentUid)
+
+            db.collection("users").doc(studentUid).collection('myBadges').where("uid","==",studentUid).get()
+            .then((snapshot) => {
+                const badgeData = []
+                snapshot.forEach((doc) => {
+                    badgeData.push({...doc.data(), id: doc.id})
+                })
+                setBadgeData(badgeData)
+                setUiLoading(false)
+    
+            })
+            .catch((error) => {
+                console.log("My badges error: ", error);
+            })
+        }
+
+
+    }, [studentUid]);
 
     if (uiLoading === true) {
         return (
@@ -85,7 +107,7 @@ export default function MyBadges() {
                 {badgeData.map((studentBadge) => (
                     <Grid item xs={8} sm={6} key = {studentBadge.badgename}>
                         <Card sx={{width:250, height:280}} variant="outlined">
-                            <CardActionArea component={Link} to={`/students/${studentId}/myBadges/${studentBadge.id}`}>
+                            <CardActionArea component={Link} to={`/students/${studentUid}/myBadges/${studentBadge.id}`}>
                             <CardContent>
                                 <Typography variant="h6" component="h4" align="center">
                                     {studentBadge.badgename}
@@ -93,7 +115,9 @@ export default function MyBadges() {
                             </CardContent>
                             <CardMedia
                                 image={studentBadge.imageUrl}
-                                sx={{ margin:'auto', width: 150, height: 150, alignItems:'center' }}
+                                sx={{ margin:'auto', width: 'auto', height: 150, alignItems:'center' }}
+                                component='img'
+                                title='Badge Image'
                             />
                             </CardActionArea>
                             <CardContent>
