@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import firebase, { db, auth } from '../firebase';
 import { UserContext } from '../userContext';
-import ListCards from './listcards'
+import ListCards from './listcards2'
 import ViewNotes from './viewnotes'
 import { Link } from "react-router-dom";
 
@@ -348,7 +348,7 @@ function TeacherClasses(props) {
 
                 <Grid container spacing={8} justify='center'>
                     {teacherClasses.map((teacherClass) => (
-                        <Grid item xs={8} sm={6} key = {teacherClass.name}>
+                        <Grid item xs={6} sm={4} key = {teacherClass.name}>
                             <Card sx={{minWidth:220}} variant="outlined">
                                 <CardContent>
                                     <Typography variant="h6" component="h3">

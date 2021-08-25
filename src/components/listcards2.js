@@ -68,7 +68,7 @@ export default function ListCards({notes, handleEditOpen, handleViewOpen, delete
                                 width:350
                                 }}
                             >
-                                <Typography component="div" variant="h5" sx={{ mt:0 }}>
+                                <Typography component="div" variant="h6" sx={{ mt:0 }}>
                                     {note.title}
                                 </Typography>
                                 <Typography variant="subtitle1" color="text.secondary" component="div">

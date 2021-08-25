@@ -68,8 +68,8 @@ export default function BadgeForm() {
                 badgename: data.badgename,
                 imageUrl: "https://via.placeholder.com/150",
                 description: data.description,
-                badgelevel: data.badgelevel,
-                totalcrits: data.totalcrits,
+                badgelevel: parseInt(data.badgelevel),
+                totalcrits: parseInt(data.totalcrits),
                 id: doc.id
             }
             db.collection("adminDocs").doc("badgeList").update({
@@ -99,8 +99,8 @@ export default function BadgeForm() {
                     badgename: data.badgename,
                     description: data.description,
                     id: docId,
-                    badgelevel: data.badgelevel,
-                    totalcrits: data.totalcrits,
+                    badgelevel: parseInt(data.badgelevel),
+                    totalcrits: parseInt(data.totalcrits),
                     imageUrl: previousBadgeSummary.imageUrl
                 }
                 db.collection("adminDocs").doc("badgeList").update({
@@ -158,6 +158,7 @@ export default function BadgeForm() {
                         render={({ field: { onChange, value }, fieldState: { error } }) => (
                         <TextField
                             label="Badge Level"
+                            type="number"
                             variant="filled"
                             value={value}
                             onChange={onChange}
@@ -194,6 +195,7 @@ export default function BadgeForm() {
                         render={({ field: { onChange, value }, fieldState: { error } }) => (
                         <TextField
                             label="Total Crits"
+                            type="number"
                             variant="filled"
                             value={value}
                             onChange={onChange}

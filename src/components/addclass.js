@@ -15,7 +15,7 @@ export default function AddClass() {
 
     const onSubmit = data => {
         db.collection("users").doc(currentUser.uid).collection("teacherClasses")
-        .add({name:data.classname})
+        .add({name:data.classname, students:[]})
         .then(doc => {
             console.log("check to see if new class added correctly")
         })

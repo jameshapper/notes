@@ -5,9 +5,9 @@
   "dependencies": {
     "@ckeditor/ckeditor5-build-classic": "^26.0.0",
     "@ckeditor/ckeditor5-react": "^3.0.2",
-    "@emotion/react": "^11.4.0",
+    "@emotion/react": "^11.4.1",
     "@emotion/styled": "^11.3.0",
-    "@material-ui/core": "^5.0.0-alpha.38",
+    "@material-ui/core": "^5.0.0-beta.4",
     "@material-ui/data-grid": "^4.0.0-alpha.34",
     "@material-ui/icons": "^5.0.0-alpha.37",
     "@material-ui/styles": "^4.11.2",

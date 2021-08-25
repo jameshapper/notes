@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react'
 import firebase, { db, storage } from '../firebase';
 import { UserContext } from '../userContext';
 
-import { useParams } from 'react-router-dom'
+import { useHistory, useParams } from 'react-router-dom'
 import Box from '@material-ui/core/Box'
 import Toolbar from '@material-ui/core/Toolbar'
 import IconButton from '@material-ui/core/IconButton';
@@ -22,6 +22,8 @@ export default function BadgeDetails() {
     const [ uiLoading, setUiLoading ] = useState(true)
     const [ badgeAddDialog, setAddBadgeDialog ] = useState(false)
 
+    const history = useHistory()
+
 
     
     useEffect(() => {
@@ -38,8 +40,8 @@ export default function BadgeDetails() {
                         id: badgeId,
                         description: doc.data().description,
                         imageUrl: doc.data().imageUrl,
-                        badgelevel: doc.data().badgelevel,
-                        totalcrits: doc.data().totalcrits
+                        badgelevel: parseInt(doc.data().badgelevel),
+                        totalcrits: parseInt(doc.data().totalcrits)
                     }
                     setPreviousBadgeSummary(previous)
                     setUiLoading(false)
@@ -69,9 +71,11 @@ export default function BadgeDetails() {
                     [`myBadgesMap.${badgeId}`]:newBadge
                 })
                 setUpdateBadge(false)
+                setAddBadgeDialog(false)
+                history.push('/myBadges')
             })
         }
-    },[ updateBadge, currentUser.uid, badgeDetails, badgeId ])
+    },[updateBadge, currentUser.uid, badgeDetails, badgeId, history])
 
     const handleViewClose = () => setAddBadgeDialog(false);
 
@@ -87,6 +91,8 @@ export default function BadgeDetails() {
                 setUpdateBadge(true)
             } else {
                 setUpdateBadge(false)
+                setAddBadgeDialog(false)
+                alert('Maybe you already have this badge?')
             }
         })
     }
