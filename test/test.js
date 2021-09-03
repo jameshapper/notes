@@ -321,4 +321,23 @@ describe("Student notes app", () => {
     await firebase.assertFails(newRecord.update({students: firebase.firestore.FieldValue.arrayRemove({uid: anotherStudentAuth, year: 2022})}))
   })
 
+  it("Can read the classes list for authenticated users", async() => {
+
+    const db = getFirestore(myAuth)
+    const classesList = db.collection("adminDocs").doc("classesList");
+    await firebase.assertSucceeds(classesList.get());
+
+  })
+
+  it("Allows admin user to update an element to the classes array in the classesList document", async() => {
+    const admin = getAdminFirestore()
+    const adminDoc = admin.collection("users").doc(myId)
+    await adminDoc.set({admin : true})
+    await admin.collection("adminDocs").doc("classesList").set({classes:[{classId: anotherStudentAuth, classname: "a class", supportedBadges:[{badgeId:"someId", badgename:"someBadge"}]}]})
+
+    const db = getFirestore(myAuth)
+    const newRecord = db.collection("adminDocs").doc("classesList")
+    await firebase.assertSucceeds(newRecord.update({classes: "check" }))
+  })
+
 })

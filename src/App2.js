@@ -12,7 +12,7 @@ import Note from './components/note'
 import Account from './components/account'
 import Badges from './components/badges'
 import TeacherClasses from './components/classes';
-import AddClass from './components/addclass'
+import AddClass from './components/addclass3'
 import BadgeDetails from './components/badgedetails';
 import Feedback from './components/feedback';
 import Students from './components/students'

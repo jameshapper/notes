@@ -95,25 +95,6 @@ function TeacherClasses(props) {
 
     },[selected])
 
-    const DialogTitle = ((props) => {
-        const { children, onClose, classes, ...other } = props;
-        return (
-            <MuiDialogTitle disableTypography sx={{minWidth:220}} {...other}>
-                <Typography variant="h6">{children}</Typography>
-                {onClose ? (
-                    <IconButton aria-label="close" sx={{
-                        position: 'absolute',
-                        right: 8,
-                        top: 9,
-                        color: '#e0e0e0'
-                    }} onClick={onClose}>
-                        <CloseIcon />
-                    </IconButton>
-                ) : null}
-            </MuiDialogTitle>
-        );
-    });
-
     dayjs.extend(relativeTime);
     const { classes } = props;
 
@@ -326,9 +307,7 @@ function TeacherClasses(props) {
                                 />
                             </Grid>
                             <Grid item xs={12} key='title'>
-								<DialogTitle id="customized-dialog-title" onClose={handleClose}>
-									{title}
-								</DialogTitle>
+                                {title}
                             </Grid>
 
                             <Grid>
@@ -356,6 +335,10 @@ function TeacherClasses(props) {
                                     </Typography>
                                 </CardContent>
                                 <CardActions>
+                                    <Link   to={{
+                                        pathname: "/addClass",
+                                        state: { classId: teacherClass.id}
+                                    }}>Edit</Link>
                                     <Button size="small" color="primary" onClick={() => handleSelectOpen( teacherClass )}>
                                         {' '}
                                         Select Students{' '}

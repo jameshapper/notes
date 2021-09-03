@@ -1,6 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
 import firebase, { db } from '../firebase';
-//import firebase from 'firebase';
 import { Link, useHistory } from "react-router-dom";
 import CircularProgress from '@material-ui/core/CircularProgress';
 
@@ -73,6 +72,13 @@ function Students(props) {
           db.collection('users').doc(currentUser.uid).collection('teacherClasses')
           .doc(selectedClass).update({
               students: firebase.firestore.FieldValue.arrayUnion(...selectedStudents)
+          })
+          .then(() => {
+            selectedStudents.map(student => (
+              db.collection('users').doc(student.uid).update({
+                classes: firebase.firestore.FieldValue.arrayUnion(...selectedClass)
+              })
+            ))
           })
           .then(() => {
             history.push('/classes')

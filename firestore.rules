@@ -29,11 +29,11 @@ service cloud.firestore {
     match /{somePath=**}/notes/{noteId} {
 
       function optional() {
-        return ['title', 'body', 'uid', 'createdAt', 'timestamp','activities','author','avatar', 'rt', 'commentNum']
+        return ['title', 'body', 'uid', 'createdAt', 'timestamp','activities','author','avatar', 'rt', 'commentNum','status']
       }
 
       function onlyEdit() {
-        return ['title', 'body', 'createdAt', 'timestamp', 'activities','rt','commentNum']
+        return ['title', 'body', 'createdAt', 'timestamp', 'activities','rt','commentNum','status']
       }
 
       allow read: if resourceHasAuthUid()
@@ -125,6 +125,14 @@ service cloud.firestore {
       allow write: if isAdmin()
 
     }
+    
+    match /users/{userId}/teacherClasses/{classId}/privateData {
+
+      allow read: if isAdmin()
+
+      allow write: if isAdmin()
+
+    }
 
     match /{somePath=**}/feedback/{feedbackId} {
 
@@ -137,6 +145,12 @@ service cloud.firestore {
     }
 
     match /adminDocs/badgeList {
+
+      allow read: if true
+      allow create, update: if isAdmin()
+    }
+
+    match /adminDocs/classesList {
 
       allow read: if true
       allow create, update: if isAdmin()

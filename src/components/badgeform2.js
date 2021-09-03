@@ -166,7 +166,7 @@ export default function BadgeForm() {
                             helperText={error ? error.message : null}
                         />
                         )}
-                        rules={{ required: 'Bagde level required' }}
+                        rules={{ required: 'Badge level required' }}
                         />
                     </Grid>
                     <Grid item xs={6}>

@@ -10,7 +10,7 @@ import CardActions from '@material-ui/core/CardActions';
 import Button from '@material-ui/core/Button'
 import CardMedia from '@material-ui/core/CardMedia'
 import CardContent from '@material-ui/core/CardContent'
-import { Box, Typography } from '@material-ui/core';
+import { Box, Typography, FormControl, InputLabel, Select, MenuItem, TextField } from '@material-ui/core';
 import { UserContext } from '../userContext';
 
 function Badges(props) {
@@ -18,6 +18,12 @@ function Badges(props) {
     const { loading, isAdmin } = useContext(UserContext)
 
     const [ badges, setBadges ] = useState([])
+    const [ classesList, setClassesList ] = useState([])
+    const [ selectedCourse, setSelectedCourse ] = useState("All Badges")
+    const [ searchParam ] = useState(["badgename"]);
+    const [ supportedBadgeIds, setSupportedBadgeIds ] = useState([])
+    const [q, setQ] = useState("");
+
     const [ uiLoading, setUiLoading ] = useState(loading)
 
 /*     useEffect(() => {
@@ -43,6 +49,61 @@ function Badges(props) {
         })
     }, []);
 
+    useEffect(() => {
+        setUiLoading(true)
+        return db.collection("adminDocs").doc("classesList").get()
+
+        .then(doc => {
+            setClassesList(doc.data().classes)
+            setUiLoading(false)
+        })
+    }, []);
+
+    function search(badges) {
+        return badges.filter((badge) => {
+            if (supportedBadgeIds.includes(badge.id)) {
+                return searchParam.some((newBadge) => {
+                    return (
+                        badge[newBadge]
+                            .toString()
+                            .toLowerCase()
+                            .indexOf(q.toLowerCase()) > -1
+                    );
+                });
+                //return true
+            } else if (selectedCourse == "All Badges") {
+                 return searchParam.some((newBadge) => {
+                    return (
+                        badge[newBadge]
+                            .toString()
+                            .toLowerCase()
+                            .indexOf(q.toLowerCase()) > -1
+                    );
+                });
+                //return true
+            }
+        });
+    }
+
+
+    const handleCourseFilter = (event) => {
+
+        if(event.target.value == "All Badges"){
+            setSelectedCourse(event.target.value)
+        } else {
+            setSelectedCourse(event.target.value)
+            const oneCourseObjectInArray = classesList.filter(course => {
+                return course.classId === event.target.value
+            })
+            console.log(event.target.value)
+            const supportedBadgeArray = oneCourseObjectInArray[0].supportedBadges
+            setSupportedBadgeIds(supportedBadgeArray.map(badgeObj => {
+                return badgeObj.value
+            }))
+            console.log("supported badge ids are "+JSON.stringify(supportedBadgeIds))
+        }
+    }
+
     if (uiLoading === true) {
         return (
             <main sx={{flexGrow:1, p:3}} >
@@ -61,14 +122,51 @@ function Badges(props) {
         return (
             <main sx={{flexGrow:1, p:3}}>
             <Toolbar />
-            {isAdmin &&
-                <Button component={Link} to={'/badgeForm'} size='small' variant='contained' >Add Badge</Button>
-            }
+            <Grid container pb={3}>
+                <Grid item xs={12} pb={2}>
+                {isAdmin &&
+                    <Button component={Link} to={'/badgeForm'} size='small' variant='contained' >Add Badge</Button>
+                }
+                </Grid>
+                <Grid item xs={4}>
+                    <FormControl fullWidth>
+                        <TextField
+                            id="search-course"
+                            label="Search field"
+                            type="search"
+                            value={q}
+                            onChange={(e) => setQ(e.target.value)}
+                        />
+                    </FormControl> 
+                </Grid>
+                <Grid item xs={3}/>
+                <Grid item xs={3}>
+
+                    <FormControl fullWidth sx={{ m: 1, width: 300 }}>
+                    <InputLabel id="course-label">Course</InputLabel>
+                    <Select
+                        labelId="course-select-label"
+                        defaultValue="All Badges"
+                        id="course-select"
+                        value={selectedCourse ? selectedCourse : "All Badges"}
+                        label="Course"
+                        onChange={handleCourseFilter}
+                    >
+                            <MenuItem key={"all courses"} value={"All Badges"}>All Badges</MenuItem>    
+
+                        {classesList && classesList.map((eachClass) => (
+                            <MenuItem key={eachClass.name} value={eachClass.classId}>{eachClass.name}</MenuItem>    
+                        ))}
+
+                    </Select>
+                    </FormControl>
+                    </Grid>
+            </Grid>
 
             <Grid container spacing={2}>
-                    {badges && badges.length>0 && badges.map((badge) => (
+                    {badges && badges.length>0 && search(badges).map((badge) => (
                         <Grid item xs={12} sm={6} key = {badge.id}>
-                            <Card sx={{ maxWidth: 345 }}>
+                            <Card sx={{ maxWidth: 345, minWidth: 250 }}>
                             <CardMedia
                                 sx={{ height: 140, width: 'auto', m:'auto' }}
                                 image={badge.imageUrl}
