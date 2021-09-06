@@ -4,7 +4,7 @@ import { useHistory, useParams } from 'react-router';
 
 import Toolbar from '@material-ui/core/Toolbar'
 import { useForm, Controller, useFieldArray } from 'react-hook-form'
-import { Box, Typography, Grid, TextField, Button } from '@material-ui/core';
+import { FormControl, InputLabel, Select, MenuItem, Box, Typography, Grid, TextField, Button } from '@material-ui/core';
 
 export default function BadgeForm() {
 
@@ -33,7 +33,7 @@ export default function BadgeForm() {
         if(!isAddMode) {
             db.collection("badges").doc(badgeId).get()
             .then(badge => {
-                const fields = ['badgename', 'badgelevel', 'description', 'issuer', 'totalcrits','criteria']
+                const fields = ['badgename', 'badgelevel', 'description', 'issuer', 'totalcrits','criteria','status']
                 fields.forEach(field => {
                     setValue(field, badge.data()[field]);
                     console.log("value of a field is "+JSON.stringify(badge.data()[field]))
@@ -42,7 +42,10 @@ export default function BadgeForm() {
                     badgename: badge.data().badgename,
                     id: badgeId,
                     description: badge.data().description,
-                    imageUrl: badge.data().imageUrl
+                    imageUrl: badge.data().imageUrl,
+                    badgelevel: badge.data().badgelevel,
+                    totalcrits: badge.data().totalcrits,
+                    status: badge.data().status
                 }
                 setPreviousBadgeSummary(previous)
                 console.log('previous is '+JSON.stringify(previous))
@@ -70,7 +73,8 @@ export default function BadgeForm() {
                 description: data.description,
                 badgelevel: parseInt(data.badgelevel),
                 totalcrits: parseInt(data.totalcrits),
-                id: doc.id
+                id: doc.id,
+                status: data.status
             }
             db.collection("adminDocs").doc("badgeList").update({
                 badges: firebase.firestore.FieldValue.arrayUnion(newBadgeListItem)
@@ -101,7 +105,8 @@ export default function BadgeForm() {
                     id: docId,
                     badgelevel: parseInt(data.badgelevel),
                     totalcrits: parseInt(data.totalcrits),
-                    imageUrl: previousBadgeSummary.imageUrl
+                    imageUrl: previousBadgeSummary.imageUrl,
+                    status: data.status
                 }
                 db.collection("adminDocs").doc("badgeList").update({
                     badges: firebase.firestore.FieldValue.arrayUnion(updatedBadgeListItem)
@@ -129,6 +134,26 @@ export default function BadgeForm() {
                     <Button type="submit" variant="contained" color="primary" sx={{m:2}}>
                     Submit Badge
                     </Button>
+                    <Controller
+                        name="status"
+                        control={control}
+                        defaultValue=""
+                        render={({ field: { onChange, value }, fieldState: { error } }) => (
+                            <FormControl fullWidth sx={{ m: 1, width: 150 }}>
+                            <InputLabel id="course-label">Status</InputLabel>
+                            <Select
+                                labelId="status-label"
+                                id="status"
+                                value={value}
+                                label="Status"
+                                onChange={onChange}
+                            >
+                                <MenuItem value={"Dev"}>Dev</MenuItem>
+                                <MenuItem value={"Published"}>Published</MenuItem>
+                            </Select>
+                            </FormControl>
+                        )}
+                    />
                 </Box>
                 <Grid container spacing={2}>
                     <Grid item xs={10}></Grid>

@@ -41,7 +41,8 @@ export default function BadgeDetails() {
                         description: doc.data().description,
                         imageUrl: doc.data().imageUrl,
                         badgelevel: parseInt(doc.data().badgelevel),
-                        totalcrits: parseInt(doc.data().totalcrits)
+                        totalcrits: parseInt(doc.data().totalcrits),
+                        status: doc.data().status
                     }
                     setPreviousBadgeSummary(previous)
                     setUiLoading(false)

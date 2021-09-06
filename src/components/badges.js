@@ -164,9 +164,9 @@ function Badges(props) {
                     </Grid>
             </Grid>
 
-            <Grid container spacing={3}>
+            <Grid container spacing={3} justifyContent='space-around'>
                     {badges && badges.length>0 && search(badges).map((badge) => (
-                        <Grid item xs={12} sm={6} md={3} key = {badge.id}>
+                        <Grid item xs={12} sm={6} md={4} lg={3} key = {badge.id} p={2}>
                             <Card sx={{ maxWidth: 250, minWidth: 200, backgroundColor:'#eeeeee', pt:1 }}>
                                 <Tooltip title={badge.description.substring(0, 200)+"..."}>
                                     <CardMedia
@@ -189,9 +189,9 @@ function Badges(props) {
                                         <Typography variant='subtitle2'>Crits: {badge.totalcrits}</Typography>
                                     </Box>
                                 </Box>
-                                {/*<Typography variant="body2" color="text.secondary">
-                                {badge.description.substring(0, 200)+"..."}
-                    </Typography>*/}
+                                <Box sx={{display: 'flex', justifyContent:'center'}}>
+                                    {badge.status === "Dev" ? 'Development' : 'Published'}
+                                </Box>
                             </CardContent>
                                 {isAdmin && 
                                     <Button sx={{display: 'flex', justifyContent:'center'}} component={Link} to={`/badgeForm/${badge.id}`} size="small">Edit</Button>
