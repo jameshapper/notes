@@ -26,6 +26,10 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get("admin",false);
     }
 
+    function isPublished(badgeId) {
+      return get(/databases/$(database)/documents/badges/$(badgeId)).data.get("status","Dev") == "Published";
+    }
+
     match /{somePath=**}/notes/{noteId} {
 
       function optional() {
@@ -87,7 +91,7 @@ service cloud.firestore {
       //allow read: if true
       allow read: if resourceHasAuthUid()
       allow read: if isAdmin()
-      allow create: if requestResourceHasAuthUid()
+      allow create: if requestResourceHasAuthUid() && isPublished(request.resource.data.badgeId)
       allow update, delete: if resourceHasAuthUid() || isAdmin()
 
     }

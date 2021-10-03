@@ -76,7 +76,7 @@ function Students(props) {
           .then(() => {
             selectedStudents.map(student => (
               db.collection('users').doc(student.uid).update({
-                classes: firebase.firestore.FieldValue.arrayUnion(...selectedClass)
+                classes: firebase.firestore.FieldValue.arrayUnion(selectedClass)
               })
             ))
           })
@@ -326,7 +326,7 @@ export function EnhancedTable(props) {
   const [selected, setSelected] = useState([]);
   const [page, setPage] = useState(0);
   const [dense, setDense] = useState(false);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
   const [clickOpen, setClickOpen] = useState(false)
   const [gradYear, setGradYear] = useState(2000)
   const [studentName, setStudentName] = useState("")

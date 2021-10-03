@@ -83,19 +83,24 @@ export default function BadgeDetails() {
 
     const handleAddBadge = (e) => {
         e.preventDefault()
-        let document = db.collection('users').doc(currentUser.uid)
-        document.collection('myBadges').where("uid","==",currentUser.uid)
-        .where("badgename","==",badgeDetails.badgename).get()
-        .then((snapshot) => {
-            console.log('number of docs in snapshot is '+snapshot.size)
-            if(snapshot.size === 0){
-                setUpdateBadge(true)
-            } else {
-                setUpdateBadge(false)
-                setAddBadgeDialog(false)
-                alert('Maybe you already have this badge?')
-            }
-        })
+        if(badgeDetails.status && badgeDetails.status === "Published"){
+            let document = db.collection('users').doc(currentUser.uid)
+            document.collection('myBadges').where("uid","==",currentUser.uid)
+            .where("badgename","==",badgeDetails.badgename).get()
+            .then((snapshot) => {
+                console.log('number of docs in snapshot is '+snapshot.size)
+                if(snapshot.size === 0){
+                    setUpdateBadge(true)
+                } else {
+                    setUpdateBadge(false)
+                    setAddBadgeDialog(false)
+                    alert('Maybe you already have this badge?')
+                }
+            })
+        }else{
+            alert('This badge is still under development! Check with your teacher about when it might be published.')
+        }
+
     }
 
     const [ fileUpload, setFileUpload ] = useState(null)

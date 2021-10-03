@@ -179,11 +179,16 @@ describe("Student notes app", () => {
     await firebase.assertSucceeds(testBadge.set({Title: "a badge"}));
   })
 
-  it("Can set badge doc to user's own myBadge collection", async() => {
+  it("Can set badge doc to user's own myBadge collection if badge is Published", async() => {
+    const admin = getAdminFirestore()
     const badgeId = "some_badge"
+    const badgeDoc = admin.collection("badges").doc(badgeId)
+    await badgeDoc.set({status: "Published"})
+    
+    const studentBadgeId = "student_badge_id"
     const db = getFirestore(studentAuth)
-    const testDoc = db.collection("users").doc(studentId).collection("myBadges").doc(badgeId);
-    await firebase.assertSucceeds(testDoc.set({foo: "bar", uid: studentId}));
+    const testDoc = db.collection("users").doc(studentId).collection("myBadges").doc(studentBadgeId);
+    await firebase.assertSucceeds(testDoc.set({foo: "bar", badgeId: badgeId, uid:studentId}));
   })
 
   it("Can read badge doc from myBadge collection if admin", async() => {
@@ -217,6 +222,19 @@ describe("Student notes app", () => {
     const testBadges = db.collection("users").doc(studentId).collection("myBadges").where("uid","==",studentId);
     await firebase.assertFails(testBadges.get());
   })
+
+  it("Does NOT allow badge aspiration unless badge is published", async() => {
+    const admin = getAdminFirestore()
+    const badgeId = "some_badge"
+    const badgeDoc = admin.collection("badges").doc(badgeId)
+    await badgeDoc.set({status : "Dev"})
+
+    const studentBadgeId = "student_badge_id"
+    const db = getFirestore(studentAuth)
+    const testDoc = db.collection("users").doc(studentId).collection("myBadges").doc(studentBadgeId);
+    await firebase.assertFails(testDoc.set({foo: "bar", badgeId: badgeId, uid:studentId}));
+  })
+
 
   //BADGES DOCUMENTS
 
