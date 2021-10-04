@@ -68,6 +68,23 @@ export default function MyBadgeDetails() {
 
     }, [ myBadgeId, studentId ]);
 
+    const critsColor = (critsAward, critsMax) => {
+
+        if(critsMax === 0){
+            return
+        }
+        const percentTotal = 100*critsAward/critsMax
+        if(percentTotal >= 90) {
+            return 'skyblue'
+        }else if(percentTotal >= 65){
+            return 'lightgreen'
+        }else if(percentTotal >= 40){
+            return 'yellow'
+        }else {
+            return 'lightpink'
+        }
+    }
+
 
     if (uiLoading === true) {
         return (
@@ -118,7 +135,7 @@ export default function MyBadgeDetails() {
                     <Table sx={{ minWidth: 650 }} aria-label="simple table">
                         <TableHead>
                         <TableRow>
-                            <TableCell align="right" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Criterion</TableCell>
+                            <TableCell align="left" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Criterion</TableCell>
                             <TableCell align="right" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Level</TableCell>
                             <TableCell align="left" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Description</TableCell>
                             <TableCell align="right" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Total Crits</TableCell>
@@ -162,7 +179,7 @@ export default function MyBadgeDetails() {
                             <TableCell align="left" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Date</TableCell>
 
                             {badgeDetails.criteria.map(criterion => (
-                                <TableCell key={criterion.label} align="right" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>{criterion.label}</TableCell>
+                                <TableCell key={criterion.label} align="left" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>{criterion.label}</TableCell>
                             ))}
                         </TableRow>
                         </TableHead>
@@ -174,7 +191,7 @@ export default function MyBadgeDetails() {
                                 </TableCell>
                                 {badgeDetails.criteria.map(criterion => {
                                     const key = criterion.label
-                                    return <TableCell key={criterion.label} align='center'>{evidence.critsAwarded[key]}</TableCell>
+                                    return <TableCell key={criterion.label} align='center'><Box sx={{backgroundColor:critsColor(evidence.critsAwarded[key],evidence.critsMax[key]), borderRadius:50, width:30, height:30, alignItems:'center', justifyContent:'center', display:'center'}}>{evidence.critsAwarded[key]}</Box></TableCell>
                                 })}
                                 <TableCell >
                                     <Link to={`/students/${studentId}/myBadges/${myBadgeId}/feedback/${evidence.feedbackId}`}>Details</Link>

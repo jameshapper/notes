@@ -52,13 +52,14 @@ export default function Feedback() {
         if(!isAddMode) {
             db.collection("users").doc(selectedStudentId).collection("myBadges").doc(badgeDetails.badgeId).collection("feedback").doc(feedbackId).get()
             .then(feedback => {
-                const fields = ['artifactLinks','assessorComments','critsAwarded']
+                const fields = ['artifactLinks','assessorComments','critsAwarded','critsMax']
                 fields.forEach(field => {
                     setValue(field, feedback.data()[field]);
                     console.log("value of a field is "+JSON.stringify(feedback.data()[field]))
                 })
                 const previous = {
                     critsAwarded: feedback.data().critsAwarded,
+                    critsMax: feedback.data().critsMax,
                     feedbackId: feedbackId,
                     createdAt: feedback.data().createdAt
                 }
@@ -112,12 +113,14 @@ export default function Feedback() {
             badgeName: badgeDetails.badgename,
             assessorName: currentUser.displayName,
             assessorId: currentUser.uid,
-            critsAwarded: data.critsAwarded
+            critsAwarded: data.critsAwarded,
+            critsMax: data.critsMax
         }
         db.collection('users').doc(selectedStudentId).collection('myBadges').doc(badgeDetails.badgeId).collection("feedback").add(feedback)
         .then((doc)=>{
             const feedbackSummary = {
                 critsAwarded: data.critsAwarded,
+                critsMax: data.critsMax,
                 feedbackId: doc.id,
                 createdAt: createdAt
             }
@@ -165,7 +168,8 @@ export default function Feedback() {
             badgeName: badgeDetails.badgename,
             assessorName: currentUser.displayName,
             assessorId: currentUser.uid,
-            critsAwarded: data.critsAwarded
+            critsAwarded: data.critsAwarded,
+            critsMax: data.critsMax
         }
 
         db.collection('users').doc(selectedStudentId).collection('myBadges').doc(badgeDetails.badgeId).collection("feedback").doc(feedbackId).update(feedback)
@@ -175,6 +179,7 @@ export default function Feedback() {
             .then(() => {
                 const feedbackSummary = {
                     critsAwarded: data.critsAwarded,
+                    critsMax: data.critsMax,
                     feedbackId: feedbackId,
                     createdAt: createdAt
                 }
@@ -256,11 +261,12 @@ export default function Feedback() {
                     <Table sx={{ minWidth: 650 }} aria-label="simple table">
                         <TableHead>
                         <TableRow>
-                            <TableCell align="right" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Criterion</TableCell>
+                            <TableCell align="left" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Criterion</TableCell>
                             <TableCell align="right" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Level</TableCell>
                             <TableCell align="left" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Description</TableCell>
                             <TableCell align="right" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Total Crits</TableCell>
                             <TableCell align="right" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Current Crits</TableCell>
+                            <TableCell align="right" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Max Crits</TableCell>
                             <TableCell align="right" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Awarded Crits</TableCell>
                         </TableRow>
                         </TableHead>
@@ -277,6 +283,23 @@ export default function Feedback() {
                             <TableCell align="left">{row.criterion}</TableCell>
                             <TableCell align="right" sx={{fontWeight:'bold'}}>{row.crits}</TableCell>
                             <TableCell align="right" sx={{fontWeight:'bold'}}>{row.critsAwarded}</TableCell>
+                            <TableCell align='right'>
+                                <Controller
+                                    name={`critsMax.${row.label}`}
+                                    control={control}
+                                    defaultValue={0}
+                                    render={({ field: { onChange, value }, fieldState: { error } }) => (
+                                    <TextField
+                                        label="MaxCrits"
+                                        variant="filled"
+                                        value={value}
+                                        onChange={onChange}
+                                        error={!!error}
+                                        helperText={error ? error.message : null}
+                                    />
+                                    )}
+                                />
+                            </TableCell>
                             <TableCell align='right'>
                                 <Controller
                                     name={`critsAwarded.${row.label}`}
