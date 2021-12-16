@@ -148,7 +148,7 @@ function Layout({ children }) {
                         </ListItem>
                     </List>
                 </Drawer>
-                <Box sx={{m:2}} >{children}</Box>
+                <Box sx={{width:1, m:2}} >{children}</Box>
             </Box>    
         )
     } else {

@@ -33,7 +33,7 @@ export default function ListCards({notes, handleEditOpen, handleViewOpen, delete
         <div>
             <Grid container spacing={2}>
                 {notes.map((note) => (
-                    <Grid item xs={12} sm={12} key = {note.id}>
+                    <Grid item xs={12} sm={4} key = {note.id}>
                         <Box
                             sx={{
                                 display: 'flex',
@@ -45,7 +45,7 @@ export default function ListCards({notes, handleEditOpen, handleViewOpen, delete
                                 boxShadow: 1,
                                 fontWeight: 'bold',
                                 justifyContent: 'space-between',
-                                maxWidth:800
+                                maxWidth:600
                             }}
                         >
                             <Box

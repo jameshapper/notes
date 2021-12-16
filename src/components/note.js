@@ -5,7 +5,7 @@ import "./styles.css";
 import Editor from "./editortest2"
 import MultipleSelect from './select';
 import { UserContext } from '../userContext';
-import ListCards from './listcards2'
+import ListCards from './listcards3'
 import ViewNotes from './viewnotes'
 
 import dayjs from 'dayjs';
@@ -27,6 +27,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Select from '@material-ui/core/Select'
 import MenuItem from '@material-ui/core/MenuItem'
 import { InputLabel } from '@material-ui/core';
+import Divider from '@material-ui/core/Divider'
 
 const Transition = React.forwardRef(function Transition(props, ref) {
 	return <Slide direction="up" ref={ref} {...props} />;
@@ -50,6 +51,8 @@ function Note(props) {
     const [ viewOpen, setViewOpen ] = useState(false)
 
     const [ notes, setNotes ] = useState([]);
+    const [ pausedItems, setPausedItems ] = useState([]);
+
     const [ rt, setRt ] = useState("")
     const [ commentRt, setCommentRt ] = useState("")
     const [ comments, setComments ] = useState([])
@@ -83,11 +86,29 @@ function Note(props) {
         console.log("user from firebase auth", currentUser)
         return db.collectionGroup("notes").where("uid", "==", currentUser.uid)
         .where("timestamp", ">=", recentDate)
+        .where("status", "==","Active")
         .orderBy("timestamp","desc")
         .onSnapshot(snapshot => {
             const notesData = [];
             snapshot.forEach(doc => notesData.push({ ...doc.data(), id: doc.id }));
             setNotes(notesData)
+            setUiLoading(false)
+        })
+    }, [currentUser]);
+
+    useEffect(() => {
+
+        let recentDate = new Date('2021-04-29')
+        
+        console.log("user from firebase auth", currentUser)
+        return db.collectionGroup("notes").where("uid", "==", currentUser.uid)
+        .where("timestamp", ">=", recentDate)
+        .where("status", "==","Paused")
+        .orderBy("timestamp","desc")
+        .onSnapshot(snapshot => {
+            const notesData = [];
+            snapshot.forEach(doc => notesData.push({ ...doc.data(), id: doc.id }));
+            setPausedItems(notesData)
             setUiLoading(false)
         })
     }, [currentUser]);
@@ -257,7 +278,7 @@ function Note(props) {
         );
     } else {
         return (
-            <main sx={{flexGrow:1, p:3}} >
+            <main sx={{p:3}} >
                 <Toolbar />
 
                 <IconButton
@@ -346,7 +367,19 @@ function Note(props) {
                     </Box>
                 </Dialog>
 
+                <Typography variant='h6' sx={{mb:2}}>Current Goals</Typography>
+
+                <Divider sx={{mt:1}}/>
+                <Divider sx={{mt:1}}/>
+
+                <Typography variant='h6' sx={{mb:2}}>Active Items</Typography>
                 <ListCards notes={notes} handleEditOpen={handleEditOpen} handleViewOpen={handleViewOpen} deleteNoteHandler={deleteNoteHandler} canEdit={true}/>
+
+                <Divider sx={{mt:1}}/>
+                <Divider sx={{mt:1}}/>
+
+                <Typography variant='h6' sx={{mb:2}}>Paused Items</Typography>
+                <ListCards notes={pausedItems} handleEditOpen={handleEditOpen} handleViewOpen={handleViewOpen} deleteNoteHandler={deleteNoteHandler} canEdit={true}/>
 
                 <ViewNotes handleViewClose={handleViewClose} viewOpen={viewOpen} title={title} author={author} created={created} avatar={avatar} comments={comments} rt={rt} classes={classes} handleSubmitComment={handleSubmitComment} setCommentBody={setCommentBody} setCommentRt={setCommentRt} commentRt={commentRt}/>
 
