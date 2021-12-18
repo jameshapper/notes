@@ -21,7 +21,7 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import ShieldIcon from '@material-ui/icons/Shield';
 import { EmojiPeople } from '@material-ui/icons';
 
-const drawerWidth = 240;
+const drawerWidth = 200;
 
  const menuItemsUser = [
     { 

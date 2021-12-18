@@ -27,6 +27,7 @@ const MenuProps = {
 
 export default function MultipleSelect(props) {
   const allOptions = props.allOptions
+  const itemsTitle = props.itemsTitle
 
   const [selectedOptions, setSelectedOptions] = useState(props.currentActivities);
   const [ paperView, setPaperView ] = useState(false)
@@ -50,7 +51,7 @@ export default function MultipleSelect(props) {
     }} >
         <Box sx={{justifyContent: 'left'}}>
         <FormControl sx={{minWidth:120,maxWidth:300,m:1}} >
-            <InputLabel id="demo-mutiple-checkbox-label">Add Badges</InputLabel>
+            <InputLabel id="demo-mutiple-checkbox-label">{itemsTitle}</InputLabel>
             <Select
             labelId="demo-mutiple-checkbox-label"
             id="demo-mutiple-checkbox"

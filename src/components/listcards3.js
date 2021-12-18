@@ -53,7 +53,9 @@ export default function ListCards({notes, handleEditOpen, handleViewOpen, delete
                                 sx={{
                                     display:'flex',
                                     flexDirection: 'row',
-                                    alignItems: 'left'
+                                    alignItems: 'left',
+                                    justifyContent:'left',
+                                    p: 1
                                 }}
                             >
                                 <Box
@@ -86,13 +88,15 @@ export default function ListCards({notes, handleEditOpen, handleViewOpen, delete
                                 </Box>
 
                                 <Box sx={{
-                                    alignItems: 'left'
+                                    alignItems: 'left',
+                                    ml: 3
                                 }}>
                                     <Box sx={{}}>
                                         {note.status &&
                                         <Chip size='small' label={note.status} color={colorForStatus(note.status)} /> 
                                         }
                                     </Box>
+                                    {note.plannedHrs && <Box color="text.secondary" component="span" sx={{m: {xs: 1, md:0}, fontSize: 10}}>Hours: {note.plannedHrs}</Box>}
                                 </Box>
 
                             </Box>
@@ -102,18 +106,20 @@ export default function ListCards({notes, handleEditOpen, handleViewOpen, delete
 
                             <Box sx={{
                                 display:'flex',
-                                flexDirection: 'row'
+                                flexDirection: 'row',
+                                justifyContent:'flex-start'
                             }}>
 
-                                <Box sx={{width: { xs: 200, md: 150, lg: 150}}}>
-                                    <Box sx={{display:'flex', alignItems: 'left', flexDirection: { xs: 'row', md: 'column' }, ml:1, mt:1}}>
-                                        {note.activities && note.activities.length > 0 && note.activities.map(activity => (
-                                            <Box key={activity} color="text.secondary" component="span" sx={{m: {xs: 1, md:0}, fontSize: 10}}>{activity}</Box>
-                                        ))}
-                                    </Box>
+                                <Box sx={{width: 100, display:'flex', alignItems: 'left', flexDirection: { xs: 'column', md: 'column' }, ml:1, mt:1}}>
+                                    {note.activities && note.activities.length > 0 && note.activities.map(activity => (
+                                        <Box key={activity} color="text.secondary" component="span" sx={{m: {xs: 0, md:0}, fontSize: 10}}>{activity}</Box>
+                                    ))}
+                                </Box>
+                                <Box sx={{width:75}}>
+                                    {note.actionType && <Box color="text.secondary" component="span" sx={{m: {xs: 1, md:0}, fontSize: 10}}>{note.actionType}</Box>}
                                 </Box>
 
-                                <Box sx={{ mr:2, width: 40 }}>
+                                <Box sx={{ ml:1, width: 15 }}>
                                     <List sx={{display:'flex', flexDirection: 'row'}}>
                                         <ListItem 
                                         button

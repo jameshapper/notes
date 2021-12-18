@@ -33,11 +33,11 @@ service cloud.firestore {
     match /{somePath=**}/notes/{noteId} {
 
       function optional() {
-        return ['title', 'body', 'uid', 'createdAt', 'timestamp','activities','author','avatar', 'rt', 'commentNum','status']
+        return ['title', 'body', 'uid', 'createdAt', 'timestamp','activities','author','avatar', 'rt', 'commentNum','status','evidence','plannedHrs','completedHrs','actionType','noteType']
       }
 
       function onlyEdit() {
-        return ['title', 'body', 'createdAt', 'timestamp', 'activities','rt','commentNum','status']
+        return ['title', 'body', 'createdAt', 'timestamp', 'activities','rt','commentNum','status','evidence','plannedHrs','completedHrs','actionType','noteType']
       }
 
       allow read: if resourceHasAuthUid()

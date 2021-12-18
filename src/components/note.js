@@ -6,6 +6,7 @@ import Editor from "./editortest2"
 import MultipleSelect from './select';
 import { UserContext } from '../userContext';
 import ListCards from './listcards3'
+import ListGoals from './listgoals'
 import ViewNotes from './viewnotes'
 
 import dayjs from 'dayjs';
@@ -41,6 +42,8 @@ function Note(props) {
     const [ studentId, setStudentId ] = useState('')
 
     const [ newActivities, setNewActivities ] = useState([])
+    const [ newEvidence, setNewEvidence ] = useState([])
+
     const [ created, setCreated ] = useState("")
     const [ author, setAuthor ] = useState("")
 
@@ -52,6 +55,9 @@ function Note(props) {
 
     const [ notes, setNotes ] = useState([]);
     const [ pausedItems, setPausedItems ] = useState([]);
+    const [ termGoals, setTermGoals ] = useState([]);
+    const [ currentPlans, setCurrentPlans ] = useState([]);
+
 
     const [ rt, setRt ] = useState("")
     const [ commentRt, setCommentRt ] = useState("")
@@ -59,6 +65,11 @@ function Note(props) {
     const [ commentBody, setCommentBody ] = useState("")
 
     const [ status, setStatus ] = useState("Active")
+    const [ noteType, setNoteType ] = useState("ActionItem")
+    const [ actionType, setActionType ] = useState("ProblemSolving")
+    const [ plannedHrs, setPlannedHrs ] = useState("2")
+    const [ hrs, setHrs ] = useState("0")
+
 
     const { currentUser, avatar } = useContext(UserContext)
 
@@ -67,6 +78,13 @@ function Note(props) {
         {label:'IGCSE_Bio', value: 'IGCSE_Bio'},
         {label:'IGCSE_Phys', value: 'IGCSE_Phys'}
       ];
+
+    const evidenceList = [
+        {label:'Notebook-Notes',value: 'Notebook-Notes'},
+        {label:'Video', value: 'Video'},
+        {label:'Report', value: 'Report'},
+        {label:'TestQuiz', value: 'Test/Quiz'}
+    ];
 
     dayjs.extend(relativeTime);
 
@@ -87,6 +105,7 @@ function Note(props) {
         return db.collectionGroup("notes").where("uid", "==", currentUser.uid)
         .where("timestamp", ">=", recentDate)
         .where("status", "==","Active")
+        .where("noteType","==","ActionItem")
         .orderBy("timestamp","desc")
         .onSnapshot(snapshot => {
             const notesData = [];
@@ -100,7 +119,6 @@ function Note(props) {
 
         let recentDate = new Date('2021-04-29')
         
-        console.log("user from firebase auth", currentUser)
         return db.collectionGroup("notes").where("uid", "==", currentUser.uid)
         .where("timestamp", ">=", recentDate)
         .where("status", "==","Paused")
@@ -109,6 +127,40 @@ function Note(props) {
             const notesData = [];
             snapshot.forEach(doc => notesData.push({ ...doc.data(), id: doc.id }));
             setPausedItems(notesData)
+            setUiLoading(false)
+        })
+    }, [currentUser]);
+
+    useEffect(() => {
+
+        let recentDate = new Date('2021-04-29')
+        
+        return db.collectionGroup("notes").where("uid", "==", currentUser.uid)
+        .where("timestamp", ">=", recentDate)
+        .where("status", "==","Active")
+        .where("noteType","==","TermGoals")
+        .orderBy("timestamp","desc")
+        .onSnapshot(snapshot => {
+            const notesData = [];
+            snapshot.forEach(doc => notesData.push({ ...doc.data(), id: doc.id }));
+            setTermGoals(notesData)
+            setUiLoading(false)
+        })
+    }, [currentUser]);
+
+    useEffect(() => {
+
+        let recentDate = new Date('2021-04-29')
+        
+        return db.collectionGroup("notes").where("uid", "==", currentUser.uid)
+        .where("timestamp", ">=", recentDate)
+        .where("status", "==","Active")
+        .where("noteType","==","Plan")
+        .orderBy("timestamp","desc")
+        .onSnapshot(snapshot => {
+            const notesData = [];
+            snapshot.forEach(doc => notesData.push({ ...doc.data(), id: doc.id }));
+            setCurrentPlans(notesData)
             setUiLoading(false)
         })
     }, [currentUser]);
@@ -137,6 +189,11 @@ function Note(props) {
         setOpen(true)
         setStatus(note.status)
         setNewActivities(note.activities)
+        setNewEvidence(note.evidence)
+        setPlannedHrs(note.plannedHrs)
+        setHrs(note.completedHrs)
+        setActionType(note.actionType)
+        setNoteType(note.noteType)
 	}
 
     const handleViewOpen = (note) => {
@@ -149,6 +206,12 @@ function Note(props) {
         setCreated(note.createdAt)
         setAuthor(note.author)
         setStatus(note.status)
+        setNewActivities(note.activities)
+        setNewEvidence(note.evidence)
+        setPlannedHrs(note.plannedHrs)
+        setHrs(note.hrs)
+        setActionType(note.actionType)
+        setNoteType(note.noteType)
 	}
 
     useEffect(() => {
@@ -192,7 +255,7 @@ function Note(props) {
 
         if (buttonType === 'Edit') {
             let document = db.collection('users').doc(currentUser.uid).collection('notes').doc(noteId);
-            document.update( {title : title, body : body, activities: newActivities, rt:rt, status:status} )
+            document.update( {title : title, body : body, activities: newActivities, rt:rt, status:status, evidence:newEvidence, plannedHrs:plannedHrs, completedHrs:hrs, actionType:actionType, noteType:noteType} )
             .then((doc)=>{
                 console.log("Note edited")
                 setOpen(false);
@@ -211,7 +274,12 @@ function Note(props) {
                 author: currentUser.displayName,
                 avatar: avatar,
                 rt: rt,
-                status: status
+                status: status,
+                evidence:newEvidence,
+                plannedHrs:plannedHrs,
+                completedHrs:hrs,
+                actionType:actionType,
+                noteType:noteType
             }
             db.collection('users').doc(currentUser.uid).collection('notes').add(newNote)
             .then((doc)=>{
@@ -327,6 +395,85 @@ function Note(props) {
                         marginTop: 3
                     }} noValidate>
                         <Grid container spacing={2}>
+                            
+                            <Grid item xs={12} key="status">
+                                <InputLabel id="demo-simple-select-label">Status</InputLabel>
+                                <Select
+                                    labelId="demo-simple-select-label"
+                                    id="demo-simple-select"
+                                    value={status}
+                                    label="Status"
+                                    onChange={(e) => setStatus(e.target.value)}
+                                >
+                                    <MenuItem value={"Active"}>Active</MenuItem>
+                                    <MenuItem value={"Archived"}>Archived</MenuItem>
+                                    <MenuItem value={"Paused"}>Paused</MenuItem>
+                                </Select>
+                            </Grid>
+                            <Grid item xs={6} key="noteType">
+                                <InputLabel id="noteType label">Note Type</InputLabel>
+                                <Select
+                                    labelId="noteType label"
+                                    id="noteType"
+                                    value={noteType}
+                                    label="Note Type"
+                                    onChange={(e) => setNoteType(e.target.value)}
+                                >
+                                    <MenuItem value={"ActionItem"}>Action Item</MenuItem>
+                                    <MenuItem value={"Plan"}>Current Plans</MenuItem>
+                                    <MenuItem value={"TermGoals"}>Term Goals</MenuItem>
+                                </Select>
+                            </Grid>
+                            <Grid item xs={6} key="actionType">
+                                <InputLabel id="action-type-label">Action Type</InputLabel>
+                                <Select
+                                    labelId="action-type-label"
+                                    id="action-type"
+                                    value={actionType}
+                                    label="Action Type"
+                                    onChange={(e) => setActionType(e.target.value)}
+                                >
+                                    <MenuItem value={"ProblemSolving"}>Problem Solving</MenuItem>
+                                    <MenuItem value={"ResearchStudy"}>Research Study</MenuItem>
+                                    <MenuItem value={"HandsOn"}>Hands On</MenuItem>
+                                    <MenuItem value={"DataAnalysis"}>Data Analysis</MenuItem>
+                                    <MenuItem value={"Communicating"}>Communicating</MenuItem>
+                                </Select>
+                            </Grid>
+
+                            <Grid item xs={6} key='planned-hrs'>
+                                <TextField
+                                    variant="outlined"
+                                    required
+                                    id="plannedHrs"
+                                    label="Planned Hours"
+                                    name="plannedHrs"
+                                    autoComplete="plannedHrs"
+                                    value={plannedHrs}
+                                    onChange={(e) => setPlannedHrs(e.target.value)}
+                                />
+                            </Grid>
+                            <Grid item xs={6} key='hrs'>
+                                <TextField
+                                    variant="outlined"
+                                    required
+                                    id="hrs"
+                                    label="Completed Hours"
+                                    name="hrs"
+                                    autoComplete="hrs"
+                                    value={hrs}
+                                    onChange={(e) => setHrs(e.target.value)}
+                                />
+                            </Grid>
+
+                            <Grid item xs={6} key="chipsBadges">
+                                <MultipleSelect itemsTitle="Badges" allOptions={dataList} getList={activities => setNewActivities(activities)} currentActivities={newActivities}></MultipleSelect>
+                            </Grid>
+
+                            <Grid item xs={6} key="chipsEvidence">
+                                <MultipleSelect itemsTitle="Evidence" allOptions={evidenceList} getList={evidence => setNewEvidence(evidence)} currentActivities={newEvidence}></MultipleSelect>
+                            </Grid>
+
                             <Grid item xs={12} key='title'>
                                 <TextField
                                     variant="outlined"
@@ -342,23 +489,7 @@ function Note(props) {
                                     onChange={handleTitleChange}
                                 />
                             </Grid>
-                            <Grid item xs={6} key="chips">
-                                <MultipleSelect allOptions={dataList} getList={activities => setNewActivities(activities)} currentActivities={newActivities}></MultipleSelect>
-                            </Grid>
-                            <Grid item xs={6} key="status">
-                                <InputLabel id="demo-simple-select-label">Status</InputLabel>
-                                <Select
-                                    labelId="demo-simple-select-label"
-                                    id="demo-simple-select"
-                                    value={status}
-                                    label="Status"
-                                    onChange={(e) => setStatus(e.target.value)}
-                                >
-                                    <MenuItem value={"Active"}>Active</MenuItem>
-                                    <MenuItem value={"Archived"}>Archived</MenuItem>
-                                    <MenuItem value={"Paused"}>Paused</MenuItem>
-                                </Select>
-                            </Grid>
+
                             <Grid item xs={12} sm={6}>
                                 <Editor initText={rt} setRt={rt => setRt(rt)} setBody={body => setBody(body)}/>
                             </Grid>
@@ -367,19 +498,45 @@ function Note(props) {
                     </Box>
                 </Dialog>
 
-                <Typography variant='h6' sx={{mb:2}}>Current Goals</Typography>
+                <Box sx={{
+                    bgcolor: '#eeeeee',
+                    boxShadow: 1,
+                    borderRadius: 1,
+                    p: 1,
+                    minWidth: 300,
+                    }}>
+                    <Typography variant='h6' sx={{mb:0}}>Current Goals</Typography>
+                    <Divider sx={{mb:1}}/>
+                    <ListGoals notes={termGoals.concat(currentPlans)} handleEditOpen={handleEditOpen} handleViewOpen={handleViewOpen} deleteNoteHandler={deleteNoteHandler} canEdit={true}/>
+                </Box>
 
                 <Divider sx={{mt:1}}/>
+
+                <Box sx={{
+                    bgcolor: '#eeeeee',
+                    boxShadow: 1,
+                    borderRadius: 1,
+                    p: 1,
+                    minWidth: 300,
+                    }}>
+                    <Typography variant='h6' sx={{mb:0}}>Active Items</Typography>
+                    <Divider sx={{mb:1}}/>
+                    <ListCards notes={notes} handleEditOpen={handleEditOpen} handleViewOpen={handleViewOpen} deleteNoteHandler={deleteNoteHandler} canEdit={true}/>
+                </Box>
+
                 <Divider sx={{mt:1}}/>
 
-                <Typography variant='h6' sx={{mb:2}}>Active Items</Typography>
-                <ListCards notes={notes} handleEditOpen={handleEditOpen} handleViewOpen={handleViewOpen} deleteNoteHandler={deleteNoteHandler} canEdit={true}/>
-
-                <Divider sx={{mt:1}}/>
-                <Divider sx={{mt:1}}/>
-
-                <Typography variant='h6' sx={{mb:2}}>Paused Items</Typography>
-                <ListCards notes={pausedItems} handleEditOpen={handleEditOpen} handleViewOpen={handleViewOpen} deleteNoteHandler={deleteNoteHandler} canEdit={true}/>
+                <Box sx={{
+                    bgcolor: '#eeeeee',
+                    boxShadow: 1,
+                    borderRadius: 1,
+                    p: 1,
+                    minWidth: 300,
+                    }}>
+                    <Typography variant='h6' sx={{mb:0}}>Paused Items</Typography>
+                    <Divider sx={{mb:1}}/>
+                    <ListCards notes={pausedItems} handleEditOpen={handleEditOpen} handleViewOpen={handleViewOpen} deleteNoteHandler={deleteNoteHandler} canEdit={true}/>
+                </Box>
 
                 <ViewNotes handleViewClose={handleViewClose} viewOpen={viewOpen} title={title} author={author} created={created} avatar={avatar} comments={comments} rt={rt} classes={classes} handleSubmitComment={handleSubmitComment} setCommentBody={setCommentBody} setCommentRt={setCommentRt} commentRt={commentRt}/>
 

@@ -350,7 +350,7 @@ function TeacherClasses(props) {
                 </Grid>
 
                 { notes && notes.length > 0 && 
-                    <ListCards notes={notes} handleEditOpen={()=>alert('permission denied')} handleViewOpen={handleViewOpen} deleteNoteHandler={()=>alert('permission denied')} canEdit={false}/>
+                <ListCards notes={notes} handleEditOpen={()=>alert('permission denied')} handleViewOpen={handleViewOpen} deleteNoteHandler={()=>alert('permission denied')} canEdit={false}/>
                 }
   
                 <ViewNotes handleViewClose={handleViewClose} viewOpen={viewOpen} title={title} author={author} created={created} avatar={noteAvatar} comments={comments} rt={rt} classes={classes} handleSubmitComment={handleSubmitComment} setCommentBody={setCommentBody} setCommentRt={setCommentRt} commentRt={commentRt}/>

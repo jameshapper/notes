@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState } from 'react';
 /** @jsxImportSource @emotion/react */
 import firebase, { db } from '../firebase';
 import { Link, useHistory } from "react-router-dom";
@@ -41,244 +41,18 @@ import VisibilityIcon from '@material-ui/icons/Visibility';
 import EditIcon from '@material-ui/icons/Edit'
 import ShieldIcon from '@material-ui/icons/Shield';
 
-export default function ListCards({notes, handleEditOpen, handleViewOpen, deleteNoteHandler, canEdit}) {
+export default function ListTable({notes, handleViewOpen}) {
 
     const rows = notes
-    const [ selectedStudents, setSelectedStudents ] = useState([])
-
-
-    function colorForStatus(status) {
-        switch (status) {
-            case "Active":
-                return "primary"
-            case "Archived":
-                return "secondary"
-            case "Paused":
-                return "info"
-            default:
-                return "info"
-        }
-    }
     
     return (
         <div>
             <Box sx={{flexGrow:1, p:3}} >
-                <EnhancedTable rows={rows} setSelectedStudents={(selecteds) => setSelectedStudents(selecteds)} />
+                <EnhancedTable rows={rows} />
             </Box>            
-            <Grid container spacing={2}>
-                {notes.map((note) => (
-                    <Grid item xs={12} sm={12} key = {note.id}>
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                flexDirection: { xs: 'column', md: 'row' },
-                                alignItems: 'center',
-                                bgcolor: 'background.paper',
-                                overflow: 'hidden',
-                                borderRadius: '12px',
-                                boxShadow: 1,
-                                fontWeight: 'bold',
-                                justifyContent: 'space-between',
-                                maxWidth:800
-                            }}
-                        >
-                            <Box
-                                sx={{
-                                height: 70,
-                                width: 70,
-                                maxHeight: { xs: 70, md: 70 },
-                                maxWidth: { xs: 70, md: 70 },
-                                ml:1
-                                }}
-                            >
-                                <Avatar aria-label="recipe" sx={{height: 58, width: 58}} src={note.avatar} />
-                            </Box>
-                            <Box sx={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: { xs: 'center', md: 'flex-start' },
-                                m: 3,
-                                minWidth: { md: 250 },
-                                width:350
-                                }}
-                            >
-                                <Typography component="div" variant="h6" sx={{ mt:0 }}>
-                                    {note.title}
-                                </Typography>
-                                <Typography variant="subtitle1" color="text.secondary" component="div">
-                                    {dayjs(note.createdAt).fromNow()+" by "+note.author}
-                                </Typography>
-                                <Box component="span" sx={{ fontSize: 12 }}>
-                                    <Typography variant="body2" component="p">
-                                        {note.body.substring(0, 65)+"..."}
-                                    </Typography>
-                                </Box>
-                            </Box>
-                            <Box sx={{width: { xs: 200, md: 150}}}>
-                                <Box sx={{display:'flex', alignItems: 'center', flexDirection: { xs: 'row', md: 'column' }}}>
-                                    {note.activities && note.activities.length > 0 && <ShieldIcon />}
-                                    {note.activities && note.activities.length > 0 && note.activities.map(activity => (
-                                        <Typography key={activity} sx={{m: {xs: 1, md:0}}}>{activity}</Typography>
-                                    ))}
-                                </Box>
-                            </Box>
-                            <Box sx={{display:'flex', flexDirection: { xs: 'row', md: 'column' }}}>
-                                {note.status &&
-                                <Chip label={note.status} color={colorForStatus(note.status)} /> 
-                                }
-                            </Box>
-                            <Box sx={{ mr:2, width: 40 }}>
-                                <List sx={{display:'flex', flexDirection: { xs: 'row', md: 'column' }}}>
-                                    <ListItem 
-                                    button
-                                    key="viewNoteFromLC"
-                                    onClick={() => handleViewOpen( note )}
-                                    >
-                                        <ListItemIcon ><VisibilityIcon /></ListItemIcon>
-                                    </ListItem>
-                                {canEdit && <>
-                                    <ListItem 
-                                    button
-                                    key="editNoteFromLC"
-                                    onClick={() => handleEditOpen( note )}
-                                    >
-                                        <ListItemIcon ><EditIcon /></ListItemIcon>
-                                    </ListItem>
-                                </>}
-                                {note.commentNum && 
-                                    <ListItem 
-                                    key="messagesCountFromLC"
-                                    >
-                                        <Badge badgeContent={note.commentNum} color="primary">
-                                            <Message />
-                                        </Badge>
-                                    </ListItem>
-                                }
-                                </List>
-                            </Box>
-                        </Box>
-                    </Grid>
-                ))}
-            </Grid>
         </div>
     )
 }
-
-
-function Students(props) {
-
-    const { loading, currentUser } = useContext(UserContext)
-
-    const [ uiLoading ] = useState(loading)
-    const [ rows, setRows ] = useState([])
-    const [ classes, setClasses ] = useState([])
-    const [ selectedClass, setSelectedClass ] = useState()
-    const [ selectedStudents, setSelectedStudents ] = useState([])
-
-    const history = useHistory()
-
-    useEffect(() => {   
-        return db.collection("adminDocs").doc("studentList")
-        .onSnapshot((doc) => {
-            setRows(doc.data().students)
-        })
-    }, []);
-
-    useEffect(() => {
-        return db.collection("users").doc(currentUser.uid).collection("teacherClasses").get()
-        .then((snapshot) => {
-            const classData = []
-            snapshot.forEach((doc) => {
-                classData.push({...doc.data(), id: doc.id})
-            })
-            setClasses(classData)
-            console.log("class data is "+classData)
-        })
-    },[currentUser.uid])
-
-    const handleChange = (event) => {
-        setSelectedClass(event.target.value)
-        console.log('selected class id is '+event.target.value)
-    }
-
-    const handleSubmit = (event) => {
-        event.preventDefault()
-        if(selectedClass.length){
-          console.log('planning to submit to class id '+selectedClass)
-          console.log('and submit selected student ids are '+selectedStudents)
-          db.collection('users').doc(currentUser.uid).collection('teacherClasses')
-          .doc(selectedClass).update({
-              students: firebase.firestore.FieldValue.arrayUnion(...selectedStudents)
-          })
-          .then(() => {
-            selectedStudents.map(student => (
-              db.collection('users').doc(student.uid).update({
-                classes: firebase.firestore.FieldValue.arrayUnion(selectedClass)
-              })
-            ))
-          })
-          .then(() => {
-            history.push('/classes')
-          })
-        } else {
-          alert("Make sure to select a class")
-        }
-    }
-
-    if (uiLoading === true) {
-        return (
-            <main sx={{flexGrow:1, p:3}} >
-                <Toolbar />
-                {uiLoading && <CircularProgress size={150} sx={{
-                    position: 'fixed',
-                    zIndex: '1000',
-                    height: '31px',
-                    width: '31px',
-                    left: '50%',
-                    top: '35%'
-                }} />}
-            </main>
-        );
-    } else {
-        return (
-            <>
-                <Toolbar />
-                <Grid container spacing={2} alignItems='center'>
-                    <Grid item xs={2} key='classSelect'>
-                        <FormControl sx={{ m: 1, minWidth: 120 }}>
-                            <InputLabel id="demo-simple-select-label">Classes</InputLabel>
-                            <Select
-                                labelId="select class"
-                                id="select-class"
-                                value={selectedClass}
-                                label="Classes"
-                                onChange={handleChange}
-                                defaultValue=""
-                            >
-                                {classes.map((eachclass) => (
-                                    <MenuItem key={eachclass.name} value={eachclass.id}>{eachclass.name}</MenuItem>
-                                ))
-                                }
-                            </Select>
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <Typography variant='h6' align='center'>Select students below to add to class</Typography>
-                    </Grid>
-                    <Grid item xs={4}>
-                        <Button variant='contained' onClick={handleSubmit}>Submit</Button>
-                    </Grid>
-                </Grid>
-    
-                <Box sx={{flexGrow:1, p:3}} >
-                    <EnhancedTable rows={rows} setSelectedStudents={(selecteds) => setSelectedStudents(selecteds)} />
-                </Box>
-    
-            </>
-        )
-    }
-}
-export default Students;
 
 //The comparator functions below allow the same functions to be used for sorting objects by different columns (different fields within the objects)
 
@@ -312,27 +86,45 @@ function stableSort(array, comparator) {
 
 const headCells = [
   {
-    id: 'firstName',
+    id: 'avatar',
     numeric: false,
     disablePadding: true,
-    label: 'Student Name',
+    label: 'Avatar',    
   },
   {
-    id: 'year',
-    numeric: true,
-    disablePadding: false,
-    label: 'Graduation Year',
+    id: 'author',
+    numeric: false,
+    disablePadding: true,
+    label: 'Author',
   },
   {
-    id: 'uid',
+    id: 'noteType',
     numeric: false,
     disablePadding: false,
-    label: 'uid',
+    label: 'Note Type',
+  },
+  {
+    id: 'actionType',
+    numeric: false,
+    disablePadding: false,
+    label: 'Action Type',
+  },
+  {
+    id: 'plannedHrs',
+    numeric: false,
+    disablePadding: false,
+    label: 'Hrs Planned',
+  },
+  {
+    id: 'completedHrs',
+    numeric: false,
+    disablePadding: false,
+    label: 'Hrs Completed',
   },
 ];
 
 function EnhancedTableHead(props) {
-  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
+  const { order, orderBy, onRequestSort } = props;
 
   //an appropriate "sortHandler" will be created for each column (with the "property" being the "id" of the particular column header)
   const createSortHandler = (property) => (event) => {
@@ -342,17 +134,6 @@ function EnhancedTableHead(props) {
   return (
     <TableHead>
       <TableRow>
-        <TableCell padding="checkbox">
-          <Checkbox
-            color="primary"
-            indeterminate={numSelected > 0 && numSelected < rowCount}
-            checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
-            inputProps={{
-              'aria-label': 'select all students',
-            }}
-          />
-        </TableCell>
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
@@ -376,115 +157,33 @@ function EnhancedTableHead(props) {
 }
 
 EnhancedTableHead.propTypes = {
-  numSelected: PropTypes.number.isRequired,
   onRequestSort: PropTypes.func.isRequired,
-  onSelectAllClick: PropTypes.func.isRequired,
   order: PropTypes.oneOf(['asc', 'desc']).isRequired,
   orderBy: PropTypes.string.isRequired,
-  rowCount: PropTypes.number.isRequired,
 };
 
 const EnhancedTableToolbar = (props) => {
-  const { numSelected, selected, handleClickOpen } = props;
-
-  // <IconButton component={Link} to={`/students/${selected[0].uid}`} >
-  // <IconButton component={Link} to={{pathname: `/students/${selected[0].uid}`, state: {something: `${selected[0].uid}`} }} >
-  // <IconButton component={Link} onClick={handleStudentSelect} to={{pathname: '/myBadges', state: {selectedStudentId: `${selected[0].uid}`, selectedStudentName: `${selected[0].firstName}`} }} >
 
   return (
     <Toolbar
       sx={{
         pl: { sm: 2 },
         pr: { xs: 1, sm: 1 },
-        ...(numSelected > 0 && {
-          bgcolor: (theme) =>
-            alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
-        }),
       }}
     >
-      {numSelected > 0 ? (
-        <Typography
-          sx={{ flex: '1 1 100%' }}
-          color="inherit"
-          variant="subtitle1"
-          component="div"
-        >
-          {numSelected} selected
-        </Typography>
-      ) : (
-        <Typography
-          sx={{ flex: '1 1 100%' }}
-          variant="h6"
-          id="tableTitle"
-          component="div"
-        >
-          Students
-        </Typography>
-      )}
-
-      {numSelected === 1 ? (
-        <>
-        <Tooltip title="Edit Record">
-          <IconButton
-            onClick={handleClickOpen}
-          >
-            <Edit />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="View Details">
-          <IconButton component={Link} to={`/students/${selected[0].uid}/myBadges`} >
-            <AssignmentInd />
-          </IconButton>
-        </Tooltip>
-        </>
-      ) :
-      numSelected > 0 ? (
-        <Tooltip title="Download records">
-          <IconButton>
-            <CloudDownload />
-          </IconButton>
-        </Tooltip>
-      ) : (
-        <Tooltip title="Filter list">
-          <IconButton>
-            <FilterListIcon />
-          </IconButton>
-        </Tooltip>
-      )}
     </Toolbar>
   );
 };
 
-EnhancedTableToolbar.propTypes = {
-  numSelected: PropTypes.number.isRequired,
-};
 
 export function EnhancedTable(props) {
   const [order, setOrder] = useState('asc');
-  const [orderBy, setOrderBy] = useState('year');
-  const [selected, setSelected] = useState([]);
+  const [orderBy, setOrderBy] = useState('noteType');
   const [page, setPage] = useState(0);
   const [dense, setDense] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(25);
-  const [clickOpen, setClickOpen] = useState(false)
-  const [gradYear, setGradYear] = useState(2000)
-  const [studentName, setStudentName] = useState("")
-  const [error, setError] = useState([])
-  const [studentId, setStudentId] = useState('')
 
   const rows = props.rows
-
-  const handleClickOpen = () => {
-    setClickOpen(true)
-    setStudentName(selected[0].firstName)
-    setGradYear(selected[0].year)
-    setStudentId(selected[0].uid)
-  }
-
-  const handleClose = () => {
-    setClickOpen(false)
-    setSelected([])
-  }
 
   //this will be sent to the "EnhancedTableHead" component. It will toggle the order if we click on the most recently ordered header again.
   const handleRequestSort = (event, property) => {
@@ -493,70 +192,9 @@ export function EnhancedTable(props) {
     setOrderBy(property);
   };
 
-  const handleSelectAllClick = (event) => {
-    if (event.target.checked) {
-      //const newSelecteds = rows.map((n) => n.uid);
-      const newSelecteds = rows
-      setSelected(newSelecteds);
-      props.setSelectedStudents(newSelecteds)
-      return;
-    }
-    setSelected([]);
-    props.setSelectedStudents([])
-  };
-
   const handleClick = (event, name) => {
-    //const selectedIndex = selected.indexOf(name);
-    const selectedIndex = selected.findIndex(function(selection){
-      return selection.uid === name.uid
-    })
-    let newSelected = [];
-
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1),
-      );
-    }
-
-    setSelected(newSelected);
-    props.setSelectedStudents(newSelected)
-
+    console.log("Clicked a row!")
   };
-
-  const handleYearChange = (event) => setGradYear(event.target.value)
-
-  const handleNameChange = (event) => setStudentName(event.target.value)
-
-  const handleSubmit = () => {
-    console.log("Halelujiah")
-    const studentUpdate = {
-      firstName:studentName,
-      uid:studentId,
-      year:gradYear
-    }
-    db.collection("adminDocs").doc("studentList").update({
-      students: firebase.firestore.FieldValue.arrayRemove({
-        firstName:selected[0].firstName,
-        uid:selected[0].uid,
-        year:selected[0].year
-      })
-    })
-    .then(() => {
-      db.collection("adminDocs").doc("studentList").update({
-        students: firebase.firestore.FieldValue.arrayUnion(studentUpdate)
-      })
-    })
-    .then(() => db.collection("users").doc(studentUpdate.uid).update(studentUpdate))
-    setClickOpen(false)
-    setSelected([])
-  }
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -571,14 +209,6 @@ export function EnhancedTable(props) {
     setDense(event.target.checked);
   };
 
-  //const isSelected = (name) => selected.indexOf(name) !== -1;
-  const isSelected = (name) => {
-    const index = selected.findIndex(function (selection) {
-      return selection.uid===name.uid
-    })
-    return index !== -1
-  }
-
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
@@ -586,7 +216,7 @@ export function EnhancedTable(props) {
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length} selected={selected} handleClickOpen={handleClickOpen} />
+        <EnhancedTableToolbar />
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
@@ -594,10 +224,8 @@ export function EnhancedTable(props) {
             size={dense ? 'small' : 'medium'}
           >
             <EnhancedTableHead
-              numSelected={selected.length}
               order={order}
               orderBy={orderBy}
-              onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
               rowCount={rows.length}
             />
@@ -607,27 +235,17 @@ export function EnhancedTable(props) {
               {stableSort(rows, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
-                  const isItemSelected = isSelected(row);
                   const labelId = `enhanced-table-checkbox-${index}`;
 
                   return (
                     <TableRow
                       hover
                       onClick={(event) => handleClick(event, row)}
-                      role="checkbox"
-                      aria-checked={isItemSelected}
                       tabIndex={-1}
-                      key={row.uid}
-                      selected={isItemSelected}
+                      key={row.id}
                     >
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          color="primary"
-                          checked={isItemSelected}
-                          inputProps={{
-                            'aria-labelledby': labelId,
-                          }}
-                        />
+                      <TableCell>
+                        <Avatar aria-label="recipe" sx={{height: 30, width: 30}} src={row.avatar} />
                       </TableCell>
                       <TableCell
                         component="th"
@@ -635,10 +253,12 @@ export function EnhancedTable(props) {
                         scope="row"
                         padding="none"
                       >
-                        {row.firstName}
+                        {row.author}
                       </TableCell>
-                      <TableCell align="right">{row.year}</TableCell>
-                      <TableCell align="left">{row.uid}</TableCell>
+                      <TableCell align="left">{row.noteType}</TableCell>
+                      <TableCell align="left">{row.actionType}</TableCell>
+                      <TableCell align="left">{row.plannedHrs}</TableCell>
+                      <TableCell align="left">{row.completedHrs}</TableCell>
                     </TableRow>
                   );
                 })}
@@ -668,75 +288,6 @@ export function EnhancedTable(props) {
         control={<Switch checked={dense} onChange={handleChangeDense} />}
         label="Dense padding"
       />
-
-      <Dialog fullWidth={true} maxWidth='md' open={clickOpen} onClose={handleClose}>
-          <AppBar sx={{position: 'relative'}} >
-              <Toolbar>
-                  <IconButton edge="start" color="inherit" onClick={handleClose} aria-label="close">
-                      <CloseIcon />
-                  </IconButton>
-                  <Typography variant="h6" sx={{ml:2, flex:1}} >
-                      Edit Record
-                  </Typography>
-                  <Button
-                      autoFocus
-                      color="inherit"
-                      onClick={handleSubmit}
-                      sx={{
-                          display: 'block',
-                          color: 'white',
-                          textAlign: 'center',
-                          position: 'absolute',
-                          top: 14,
-                          right: 10
-                      }}
-                  >
-                      Save
-                  </Button>
-              </Toolbar>
-          </AppBar>
-
-          <Box sx={{
-              width: '88%',
-              marginLeft: 2,
-              marginTop: 3,
-              marginBottom: 3
-          }} noValidate>
-              <Grid container spacing={2}>
-                  <Grid item xs={6} key='studentname'>
-                      <TextField
-                          variant="outlined"
-                          required
-                          fullWidth
-                          id="studentName"
-                          label="Student Name"
-                          name="studentname"
-                          autoComplete="studentName"
-                          helperText={error.title}
-                          value={studentName}
-                          error={error.title ? true : false}
-                          onChange={handleNameChange}
-                      />
-                  </Grid>
-                  <Grid item xs={6} key='gradyear'>
-                      <TextField
-                          variant="outlined"
-                          required
-                          fullWidth
-                          id="gradYear"
-                          label="Grad Year"
-                          name="gradyear"
-                          autoComplete="gradYear"
-                          helperText={error.title}
-                          value={gradYear}
-                          error={error.title ? true : false}
-                          onChange={handleYearChange}
-                      />
-                  </Grid>
-
-              </Grid>
-          </Box>
-      </Dialog>
     </Box>
   );
 }
