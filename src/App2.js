@@ -21,6 +21,8 @@ import BadgeForm from './components/badgeform2'
 import MyBadges from './components/mybadges'
 import MyBadgeDetails from './components/mybadgedetails';
 import FeedbackView from './components/feedbackview';
+import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
 
 const theme = createTheme({
 	palette: {
@@ -77,6 +79,7 @@ function App() {
 	return (
 		<ThemeProvider theme={theme}>
 			<ErrorBoundary FallbackComponent={ErrorFallback}>
+			<LocalizationProvider dateAdapter={AdapterDateFns}>
 			<UserProvider>
                 <Router>
                     <div>
@@ -105,6 +108,7 @@ function App() {
                     </div>
                 </Router>
 			</UserProvider>
+			</LocalizationProvider>
 			</ErrorBoundary>
 		</ThemeProvider>
 	);

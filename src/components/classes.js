@@ -4,8 +4,10 @@ import { UserContext } from '../userContext';
 import ListCards from './listcards2'
 import ViewNotes from './viewnotes'
 import { Link } from "react-router-dom";
+import ListTable from './listtable'
 
 import Datepicker from 'react-datepicker'
+import DatePicker from '@mui/lab/DatePicker';
 import 'react-datepicker/dist/react-datepicker.css'
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -22,10 +24,9 @@ import CloseIcon from '@material-ui/icons/Close';
 import Slide from '@material-ui/core/Slide';
 import Grid from '@material-ui/core/Grid';
 import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import CardContent from '@material-ui/core/CardContent';
-import MuiDialogTitle from '@material-ui/core/DialogTitle';
+import { CardActionArea, MenuItem, Select, InputLabel, TextField } from '@material-ui/core';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
 	return <Slide direction="up" ref={ref} {...props} />;
@@ -44,6 +45,7 @@ function TeacherClasses(props) {
     const [ students30, setStudents30 ] = useState([])
 
     const [ currentClass, setCurrentClass ] = useState([])
+    const [ classId, setClassId ] = useState("")
     const [ created, setCreated ] = useState("")
     const [ author, setAuthor ] = useState("")
     const [ noteAvatar, setNoteAvatar ] = useState("")
@@ -56,6 +58,9 @@ function TeacherClasses(props) {
 
     const [ teacherClasses, setTeacherClasses ] = useState([]);
     const [ notes, setNotes ] = useState([]);
+    const [ status, setStatus ] = useState("Active")
+    const [ noteType, setNoteType ] = useState("ActionItem")
+    const [ actionType, setActionType ] = useState("ProblemSolving")
     const [ selectedDate, setSelectedDate ] = useState(new Date(Date.now() - 604800000))
 
     const [ selected, setSelected ] = useState([])
@@ -101,6 +106,7 @@ function TeacherClasses(props) {
     const handleSelectOpen = (teacherClass) => {
         setTitle(teacherClass.name)
         setCurrentClass(teacherClass.students)
+        setClassId(teacherClass.id)
         setOpen(true)
     };
 
@@ -117,6 +123,7 @@ function TeacherClasses(props) {
             let first10 = await
             db.collectionGroup('notes')
             .where('uid','in', students10)
+            .where('noteType','==',"Plan")
             .where("timestamp", ">=", recentDate)
             .orderBy("timestamp","desc")
             .get()
@@ -260,8 +267,6 @@ function TeacherClasses(props) {
             <main sx={{flexGrow:1, p: 3}}>
                 <Toolbar />
 
-                <Button variant="contained" component={Link} to='/addclass'>Add new class</Button>
-
                 <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
                     <AppBar sx={{position: 'relative'}} >
                         <Toolbar>
@@ -269,8 +274,13 @@ function TeacherClasses(props) {
                                 <CloseIcon />
                             </IconButton>
                             <Typography variant="h6" sx={{ml:2, flex:1}} >
-                                Select students to view recent notes
+                                <Link   to={{
+                                        pathname: "/addClass",
+                                        state: { classId: classId}
+                                    }}>{title}
+                                </Link>
                             </Typography>
+
                             <Button
                                 autoFocus
                                 color="inherit"
@@ -296,61 +306,97 @@ function TeacherClasses(props) {
                         marginTop: 3
                     }} noValidate>
                         <Grid container spacing={2}>
-                            <Grid item xs={12} key='date'>
-                                <Typography>
-                                    How far back do you want to see notes?
-                                </Typography>
-                                <Datepicker 
-                                    selected={selectedDate} 
-                                    onChange={date => setSelectedDate(date)}
-                                    maxDate={new Date()}
-                                />
-                            </Grid>
-                            <Grid item xs={12} key='title'>
-                                {title}
-                            </Grid>
-
-                            <Grid>
-                                <div>
-                                    <h1>Select Students</h1>
+                            <Grid item xs={2} key='student-select'>
+                                <Box sx={{m:0, flexDirection:'column'}}>
+                                    <Typography>Students</Typography>
                                     <MultiSelect
                                     options={classForSelect}
                                     value={selected}
                                     onChange={setSelected}
                                     labelledBy={"Select"}
                                     />
-                                </div>
+                                </Box>
                             </Grid>
+                            <Grid item xs={2} key='date'>
+                                <DatePicker
+                                    label="Earliest Date"
+                                    value={selectedDate}
+                                    onChange={(newValue) => {
+                                    setSelectedDate(newValue);
+                                    }}
+                                    renderInput={(params) => <TextField {...params} />}
+                                />
+                            </Grid>
+                            <Grid item xs={2}>
+                                <InputLabel id="note-status">Status</InputLabel>
+                                <Select
+                                    labelId="note-status"
+                                    id="note-status"
+                                    value={status}
+                                    label="Status"
+                                    onChange={(e) => setStatus(e.target.value)}
+                                >
+                                    <MenuItem value={"Active"}>Active</MenuItem>
+                                    <MenuItem value={"Archived"}>Archived</MenuItem>
+                                    <MenuItem value={"Paused"}>Paused</MenuItem>
+                                </Select>
+                            </Grid>
+                            <Grid item xs={2}>
+                                <InputLabel id="noteType label">Note Type</InputLabel>
+                                <Select
+                                    labelId="noteType label"
+                                    id="noteType"
+                                    value={noteType}
+                                    label="Note Type"
+                                    onChange={(e) => setNoteType(e.target.value)}
+                                >
+                                    <MenuItem value={"ActionItem"}>Action Item</MenuItem>
+                                    <MenuItem value={"Plan"}>Current Plans</MenuItem>
+                                    <MenuItem value={"TermGoals"}>Term Goals</MenuItem>
+                                </Select>
+                            </Grid>
+                            <Grid item xs={2} key="actionType">
+                                <InputLabel id="action-type-label">Action Type</InputLabel>
+                                <Select
+                                    labelId="action-type-label"
+                                    id="action-type"
+                                    value={actionType}
+                                    label="Action Type"
+                                    onChange={(e) => setActionType(e.target.value)}
+                                >
+                                    <MenuItem value={"ProblemSolving"}>Problem Solving</MenuItem>
+                                    <MenuItem value={"ResearchStudy"}>Research Study</MenuItem>
+                                    <MenuItem value={"HandsOn"}>Hands On</MenuItem>
+                                    <MenuItem value={"DataAnalysis"}>Data Analysis</MenuItem>
+                                    <MenuItem value={"Communicating"}>Communicating</MenuItem>
+                                </Select>
+                            </Grid>
+
                         </Grid>
                     </Box>
                 </Dialog>
 
-                <Grid container spacing={8} justify='center'>
+                <Grid container spacing={4} justify='center'>
                     {teacherClasses.map((teacherClass) => (
-                        <Grid item xs={6} sm={4} key = {teacherClass.name}>
-                            <Card sx={{minWidth:220}} variant="outlined">
+                        <Grid item xs={4} sm={2} key = {teacherClass.name}>
+                            <Card sx={{minWidth:160}} variant="outlined">
+                                <CardActionArea onClick={() => handleSelectOpen( teacherClass )}>
                                 <CardContent>
-                                    <Typography variant="h6" component="h3">
+                                    <Typography variant="button" display="block" gutterBottom >
                                         {teacherClass.name}
                                     </Typography>
                                 </CardContent>
-                                <CardActions>
-                                    <Link   to={{
-                                        pathname: "/addClass",
-                                        state: { classId: teacherClass.id}
-                                    }}>Edit</Link>
-                                    <Button size="small" color="primary" onClick={() => handleSelectOpen( teacherClass )}>
-                                        {' '}
-                                        Select Students{' '}
-                                    </Button>
-                                </CardActions>
+                                </CardActionArea>
                             </Card>
                         </Grid>
                     ))}
+                    <Grid item xs={3} sm={2} key='newclass'>
+                        <Button variant="outlined" component={Link} to='/addclass'>Add class</Button> 
+                    </Grid>
                 </Grid>
 
                 { notes && notes.length > 0 && 
-                <ListCards notes={notes} handleEditOpen={()=>alert('permission denied')} handleViewOpen={handleViewOpen} deleteNoteHandler={()=>alert('permission denied')} canEdit={false}/>
+                <ListTable notes={notes} handleViewOpen={handleViewOpen}/>
                 }
   
                 <ViewNotes handleViewClose={handleViewClose} viewOpen={viewOpen} title={title} author={author} created={created} avatar={noteAvatar} comments={comments} rt={rt} classes={classes} handleSubmitComment={handleSubmitComment} setCommentBody={setCommentBody} setCommentRt={setCommentRt} commentRt={commentRt}/>
