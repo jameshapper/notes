@@ -6,7 +6,7 @@ import ViewNotes from './viewnotes'
 import { Link } from "react-router-dom";
 import ListTable from './listtable'
 
-import Datepicker from 'react-datepicker'
+//import Datepicker from 'react-datepicker'
 import DatePicker from '@mui/lab/DatePicker';
 import 'react-datepicker/dist/react-datepicker.css'
 import dayjs from 'dayjs';
@@ -123,7 +123,7 @@ function TeacherClasses(props) {
             let first10 = await
             db.collectionGroup('notes')
             .where('uid','in', students10)
-            .where('noteType','==',"Plan")
+            .where('noteType','==',noteType)
             .where("timestamp", ">=", recentDate)
             .orderBy("timestamp","desc")
             .get()
@@ -137,6 +137,7 @@ function TeacherClasses(props) {
             let second10 = await
             db.collectionGroup('notes')
             .where('uid','in', students20)
+            .where('noteType','==',noteType)
             .where("timestamp", ">=", recentDate)
             .orderBy("timestamp","desc")
             .get()
@@ -150,6 +151,7 @@ function TeacherClasses(props) {
             let third10 = await
             db.collectionGroup('notes')
             .where('uid','in', students30)
+            .where('noteType','==',noteType)
             .where("timestamp", ">=", recentDate)
             .orderBy("timestamp","desc")
             .get()
@@ -306,18 +308,7 @@ function TeacherClasses(props) {
                         marginTop: 3
                     }} noValidate>
                         <Grid container spacing={2}>
-                            <Grid item xs={2} key='student-select'>
-                                <Box sx={{m:0, flexDirection:'column'}}>
-                                    <Typography>Students</Typography>
-                                    <MultiSelect
-                                    options={classForSelect}
-                                    value={selected}
-                                    onChange={setSelected}
-                                    labelledBy={"Select"}
-                                    />
-                                </Box>
-                            </Grid>
-                            <Grid item xs={2} key='date'>
+                            <Grid item xs={6} sm={6} key='date' sx={{mt:1}}>
                                 <DatePicker
                                     label="Earliest Date"
                                     value={selectedDate}
@@ -327,7 +318,18 @@ function TeacherClasses(props) {
                                     renderInput={(params) => <TextField {...params} />}
                                 />
                             </Grid>
-                            <Grid item xs={2}>
+                            <Grid item xs={6} sm={6} key='student-select'>
+                                <Box sx={{m:0, maxWidth:300, flexDirection:'column'}}>
+                                    <Typography>Students</Typography>
+                                    <MultiSelect
+                                    options={classForSelect}
+                                    value={selected}
+                                    onChange={setSelected}
+                                    labelledBy={"Select"}
+                                    />
+                                </Box>
+                            </Grid>
+                            <Grid item xs={12} sm={12}>
                                 <InputLabel id="note-status">Status</InputLabel>
                                 <Select
                                     labelId="note-status"
@@ -341,7 +343,7 @@ function TeacherClasses(props) {
                                     <MenuItem value={"Paused"}>Paused</MenuItem>
                                 </Select>
                             </Grid>
-                            <Grid item xs={2}>
+                            <Grid item xs={12} sm={12}>
                                 <InputLabel id="noteType label">Note Type</InputLabel>
                                 <Select
                                     labelId="noteType label"
@@ -355,7 +357,7 @@ function TeacherClasses(props) {
                                     <MenuItem value={"TermGoals"}>Term Goals</MenuItem>
                                 </Select>
                             </Grid>
-                            <Grid item xs={2} key="actionType">
+                            <Grid item xs={12} sm={12} key="actionType">
                                 <InputLabel id="action-type-label">Action Type</InputLabel>
                                 <Select
                                     labelId="action-type-label"

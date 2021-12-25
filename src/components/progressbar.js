@@ -27,7 +27,7 @@ export default function Progress({done}) {
             my: 1,
             mx: 0,
             height: 20,
-            width: 200,
+            width: 150,
         }}>
 			<Box sx={{
             	background: 'linear-gradient(to left, #F2709C, #FF9472)',

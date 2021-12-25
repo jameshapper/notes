@@ -4,13 +4,17 @@ import "react-quill/dist/quill.snow.css";
 import "./styles.css";
 import Editor from "./editortest2"
 import MultipleSelect from './select';
+import { Link } from 'react-router-dom'
+
 import { UserContext } from '../userContext';
 import ListCards from './listcards3'
 import ListGoals from './listgoals'
 import ViewNotes from './viewnotes'
+import MyBadges from './mybadges'
 
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import DatePicker from '@mui/lab/DatePicker';
 
 import Box from '@material-ui/core/Box'
 import Typography from '@material-ui/core/Typography';
@@ -27,7 +31,7 @@ import Grid from '@material-ui/core/Grid';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Select from '@material-ui/core/Select'
 import MenuItem from '@material-ui/core/MenuItem'
-import { InputLabel } from '@material-ui/core';
+import { InputLabel, TableContainer, TableBody, TableCell, Table, TableHead, TableRow, Paper } from '@material-ui/core';
 import Divider from '@material-ui/core/Divider'
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -43,6 +47,7 @@ function Note(props) {
 
     const [ newActivities, setNewActivities ] = useState([])
     const [ newEvidence, setNewEvidence ] = useState([])
+    const [ summaryEvidence, setSummaryEvidence ] = useState([])
 
     const [ created, setCreated ] = useState("")
     const [ author, setAuthor ] = useState("")
@@ -66,9 +71,11 @@ function Note(props) {
 
     const [ status, setStatus ] = useState("Active")
     const [ noteType, setNoteType ] = useState("ActionItem")
+    const [ targetDate, setTargetDate ] = useState(new Date(Date.now() - 604800000))
     const [ actionType, setActionType ] = useState("ProblemSolving")
     const [ plannedHrs, setPlannedHrs ] = useState("2")
     const [ hrs, setHrs ] = useState("0")
+    const [ crits, setCrits ] = useState("0")
 
 
     const { currentUser, avatar } = useContext(UserContext)
@@ -168,6 +175,14 @@ function Note(props) {
     useEffect(() => {
         console.log('status changed to '+status)
     }, [status])
+
+    useEffect(() => {
+        db.collection('users').doc(currentUser.uid).get()
+        .then(doc => {
+            setSummaryEvidence(doc.data().evidence)
+            //console.log("summary evidence max crits for first item is "+doc.data().evidence[0].sumCritsMax)
+        })
+    }, [currentUser])
 
     const handleTitleChange = (event) => setTitle(event.target.value);
     //const handleBodyChange = (event) => setBody(event.target.value);
@@ -349,18 +364,30 @@ function Note(props) {
             <main sx={{p:3}} >
                 <Toolbar />
 
-                <IconButton
-                    sx={{
-                        position: 'fixed',
-                        bottom: 0,
-                        right: 0
-                    }}
-                    color="primary"
-                    aria-label="Add Note"
-                    onClick={handleClickOpen}
-                >
-                    <AddCircleIcon sx={{ fontSize: 60 }} />
-                </IconButton>
+                <Box sx={{
+                        width: '98%',
+                        marginLeft: 2,
+                        marginTop: 3
+                    }} noValidate>
+                    <Grid container spacing={2}>
+                        <Grid item xs={11}>
+                            <Typography variant='h6' sx={{mb:0}}>Student Dashboard</Typography>
+                        </Grid>
+                        
+                        <Grid item xs={1} key="addNoteIcon">
+                            <IconButton
+                                sx={{
+                                }}
+                                color="primary"
+                                aria-label="Add Note"
+                                onClick={handleClickOpen}
+                                size='small'
+                            >
+                                <AddCircleIcon sx={{ fontSize: 30 }} />
+                            </IconButton>
+                        </Grid>
+                    </Grid>
+                </Box>
                 
                 <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
                     <AppBar sx={{position: 'relative'}} >
@@ -396,11 +423,11 @@ function Note(props) {
                     }} noValidate>
                         <Grid container spacing={2}>
                             
-                            <Grid item xs={12} key="status">
-                                <InputLabel id="demo-simple-select-label">Status</InputLabel>
+                            <Grid item xs={4} key="status">
+                                <InputLabel id="status">Status</InputLabel>
                                 <Select
-                                    labelId="demo-simple-select-label"
-                                    id="demo-simple-select"
+                                    labelId="status"
+                                    id="status"
                                     value={status}
                                     label="Status"
                                     onChange={(e) => setStatus(e.target.value)}
@@ -410,7 +437,7 @@ function Note(props) {
                                     <MenuItem value={"Paused"}>Paused</MenuItem>
                                 </Select>
                             </Grid>
-                            <Grid item xs={6} key="noteType">
+                            <Grid item xs={4} key="noteType">
                                 <InputLabel id="noteType label">Note Type</InputLabel>
                                 <Select
                                     labelId="noteType label"
@@ -420,58 +447,91 @@ function Note(props) {
                                     onChange={(e) => setNoteType(e.target.value)}
                                 >
                                     <MenuItem value={"ActionItem"}>Action Item</MenuItem>
+                                    <MenuItem value={"Assessment"}>Assessment</MenuItem>
                                     <MenuItem value={"Plan"}>Current Plans</MenuItem>
                                     <MenuItem value={"TermGoals"}>Term Goals</MenuItem>
                                 </Select>
                             </Grid>
-                            <Grid item xs={6} key="actionType">
-                                <InputLabel id="action-type-label">Action Type</InputLabel>
-                                <Select
-                                    labelId="action-type-label"
-                                    id="action-type"
-                                    value={actionType}
-                                    label="Action Type"
-                                    onChange={(e) => setActionType(e.target.value)}
-                                >
-                                    <MenuItem value={"ProblemSolving"}>Problem Solving</MenuItem>
-                                    <MenuItem value={"ResearchStudy"}>Research Study</MenuItem>
-                                    <MenuItem value={"HandsOn"}>Hands On</MenuItem>
-                                    <MenuItem value={"DataAnalysis"}>Data Analysis</MenuItem>
-                                    <MenuItem value={"Communicating"}>Communicating</MenuItem>
-                                </Select>
-                            </Grid>
-
-                            <Grid item xs={6} key='planned-hrs'>
-                                <TextField
-                                    variant="outlined"
-                                    required
-                                    id="plannedHrs"
-                                    label="Planned Hours"
-                                    name="plannedHrs"
-                                    autoComplete="plannedHrs"
-                                    value={plannedHrs}
-                                    onChange={(e) => setPlannedHrs(e.target.value)}
+                            <Grid item xs={4} sm={4} key='date' sx={{mt:1}}>
+                                <InputLabel id="date label">Target Date</InputLabel>
+                                <DatePicker
+                                    value={targetDate}
+                                    onChange={(newValue) => {
+                                    setTargetDate(newValue);
+                                    }}
+                                    renderInput={(params) => <TextField {...params} />}
                                 />
                             </Grid>
-                            <Grid item xs={6} key='hrs'>
-                                <TextField
-                                    variant="outlined"
-                                    required
-                                    id="hrs"
-                                    label="Completed Hours"
-                                    name="hrs"
-                                    autoComplete="hrs"
-                                    value={hrs}
-                                    onChange={(e) => setHrs(e.target.value)}
-                                />
+                            <Grid item xs={4} key='planned-hrs'>
+                                <Box sx={{display: noteType === 'ActionItem' || noteType === 'Plan' ? 'block' : 'none'}}>
+
+                                    <TextField
+                                        variant="outlined"
+                                        required
+                                        id="plannedHrs"
+                                        label="Planned Hours"
+                                        name="plannedHrs"
+                                        autoComplete="plannedHrs"
+                                        value={plannedHrs}
+                                        onChange={(e) => setPlannedHrs(e.target.value)}
+                                    />
+                                </Box>
+                            </Grid>
+                            <Grid item xs={4} key='hrs'>
+                                <Box sx={{display: noteType === 'ActionItem' || noteType === 'Plan' ? 'block' : 'none'}}>
+                                    <TextField
+                                        variant="outlined"
+                                        required
+                                        id="hrs"
+                                        label="Completed Hours"
+                                        name="hrs"
+                                        autoComplete="hrs"
+                                        value={hrs}
+                                        onChange={(e) => setHrs(e.target.value)}
+                                    />
+                                </Box>
+                            </Grid>
+                            <Grid item xs={4} key='crits'>
+                                <Box sx={{display: noteType === 'TermGoals' || noteType === 'Assessment' ? 'block' : 'none'}}>
+                                    <TextField
+                                        variant="outlined"
+                                        required
+                                        id="crits"
+                                        label="crits Target"
+                                        name="crits"
+                                        autoComplete="crits"
+                                        value={crits}
+                                        onChange={(e) => setCrits(e.target.value)}
+                                    />
+                                </Box>
+                            </Grid>
+                            <Grid item xs={4} key="actionType">
+                                <Box sx={{display: noteType === 'ActionItem' ? 'block' : 'none'}}>
+                                    <InputLabel id="action-type-label">Action Type</InputLabel>
+                                    <Select
+                                        labelId="action-type-label"
+                                        id="action-type"
+                                        value={actionType}
+                                        label="Action Type"
+                                        onChange={(e) => setActionType(e.target.value)}
+                                    >
+                                        <MenuItem value={"ProblemSolving"}>Problem Solving</MenuItem>
+                                        <MenuItem value={"ResearchStudy"}>Research Study</MenuItem>
+                                        <MenuItem value={"HandsOn"}>Hands On</MenuItem>
+                                        <MenuItem value={"DataAnalysis"}>Data Analysis</MenuItem>
+                                        <MenuItem value={"Communicating"}>Communicating</MenuItem>
+                                    </Select>
+                                </Box>
                             </Grid>
 
-                            <Grid item xs={6} key="chipsBadges">
+                            <Grid item xs={4} key="chipsBadges">
                                 <MultipleSelect itemsTitle="Badges" allOptions={dataList} getList={activities => setNewActivities(activities)} currentActivities={newActivities}></MultipleSelect>
                             </Grid>
 
-                            <Grid item xs={6} key="chipsEvidence">
-                                <MultipleSelect itemsTitle="Evidence" allOptions={evidenceList} getList={evidence => setNewEvidence(evidence)} currentActivities={newEvidence}></MultipleSelect>
+                            <Grid item xs={4} key="chipsEvidence">
+                                <Box sx={{display: noteType === 'ActionItem' || noteType === 'Assessment' ? 'block' : 'none'}}>
+                                    <MultipleSelect itemsTitle="Evidence" allOptions={evidenceList} getList={evidence => setNewEvidence(evidence)} currentActivities={newEvidence}></MultipleSelect>
+                                </Box>
                             </Grid>
 
                             <Grid item xs={12} key='title'>
@@ -498,44 +558,123 @@ function Note(props) {
                     </Box>
                 </Dialog>
 
-                <Box sx={{
-                    bgcolor: '#eeeeee',
-                    boxShadow: 1,
-                    borderRadius: 1,
-                    p: 1,
-                    minWidth: 300,
-                    }}>
-                    <Typography variant='h6' sx={{mb:0}}>Current Goals</Typography>
-                    <Divider sx={{mb:1}}/>
-                    <ListGoals notes={termGoals.concat(currentPlans)} handleEditOpen={handleEditOpen} handleViewOpen={handleViewOpen} deleteNoteHandler={deleteNoteHandler} canEdit={true}/>
-                </Box>
-
                 <Divider sx={{mt:1}}/>
 
                 <Box sx={{
-                    bgcolor: '#eeeeee',
-                    boxShadow: 1,
-                    borderRadius: 1,
-                    p: 1,
-                    minWidth: 300,
+                    display: 'flex',
+                    flexDirection: { xs: 'column', md: 'row' },
+                    p:1
                     }}>
-                    <Typography variant='h6' sx={{mb:0}}>Active Items</Typography>
-                    <Divider sx={{mb:1}}/>
-                    <ListCards notes={notes} handleEditOpen={handleEditOpen} handleViewOpen={handleViewOpen} deleteNoteHandler={deleteNoteHandler} canEdit={true}/>
-                </Box>
 
-                <Divider sx={{mt:1}}/>
+                    <Box sx={{mr:1}}>
 
-                <Box sx={{
-                    bgcolor: '#eeeeee',
-                    boxShadow: 1,
-                    borderRadius: 1,
-                    p: 1,
-                    minWidth: 300,
-                    }}>
-                    <Typography variant='h6' sx={{mb:0}}>Paused Items</Typography>
-                    <Divider sx={{mb:1}}/>
-                    <ListCards notes={pausedItems} handleEditOpen={handleEditOpen} handleViewOpen={handleViewOpen} deleteNoteHandler={deleteNoteHandler} canEdit={true}/>
+                        <Box sx={{
+                            bgcolor: '#eeeeee',
+                            boxShadow: 1,
+                            borderRadius: 1,
+                            p: 1,
+                            minWidth: 300,
+                            maxWidth: 500
+                            }}>
+                            <Typography variant='h6' sx={{mb:0}}>Active Items</Typography>
+                            <Divider sx={{mb:1}}/>
+                            <ListCards notes={notes} handleEditOpen={handleEditOpen} handleViewOpen={handleViewOpen} deleteNoteHandler={deleteNoteHandler} canEdit={true}/>
+                        </Box>
+
+                        <Divider sx={{mt:1}}/>
+
+                        <Box sx={{
+                            bgcolor: '#eeeeee',
+                            boxShadow: 1,
+                            borderRadius: 1,
+                            p: 1,
+                            minWidth: 300,
+                            maxWidth: 500
+                            }}>
+                            <Typography variant='h6' sx={{mb:0}}>Paused Items</Typography>
+                            <Divider sx={{mb:1}}/>
+                            <ListCards notes={pausedItems} handleEditOpen={handleEditOpen} handleViewOpen={handleViewOpen} deleteNoteHandler={deleteNoteHandler} canEdit={true}/>
+                        </Box>
+
+                        <Divider sx={{mt:1}}/>
+
+                        <Box sx={{
+                            bgcolor: '#eeeeee',
+                            boxShadow: 1,
+                            borderRadius: 1,
+                            p: 1,
+                            minWidth: 300,
+                            maxWidth: 500
+                            }}>
+
+                            <Typography variant="h6" sx={{mb:0}}>Evidence and Feedback</Typography>
+
+                            <Box sx={{flexGrow:1}} >
+                                <>
+                                <TableContainer component={Paper} sx={{borderRadius:2, m:0, maxWidth:550}}>
+                                    <Table sx={{ minWidth: 450 }} aria-label="simple table">
+                                        <TableHead>
+                                        <TableRow>
+                                            <TableCell align="left" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Date</TableCell>
+                                            <TableCell align="left" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Badge</TableCell>
+                                            <TableCell align="left" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Max Available</TableCell>
+                                            <TableCell align="left" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Crits Awarded</TableCell>
+                                        </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                        {summaryEvidence && summaryEvidence.map(evidenceItem => (
+                                            <TableRow key={evidenceItem.feedbackId}>
+                                            <TableCell>
+                                                {evidenceItem.createdAt.slice(0,10)}
+                                            </TableCell>
+                                            <TableCell>
+                                                {evidenceItem.badgeName}
+                                            </TableCell>
+                                            <TableCell>
+                                                {evidenceItem.sumCritsMax}
+                                            </TableCell>
+                                            <TableCell>
+                                                {evidenceItem.sumCritsForAssessment}
+                                            </TableCell>
+                                            </TableRow>
+                                        ))
+                                        }
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                                </>
+                            </Box>
+                        </Box>
+
+                    </Box>
+
+                    <Box>
+                        <Box sx={{
+                            bgcolor: '#eeeeee',
+                            boxShadow: 1,
+                            borderRadius: 1,
+                            p:1,
+                            minWidth: 300,
+                            maxWidth: 500
+                            }}>
+                            <Typography variant='h6' sx={{mb:0}}>Current Goals</Typography>
+                            <Divider sx={{mb:1}}/>
+                            <ListGoals notes={termGoals.concat(currentPlans)} handleEditOpen={handleEditOpen} handleViewOpen={handleViewOpen} deleteNoteHandler={deleteNoteHandler} canEdit={true}/>
+                        </Box>
+                        <Divider sx={{mt:1}}/>
+
+                        <Box sx={{
+                            bgcolor: '#eeeeee',
+                            boxShadow: 1,
+                            borderRadius: 1,
+                            p: 1,
+                            minWidth: 300,
+                            maxWidth: 500
+                            }}>
+                            <MyBadges toolbar='false'/>
+                        </Box>
+                    </Box>
+
                 </Box>
 
                 <ViewNotes handleViewClose={handleViewClose} viewOpen={viewOpen} title={title} author={author} created={created} avatar={avatar} comments={comments} rt={rt} classes={classes} handleSubmitComment={handleSubmitComment} setCommentBody={setCommentBody} setCommentRt={setCommentRt} commentRt={commentRt}/>

@@ -124,6 +124,13 @@ describe("Student notes app", () => {
     await firebase.assertFails(testDoc.set({uid: myId, body: "after"}))
   })
 
+  it("Can't create notes if status field is NOT one of allowed options", async() => {
+    const noteId = "any_note"
+    const db = getFirestore(studentAuth)
+    const testDoc = db.collection("users").doc(studentId).collection("notes").doc(noteId)
+    await firebase.assertFails(testDoc.set({uid: studentId, status: "notOk"}))
+  })
+
 //COMMENTS DOCUMENTS
 
   it("Can create comments if uid field is same as authenticated user", async() => {

@@ -5,11 +5,13 @@ import { Link, useParams } from 'react-router-dom';
 import Progress from './progressbar';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-import { Toolbar, Grid, CardActionArea, CardMedia, Card, CardContent, Typography } from '@material-ui/core';
+import { Toolbar, Grid, CardActionArea, CardMedia, Card, CardContent, Typography, Divider } from '@material-ui/core';
 //import { StudentContext } from '../studentcontext';
 
 
-export default function MyBadges() {
+export default function MyBadges(props) {
+
+    const toolbarPresent = props.toolbar ? props.toolbar : true
 
     const [ badgeData, setBadgeData ] = useState([])
     const { studentId } = useParams()
@@ -101,21 +103,22 @@ export default function MyBadges() {
     } else {
     return (
         <div>
-            <Toolbar />
-            <Typography variant="h3">Badges for {studentName}</Typography>
-            <Grid container spacing={8} justify='center'>
+            {toolbarPresent === true && <Toolbar />}
+            <Typography variant="h6">Badges for {studentName}</Typography>
+            <Divider sx={{mb:1}}/>
+            <Grid container spacing={4} justify='center'>
                 {badgeData.map((studentBadge) => (
-                    <Grid item xs={8} sm={6} key = {studentBadge.badgename}>
-                        <Card sx={{width:250, height:280}} variant="outlined">
+                    <Grid item xs={12} sm={6} key = {studentBadge.badgename}>
+                        <Card sx={{width:200, height:224}} variant="outlined">
                             <CardActionArea component={Link} to={`/students/${studentUid}/myBadges/${studentBadge.id}`}>
                             <CardContent>
-                                <Typography variant="h6" component="h4" align="center">
+                                <Typography align="center" component="span" sx={{ fontSize: 16, mt:0 }}>
                                     {studentBadge.badgename}
                                 </Typography>
                             </CardContent>
                             <CardMedia
                                 image={studentBadge.imageUrl}
-                                sx={{ margin:'auto', width: 'auto', height: 150, alignItems:'center' }}
+                                sx={{ margin:'auto', width: 'auto', height: 100, alignItems:'center' }}
                                 component='img'
                                 title='Badge Image'
                             />

@@ -41,7 +41,7 @@ export default function ListGoals({notes, handleEditOpen, handleViewOpen, delete
         <div>
             <Grid container spacing={{ xs: 2, md: 2, lg:2 }}>
                 {notes.map((note) => (
-                    <Grid item xs={12} md={6} lg={4} key = {note.id}>
+                    <Grid item xs={12} md={12} lg={12} key = {note.id}>
                         <Box
                             sx={{
                                 display: 'flex',

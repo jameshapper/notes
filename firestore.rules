@@ -40,10 +40,14 @@ service cloud.firestore {
         return ['title', 'body', 'createdAt', 'timestamp', 'activities','rt','commentNum','status','evidence','plannedHrs','completedHrs','actionType','noteType']
       }
 
+      function statusOptionOk(){
+        return request.resource.data.status in ['Active', 'Archived','Paused']
+      }
+
       allow read: if resourceHasAuthUid()
       allow read: if isAdmin()
 
-      allow create: if requestResourceHasAuthUid() && documentFieldsCheckin([],optional())
+      allow create: if requestResourceHasAuthUid() && documentFieldsCheckin([],optional()) && statusOptionOk()
       allow update, delete: if resourceHasAuthUid() && documentFieldsCheckin([],optional()) && editOnlyAllowedFields(onlyEdit())
       allow update: if isAdmin()
 

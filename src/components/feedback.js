@@ -14,6 +14,7 @@ export default function Feedback() {
 
     const { currentUser } = useContext(UserContext)
     const [ previousFeedbackSummary, setPreviousFeedbackSummary ] = useState({})
+    const [ previousShort, setPreviousShort ] = useState({})
 
     const { feedbackId } = useParams()
     const location = useLocation()
@@ -61,9 +62,19 @@ export default function Feedback() {
                     critsAwarded: feedback.data().critsAwarded,
                     critsMax: feedback.data().critsMax,
                     feedbackId: feedbackId,
-                    createdAt: feedback.data().createdAt
+                    createdAt: feedback.data().createdAt,
+                    sumCritsForAssessment: feedback.data().sumCritsForAssessment,
+                    sumCritsMax: feedback.data().sumCritsMax
+                }
+                const previousShort = {
+                    feedbackId: feedbackId,
+                    createdAt: feedback.data().createdAt,
+                    sumCritsForAssessment: feedback.data().sumCritsForAssessment,
+                    sumCritsMax: feedback.data().sumCritsMax,
+                    badgeName: feedback.data().badgeName
                 }
                 setPreviousFeedbackSummary(previous)
+                setPreviousShort(previousShort)
                 console.log('previous is '+JSON.stringify(previous))
             })
         }
@@ -87,13 +98,18 @@ export default function Feedback() {
             return criterion.critsAwarded += parseInt(data.critsAwarded[key])
         })
         console.log("newValues "+newValues) */
-
+        let sumCritsForAssessment = 0
+        let sumCritsMax = 0
+        let fbShortSummary = {}
 
         badgeDetails.criteria.map(criterion => {
             const key = criterion.label
+            sumCritsForAssessment += parseInt(data.critsAwarded[key])
+            sumCritsMax += parseInt(data.critsMax[key])
             return criterion.critsAwarded += parseInt(data.critsAwarded[key])
         })
         //console.log("badgeDetails update? "+JSON.stringify(badgeDetails.criteria))
+        console.log("total crits for assessment and max "+ sumCritsForAssessment+" and "+ sumCritsMax)
 
         const totalCrits = badgeDetails.criteria.map(criterion => {
             return criterion.critsAwarded
@@ -114,7 +130,9 @@ export default function Feedback() {
             assessorName: currentUser.displayName,
             assessorId: currentUser.uid,
             critsAwarded: data.critsAwarded,
-            critsMax: data.critsMax
+            critsMax: data.critsMax,
+            sumCritsForAssessment: sumCritsForAssessment,
+            sumCritsMax: sumCritsMax
         }
         db.collection('users').doc(selectedStudentId).collection('myBadges').doc(badgeDetails.badgeId).collection("feedback").add(feedback)
         .then((doc)=>{
@@ -122,11 +140,24 @@ export default function Feedback() {
                 critsAwarded: data.critsAwarded,
                 critsMax: data.critsMax,
                 feedbackId: doc.id,
-                createdAt: createdAt
+                createdAt: createdAt,
+                sumCritsForAssessment: sumCritsForAssessment,
+                sumCritsMax: sumCritsMax
+            }
+            fbShortSummary = {
+                feedbackId: doc.id,
+                createdAt: createdAt,
+                sumCritsForAssessment: sumCritsForAssessment,
+                sumCritsMax: sumCritsMax,
+                badgeName: badgeDetails.badgename                
             }
             console.log("New feedback added to db")
             db.collection('users').doc(selectedStudentId).collection('myBadges').doc(badgeDetails.badgeId)
             .update({evidence: firebase.firestore.FieldValue.arrayUnion(feedbackSummary), progress: badgeDetails.progress, criteria: badgeDetails.criteria})
+        })
+        .then(() => {
+            db.collection('users').doc(selectedStudentId)
+            .update({evidence: firebase.firestore.FieldValue.arrayUnion(fbShortSummary)})
         })
         .then(() => {
             history.push(`/students/${selectedStudentId}/myBadges/${badgeDetails.badgeId}`)
@@ -144,8 +175,14 @@ export default function Feedback() {
 
         const createdAt = new Date().toISOString()
 
+        let sumCritsForAssessment = 0
+        let sumCritsMax = 0
+        let fbShortSummary = {}
+
         badgeDetails.criteria.map(criterion => {
             const key = criterion.label
+            sumCritsForAssessment += parseInt(data.critsAwarded[key])
+            sumCritsMax += parseInt(data.critsMax[key])
             return (
                 criterion.critsAwarded += (parseInt(data.critsAwarded[key]) - parseInt(previousFeedbackSummary.critsAwarded[key]))
         )})
@@ -169,7 +206,9 @@ export default function Feedback() {
             assessorName: currentUser.displayName,
             assessorId: currentUser.uid,
             critsAwarded: data.critsAwarded,
-            critsMax: data.critsMax
+            critsMax: data.critsMax,
+            sumCritsForAssessment: sumCritsForAssessment,
+            sumCritsMax: sumCritsMax
         }
 
         db.collection('users').doc(selectedStudentId).collection('myBadges').doc(badgeDetails.badgeId).collection("feedback").doc(feedbackId).update(feedback)
@@ -181,10 +220,27 @@ export default function Feedback() {
                     critsAwarded: data.critsAwarded,
                     critsMax: data.critsMax,
                     feedbackId: feedbackId,
-                    createdAt: createdAt
+                    createdAt: createdAt,
+                    sumCritsForAssessment: sumCritsForAssessment,
+                    sumCritsMax: sumCritsMax
+                }
+                fbShortSummary = {
+                    feedbackId: feedbackId,
+                    createdAt: createdAt,
+                    sumCritsForAssessment: sumCritsForAssessment,
+                    sumCritsMax: sumCritsMax,
+                    badgeName: badgeDetails.badgename                
                 }
                 db.collection('users').doc(selectedStudentId).collection('myBadges').doc(badgeDetails.badgeId)
                 .update({evidence: firebase.firestore.FieldValue.arrayUnion(feedbackSummary), progress: badgeDetails.progress, criteria: badgeDetails.criteria})
+            })
+            .then(() => {
+                db.collection('users').doc(selectedStudentId)
+                .update({evidence: firebase.firestore.FieldValue.arrayRemove(previousShort)})
+            })
+            .then(() => {
+                db.collection('users').doc(selectedStudentId)
+                .update({evidence: firebase.firestore.FieldValue.arrayUnion(fbShortSummary)})
             })
             .then(() => console.log('badgeDetails.criteria are now '+JSON.stringify(badgeDetails.criteria)))
         })
