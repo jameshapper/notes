@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react';
 import firebase, { db, auth } from '../firebase';
 import { UserContext } from '../userContext';
-import ListCards from './listcards2'
 import ViewNotes from './viewnotes'
 import { Link } from "react-router-dom";
-import ListTable from './listtable'
+import ListTable from './listtable2'
 
 //import Datepicker from 'react-datepicker'
 import DatePicker from '@mui/lab/DatePicker';
@@ -118,6 +117,12 @@ function TeacherClasses(props) {
 
         let recentDate = selectedDate
         console.log('students in array groups lengths '+students10.length+students20.length+students30.length)
+
+        if(noteType === "Progress") {
+            var q10 = db.collection('users').where('uid','in',students10)
+        } else {
+            var q10 = db.collectionGroup('notes').where('uid','in',students10).where('noteType','==',noteType).where("timestamp", ">=", recentDate)
+        }
 
         if(students10.length>0){
             let first10 = await
@@ -398,7 +403,7 @@ function TeacherClasses(props) {
                 </Grid>
 
                 { notes && notes.length > 0 && 
-                <ListTable notes={notes} handleViewOpen={handleViewOpen}/>
+                <ListTable notes={notes} rowType={noteType} handleViewOpen={handleViewOpen}/>
                 }
   
                 <ViewNotes handleViewClose={handleViewClose} viewOpen={viewOpen} title={title} author={author} created={created} avatar={noteAvatar} comments={comments} rt={rt} classes={classes} handleSubmitComment={handleSubmitComment} setCommentBody={setCommentBody} setCommentRt={setCommentRt} commentRt={commentRt}/>
