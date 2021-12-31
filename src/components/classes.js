@@ -116,54 +116,124 @@ function TeacherClasses(props) {
         let notes30 = []
 
         let recentDate = selectedDate
+        let classObject = {}
+        let targetAssessment = {}
+        let termGoal = {}
+        let sumEvidence = 0
+
+        function evidenceSum(evidenceArray, startDate) {
+            const termEvidence = evidenceArray.filter(evidence => {
+                return evidence.assessedDate.seconds - startDate.seconds > 0
+            })
+            const sumAllCritsToDate = termEvidence.reduce((total, evidence) => {
+                return total + evidence.sumCritsForAssessment
+            },0)
+            console.log('sumAllCritsToDate is ' +sumAllCritsToDate)
+            return sumAllCritsToDate
+        }
+
         console.log('students in array groups lengths '+students10.length+students20.length+students30.length)
 
         if(noteType === "Progress") {
-            var q10 = db.collection('users').where('uid','in',students10)
+            if(students10.length > 0) {
+                await
+                db.collection('users').where('uid','in',students10).get()
+                .then(docs => {
+                    docs.forEach(doc => {
+                        targetAssessment = doc.data().nextTarget.find(thisClass => {                        
+                            return thisClass.classId === classId
+                        })
+                        termGoal = doc.data().termGoals.find(thisClass => {
+                            return thisClass.classId === classId
+                        })
+                        classObject = {...targetAssessment, ...termGoal, uid: doc.data().uid, firstName: doc.data().firstName, avatar: doc.data().avatar}
+                        sumEvidence = evidenceSum(doc.data().evidence, classObject.startDate)
+                        classObject = {...classObject, sumEvidence: sumEvidence}
+                        notes10.push(classObject)
+                    })
+                })       
+            }
+            if(students20.length > 0) {
+                await
+                db.collection('users').where('uid','in',students20).get()
+                .then(docs => {
+                    docs.forEach(doc => {
+                        targetAssessment = doc.data().nextTarget.find(thisClass => {                        
+                            return thisClass.classId === classId
+                        })
+                        termGoal = doc.data().termGoals.find(thisClass => {
+                            return thisClass.classId === classId
+                        })
+                        classObject = {...targetAssessment, ...termGoal, uid: doc.data().uid, firstName: doc.data().firstName, avatar: doc.data().avatar}
+                        sumEvidence = evidenceSum(doc.data().evidence, classObject.startDate)
+                        classObject = {...classObject, sumEvidence: sumEvidence}
+                        notes20.push(classObject)
+                    })
+                })       
+            }
+
+            if(students30.length > 0) {
+                await
+                db.collection('users').where('uid','in',students30).get()
+                .then(docs => {
+                    docs.forEach(doc => {
+                        targetAssessment = doc.data().nextTarget.find(thisClass => {                        
+                            return thisClass.classId === classId
+                        })
+                        termGoal = doc.data().termGoals.find(thisClass => {
+                            return thisClass.classId === classId
+                        })
+                        classObject = {...targetAssessment, ...termGoal, uid: doc.data().uid, firstName: doc.data().firstName, avatar: doc.data().avatar}
+                        sumEvidence = evidenceSum(doc.data().evidence, classObject.startDate)
+                        classObject = {...classObject, sumEvidence: sumEvidence}
+                        notes30.push(classObject)
+                    })
+                })       
+            }
+
         } else {
-            var q10 = db.collectionGroup('notes').where('uid','in',students10).where('noteType','==',noteType).where("timestamp", ">=", recentDate)
-        }
 
-        if(students10.length>0){
-            let first10 = await
-            db.collectionGroup('notes')
-            .where('uid','in', students10)
-            .where('noteType','==',noteType)
-            .where("timestamp", ">=", recentDate)
-            .orderBy("timestamp","desc")
-            .get()
+            if(students10.length>0){
+                let first10 = await
+                db.collectionGroup('notes')
+                .where('uid','in', students10)
+                .where('noteType','==',noteType)
+                .where("timestamp", ">=", recentDate)
+                .orderBy("timestamp","desc")
+                .get()
 
-            first10.forEach((doc) => {
-                notes10.push({ ...doc.data(), id: doc.id })
-            })
-        }
+                first10.forEach((doc) => {
+                    notes10.push({ ...doc.data(), id: doc.id })
+                })
+            }
 
-        if(students20.length>0){
-            let second10 = await
-            db.collectionGroup('notes')
-            .where('uid','in', students20)
-            .where('noteType','==',noteType)
-            .where("timestamp", ">=", recentDate)
-            .orderBy("timestamp","desc")
-            .get()
+            if(students20.length>0){
+                let second10 = await
+                db.collectionGroup('notes')
+                .where('uid','in', students20)
+                .where('noteType','==',noteType)
+                .where("timestamp", ">=", recentDate)
+                .orderBy("timestamp","desc")
+                .get()
 
-            second10.forEach((doc) => {
-            notes20.push({ ...doc.data(), id: doc.id })
-            })
-        }
+                second10.forEach((doc) => {
+                notes20.push({ ...doc.data(), id: doc.id })
+                })
+            }
 
-        if(students30.length>0){
-            let third10 = await
-            db.collectionGroup('notes')
-            .where('uid','in', students30)
-            .where('noteType','==',noteType)
-            .where("timestamp", ">=", recentDate)
-            .orderBy("timestamp","desc")
-            .get()
+            if(students30.length>0){
+                let third10 = await
+                db.collectionGroup('notes')
+                .where('uid','in', students30)
+                .where('noteType','==',noteType)
+                .where("timestamp", ">=", recentDate)
+                .orderBy("timestamp","desc")
+                .get()
 
-            third10.forEach((doc) => {
-            notes30.push({ ...doc.data(), id: doc.id })
-            })
+                third10.forEach((doc) => {
+                notes30.push({ ...doc.data(), id: doc.id })
+                })
+            }
         }
 
         setNotes(notes10.concat(notes20,notes30))
@@ -360,6 +430,7 @@ function TeacherClasses(props) {
                                     <MenuItem value={"ActionItem"}>Action Item</MenuItem>
                                     <MenuItem value={"Plan"}>Current Plans</MenuItem>
                                     <MenuItem value={"TermGoals"}>Term Goals</MenuItem>
+                                    <MenuItem value={"Progress"}>Progress</MenuItem>
                                 </Select>
                             </Grid>
                             <Grid item xs={12} sm={12} key="actionType">

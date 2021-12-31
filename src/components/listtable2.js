@@ -522,12 +522,13 @@ function ProgressRow(props) {
           scope="row"
           padding="none"
         >
-          {row.author}
+          {row.firstName}
         </TableCell>
-        <TableCell align="left">{row.noteType}</TableCell>
-        <TableCell align="left">{row.actionType}</TableCell>
-        <TableCell align="left">{row.plannedHrs}</TableCell>
-        <TableCell align="left">{row.completedHrs}</TableCell>
+        <TableCell align="left">{row.startDate.toDate().toString().slice(0,15)}</TableCell>
+        <TableCell align="left">{row.sumEvidence}</TableCell>
+        <TableCell align="left"></TableCell>
+        <TableCell align="left">{row.nextDate.toDate().toString().slice(0,15)}</TableCell>
+        <TableCell align="left">{row.nextCrits}</TableCell>
       </TableRow>
     )
 }

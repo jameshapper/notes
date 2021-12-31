@@ -20,8 +20,8 @@ import MuiDialogTitle from '@material-ui/core/DialogTitle'
 const DialogTitle = ((props) => {
     const { children, onClose, classes, ...other } = props;
     return (
-        <MuiDialogTitle disableTypography sx={{minWidth:220}} {...other}>
-            <Typography variant="h6">{children}</Typography>
+        <MuiDialogTitle sx={{minWidth:220}} {...other}>
+            <div><Typography variant="h6">{children}</Typography></div>
             {onClose ? (
                 <IconButton aria-label="close" sx={{
                     position: 'absolute',

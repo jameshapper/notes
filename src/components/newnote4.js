@@ -1,8 +1,7 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext } from 'react';
 import firebase, { db } from '../firebase';
 import "react-quill/dist/quill.snow.css";
 import "./styles.css";
-import MultipleSelect from './select';
 import { useForm, Controller } from 'react-hook-form'
 
 import { UserContext } from '../userContext';
@@ -28,7 +27,7 @@ import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import Select from '@material-ui/core/Select'
 import MenuItem from '@material-ui/core/MenuItem'
-import { InputLabel } from '@material-ui/core';
+import { InputLabel, Checkbox, ListItemText } from '@material-ui/core';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
 	return <Slide direction="up" ref={ref} {...props} />;
@@ -38,11 +37,6 @@ function NewNote({open, buttonType, noteForEdit, handleClose }) {
 
     const note = noteForEdit
 
-    const [ newActivities, setNewActivities ] = useState([])
-    const [ newEvidence, setNewEvidence ] = useState([])
-
-    const [ errors, setErrors ] = useState([])
-
     const { currentUser, avatar } = useContext(UserContext)
 
     const { handleSubmit, control, setValue, watch } = useForm();
@@ -50,12 +44,40 @@ function NewNote({open, buttonType, noteForEdit, handleClose }) {
     const noteType = watch("noteType","ActionItem")
 
     if(buttonType === "Edit"){
-        const fields = ['title','status','plannedHrs','completedHrs','actionType','noteType','rt','targetDate']
+        const fields = ['title','status','plannedHrs','completedHrs','actionType','noteType','rt','targetDate','activities','evidence']
         fields.forEach(field => {
-            setValue(field, note[field]);
-            console.log("value of a field is "+JSON.stringify(note[field]))
+            if(note.hasOwnProperty(field)){
+                if(field === 'targetDate'){
+                    setValue(field, note[field.seconds])
+                } else {
+                    setValue(field, note[field]);
+                }
+                console.log("value of a field is "+JSON.stringify(note[field]))
+            } else {
+                console.log("this note is missing the key: "+field)
+            }
         })
     }
+
+    const ITEM_HEIGHT = 48;
+    const ITEM_PADDING_TOP = 8;
+    const MenuProps = {
+        PaperProps: {
+          style: {
+            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+            width: 250,
+          },
+        },
+        anchorOrigin: {
+          vertical: "bottom",
+          horizontal: "left"
+        },
+        transformOrigin: {
+          vertical: "top",
+          horizontal: "left"
+        },
+        getContentAnchorEl: null
+      };
 
     const dataList = [
         {label:'Arduino_101',value: 'Arduino_101'},
@@ -95,27 +117,31 @@ function NewNote({open, buttonType, noteForEdit, handleClose }) {
     dayjs.extend(relativeTime);
 
     function onSubmit(data) {
+        console.log(data.chipsBadges)
         return buttonType !== 'Edit'
             ? newNote(data)
             : updateNote(note.id, data);
     }
 
     const updateNote = (noteId, data) => {
+        handleClose()
         let document = db.collection('users').doc(currentUser.uid).collection('notes').doc(noteId);
         document.update( {
             title : data.title,
-            activities: newActivities,
+            activities: data.activities,
             rt:data.rt,
+            body:data.rt.replace(/<[^>]+>/g, ''),
             status:data.status,
-            evidence:newEvidence,
+            evidence:data.evidence,
             plannedHrs:data.plannedHrs,
             completedHrs:data.completedHrs,
             actionType:data.actionType,
-            noteType:data.noteType
+            noteType:data.noteType,
+            targetDate:data.targetDate
         } )
         .then(()=>{
             console.log("Note edited")
-            handleClose();
+            //handleClose();
         })
     }
 
@@ -125,16 +151,18 @@ function NewNote({open, buttonType, noteForEdit, handleClose }) {
             createdAt: new Date().toISOString(),
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             uid: currentUser.uid,
-            activities: newActivities,
+            activities: data.activities,
             author: currentUser.displayName,
             avatar: avatar,
             rt: data.rt,
+            body:data.rt.replace(/<[^>]+>/g, ''),
             status: data.status,
-            evidence:newEvidence,
+            evidence:data.evidence,
             plannedHrs:data.plannedHrs,
             completedHrs:data.completedHrs,
             actionType:data.actionType,
-            noteType:data.noteType
+            noteType:data.noteType,
+            targetDate:data.targetDate
         }
 
         db.collection('users').doc(currentUser.uid).collection('notes').add(newNote)
@@ -143,12 +171,13 @@ function NewNote({open, buttonType, noteForEdit, handleClose }) {
             handleClose()
         })
         .catch((error) => {
-            setErrors(error)
             handleClose()
             console.error(error);
             alert('Something went wrong' );
         });
     }
+
+    const rightNow = new Date().getTime()
 
     return (                
         <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
@@ -163,7 +192,7 @@ function NewNote({open, buttonType, noteForEdit, handleClose }) {
                     <Button
                         autoFocus
                         color="inherit"
-                        type="submit"
+                        onClick={handleSubmit(onSubmit)}
                         sx={{
                             display: 'block',
                             color: 'white',
@@ -178,7 +207,7 @@ function NewNote({open, buttonType, noteForEdit, handleClose }) {
                 </Toolbar>
             </AppBar>
 
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form>
             <Box sx={{
                 width: '98%',
                 marginLeft: 2,
@@ -234,7 +263,7 @@ function NewNote({open, buttonType, noteForEdit, handleClose }) {
                         <Controller
                             name="targetDate"
                             control={control}
-                            defaultValue=""
+                            defaultValue={rightNow}
                             render={({ field: { onChange, value }, fieldState: { error } }) => (
                             <DatePicker
                                 value={value}
@@ -333,15 +362,67 @@ function NewNote({open, buttonType, noteForEdit, handleClose }) {
                         </Box>
                     </Grid>
 
-                    {/*<Grid item xs={4} key="chipsBadges">
-                        <MultipleSelect itemsTitle="Badges" allOptions={dataList} getList={activities => setNewActivities(activities)} currentActivities={newActivities}></MultipleSelect>
-                    </Grid>
+                    <Grid item xs={4} key="chipsBadges">
+                    <Box sx={{display: noteType === 'ActionItem' ? 'flex' : 'none', flexDirection:'column'}}>
+                        <InputLabel id="Badges">Badges</InputLabel>
+                        <Controller
+                            name="activities"
+                            control={control}
+                            defaultValue={[]}
+                            render={({ field: { onChange, value }, fieldState: { error } }) => (
+                            <Select
+                                labelId="chipsBadges"
+                                id="chipsBadges"
+                                multiple
+                                value={value}
+                                onChange={onChange}
+                                defaultValue=""
+                                renderValue={() => value + ' '}
+                                MenuProps={MenuProps}
+                                label="Badges"
+                            >
+                            {dataList.map((option) => (
+                                <MenuItem key={option.value} value={option.value}>
+                                    <Checkbox checked={value.indexOf(option.value) > -1} />
+                                    <ListItemText primary={option.label} />
+                                </MenuItem>
+                            ))}
+                            </Select>
+                            )}
+                            />
+                    </Box>                    
+                    </Grid>    
 
                     <Grid item xs={4} key="chipsEvidence">
-                        <Box sx={{display: noteType === 'ActionItem' || noteType === 'Assessment' ? 'block' : 'none'}}>
-                            <MultipleSelect itemsTitle="Evidence" allOptions={evidenceList} getList={evidence => setNewEvidence(evidence)} currentActivities={newEvidence}></MultipleSelect>
-                        </Box>
-                            </Grid>*/}
+                    <Box sx={{display: noteType === 'ActionItem' || noteType === 'Assessment' ? 'flex' : 'none', flexDirection: 'column'}}>
+                        <InputLabel id="Badges">Evidence</InputLabel>
+                        <Controller
+                            name="evdence"
+                            control={control}
+                            defaultValue={[]}
+                            render={({ field: { onChange, value }, fieldState: { error } }) => (
+                            <Select
+                                labelId="evidence"
+                                id="evidence"
+                                multiple
+                                value={value}
+                                onChange={onChange}
+                                defaultValue=""
+                                renderValue={() => value + ' '}
+                                MenuProps={MenuProps}
+                                label="Badges"
+                            >
+                            {evidenceList.map((option) => (
+                                <MenuItem key={option.value} value={option.value}>
+                                    <Checkbox checked={value.indexOf(option.value) > -1} />
+                                    <ListItemText primary={option.label} />
+                                </MenuItem>
+                            ))}
+                            </Select>
+                            )}
+                            />
+                    </Box>                    
+                    </Grid>  
 
                     <Grid item xs={12} key='title'>
                     <Controller
@@ -357,9 +438,7 @@ function NewNote({open, buttonType, noteForEdit, handleClose }) {
                             label="Note Title"
                             name="title"
                             autoComplete="noteTitle"
-                            helperText={errors.title}
                             value={value}
-                            error={errors.title ? true : false}
                             onChange={onChange}
                         />
                             )}
