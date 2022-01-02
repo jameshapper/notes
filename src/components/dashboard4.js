@@ -17,7 +17,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import Grid from '@material-ui/core/Grid';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { TableContainer, TableBody, TableCell, Table, TableHead, TableRow, Paper } from '@material-ui/core';
+import { TableContainer, TableBody, TableCell, Table, TableHead, TableRow, Paper, Select, MenuItem, ListItemText, InputLabel, FormControl } from '@material-ui/core';
 import Divider from '@material-ui/core/Divider'
 
 function Note() {
@@ -29,6 +29,9 @@ function Note() {
     const [ buttonType, setButtonType ] = useState('New')
 
     const [ notes, setNotes ] = useState([]);
+    const [ classes, setClasses ] = useState([])
+    const [ studentClass, setStudentClass ] = useState("")
+    const [ badges, setBadges ] = useState([])
     const [ pausedItems, setPausedItems ] = useState([]);
     const [ termGoals, setTermGoals ] = useState([]);
     const [ currentPlans, setCurrentPlans ] = useState([]);
@@ -46,78 +49,103 @@ function Note() {
         //     setUiLoading(false);
         // };
         // fetchData()
-
-        let recentDate = new Date('2021-04-29')
+        if(studentClass !== ''){
+            let recentDate = new Date('2021-04-29')
         
-        console.log("user from firebase auth", currentUser)
-        return db.collectionGroup("notes").where("uid", "==", currentUser.uid)
-        .where("timestamp", ">=", recentDate)
-        .where("status", "==","Active")
-        .where("noteType","==","ActionItem")
-        .orderBy("timestamp","desc")
-        .onSnapshot(snapshot => {
-            const notesData = [];
-            snapshot.forEach(doc => notesData.push({ ...doc.data(), id: doc.id }));
-            setNotes(notesData)
-            setUiLoading(false)
-        })
-    }, [currentUser]);
+            console.log("user from firebase auth", currentUser)
+            return db.collectionGroup("notes").where("uid", "==", currentUser.uid)
+            .where("timestamp", ">=", recentDate)
+            .where("studentClass","==",studentClass)
+            .where("status", "==","Active")
+            .where("noteType","==","ActionItem")
+            .orderBy("timestamp","desc")
+            .onSnapshot(snapshot => {
+                const notesData = [];
+                snapshot.forEach(doc => notesData.push({ ...doc.data(), id: doc.id }));
+                setNotes(notesData)
+                setUiLoading(false)
+            })
+        }
+
+    }, [currentUser, studentClass]);
 
     useEffect(() => {
 
-        let recentDate = new Date('2021-04-29')
+        if(studentClass !== ''){
+            let recentDate = new Date('2021-04-29')
         
-        return db.collectionGroup("notes").where("uid", "==", currentUser.uid)
-        .where("timestamp", ">=", recentDate)
-        .where("status", "==","Paused")
-        .orderBy("timestamp","desc")
-        .onSnapshot(snapshot => {
-            const notesData = [];
-            snapshot.forEach(doc => notesData.push({ ...doc.data(), id: doc.id }));
-            setPausedItems(notesData)
-            setUiLoading(false)
-        })
-    }, [currentUser]);
+            return db.collectionGroup("notes").where("uid", "==", currentUser.uid)
+            .where("timestamp", ">=", recentDate)
+            .where("studentClass","==",studentClass)
+            .where("status", "==","Paused")
+            .orderBy("timestamp","desc")
+            .onSnapshot(snapshot => {
+                const notesData = [];
+                snapshot.forEach(doc => notesData.push({ ...doc.data(), id: doc.id }));
+                setPausedItems(notesData)
+                setUiLoading(false)
+            })
+        }
+
+    }, [currentUser, studentClass]);
 
     useEffect(() => {
 
-        let recentDate = new Date('2021-04-29')
+        if(studentClass !== ''){
+            let recentDate = new Date('2021-04-29')
         
-        return db.collectionGroup("notes").where("uid", "==", currentUser.uid)
-        .where("timestamp", ">=", recentDate)
-        .where("status", "==","Active")
-        .where("noteType","==","TermGoals")
-        .orderBy("timestamp","desc")
-        .onSnapshot(snapshot => {
-            const notesData = [];
-            snapshot.forEach(doc => notesData.push({ ...doc.data(), id: doc.id }));
-            setTermGoals(notesData)
-            setUiLoading(false)
-        })
-    }, [currentUser]);
+            return db.collectionGroup("notes").where("uid", "==", currentUser.uid)
+            .where("timestamp", ">=", recentDate)
+            .where("studentClass","==",studentClass)
+            .where("status", "==","Active")
+            .where("noteType","==","TermGoals")
+            .orderBy("timestamp","desc")
+            .onSnapshot(snapshot => {
+                const notesData = [];
+                snapshot.forEach(doc => notesData.push({ ...doc.data(), id: doc.id }));
+                setTermGoals(notesData)
+                setUiLoading(false)
+            })
+        }
+
+    }, [currentUser, studentClass]);
 
     useEffect(() => {
 
-        let recentDate = new Date('2021-04-29')
+        if(studentClass !== ''){
+            let recentDate = new Date('2021-04-29')
         
-        return db.collectionGroup("notes").where("uid", "==", currentUser.uid)
-        .where("timestamp", ">=", recentDate)
-        .where("status", "==","Active")
-        .where("noteType","==","Plan")
-        .orderBy("timestamp","desc")
-        .onSnapshot(snapshot => {
-            const notesData = [];
-            snapshot.forEach(doc => notesData.push({ ...doc.data(), id: doc.id }));
-            setCurrentPlans(notesData)
-            setUiLoading(false)
-        })
-    }, [currentUser]);
+            return db.collectionGroup("notes").where("uid", "==", currentUser.uid)
+            .where("timestamp", ">=", recentDate)
+            .where("studentClass","==",studentClass)
+            .where("status", "==","Active")
+            .where("noteType","==","Plan")
+            .orderBy("timestamp","desc")
+            .onSnapshot(snapshot => {
+                const notesData = [];
+                snapshot.forEach(doc => notesData.push({ ...doc.data(), id: doc.id }));
+                setCurrentPlans(notesData)
+                setUiLoading(false)
+            })
+        }
+
+    }, [currentUser, studentClass]);
 
     useEffect(() => {
         db.collection('users').doc(currentUser.uid).get()
         .then(doc => {
             setSummaryEvidence(doc.data().evidence)
+            setClasses(doc.data().classes)
+            const badgeMap = doc.data().myBadgesMap
+            const entries = Object.entries(badgeMap)
+            console.log('entries are '+JSON.stringify(entries))
+            const badgeNames = []
+            entries.map(entry => {
+                return badgeNames.push(entry[1].badgename)
+            })
+            setBadges(badgeNames)
             //console.log("summary evidence max crits for first item is "+doc.data().evidence[0].sumCritsMax)
+            setUiLoading(false)
         })
     }, [currentUser])
 
@@ -134,6 +162,12 @@ function Note() {
     const handleClose = () => {
         setOpen(false)
     }
+
+    const onChange = (e) => {
+        setStudentClass(e.target.value)
+        console.log('student class is '+JSON.stringify(e.target.value))
+    }
+
 
     if (uiLoading === true) {
         return (
@@ -160,8 +194,27 @@ function Note() {
                         marginTop: 3
                     }} noValidate>
                     <Grid container spacing={2}>
-                        <Grid item xs={11}>
-                            <Typography variant='h6' sx={{mb:0}}>Student Dashboard</Typography>
+                        <Grid item xs={5}>
+                            <Typography variant='h5' sx={{mb:0}}>Student Dashboard</Typography>
+                        </Grid>
+                        <Grid item xs={6} key="classesMenu" >
+                        <FormControl sx={{ m: 1, minWidth: 100 }}>
+                            <InputLabel id="ClassesMenu">Class</InputLabel>
+                            <Select
+                                labelId="classesMenu"
+                                id="classesMenu"
+                                value={studentClass}
+                                label="Class"
+                                onChange={onChange}
+                            >
+                            {classes.length && classes.map(aClass => (
+                                <MenuItem key={aClass.value} value={aClass}>
+                                    <ListItemText primary={aClass.label} />
+                                </MenuItem>
+                            ))}
+                            </Select>
+                            </FormControl>
+
                         </Grid>
                         
                         <Grid item xs={1} key="addNoteIcon">
@@ -179,7 +232,7 @@ function Note() {
                     </Grid>
                 </Box>
 
-                {open && <NewNote open={open} handleClose={handleClose} buttonType={buttonType} noteForEdit={noteForEdit}/>}
+                {open && <NewNote open={open} handleClose={handleClose} buttonType={buttonType} noteForEdit={noteForEdit} classes={classes} badges={badges}/>}
                 
                 <Divider sx={{mt:1}}/>
 

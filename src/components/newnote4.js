@@ -33,7 +33,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 	return <Slide direction="up" ref={ref} {...props} />;
 });
 
-function NewNote({open, buttonType, noteForEdit, handleClose }) {
+function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges }) {
 
     const note = noteForEdit
 
@@ -44,7 +44,7 @@ function NewNote({open, buttonType, noteForEdit, handleClose }) {
     const noteType = watch("noteType","ActionItem")
 
     if(buttonType === "Edit"){
-        const fields = ['title','status','plannedHrs','completedHrs','actionType','noteType','rt','targetDate','activities','evidence']
+        const fields = ['title','status','plannedHrs','completedHrs','actionType','noteType','rt','targetDate','activities','evidence','studentClass']
         fields.forEach(field => {
             if(note.hasOwnProperty(field)){
                 if(field === 'targetDate'){
@@ -79,11 +79,7 @@ function NewNote({open, buttonType, noteForEdit, handleClose }) {
         getContentAnchorEl: null
       };
 
-    const dataList = [
-        {label:'Arduino_101',value: 'Arduino_101'},
-        {label:'IGCSE_Bio', value: 'IGCSE_Bio'},
-        {label:'IGCSE_Phys', value: 'IGCSE_Phys'}
-      ];
+    const dataList = badges
 
     const evidenceList = [
         {label:'Notebook-Notes',value: 'Notebook-Notes'},
@@ -117,7 +113,7 @@ function NewNote({open, buttonType, noteForEdit, handleClose }) {
     dayjs.extend(relativeTime);
 
     function onSubmit(data) {
-        console.log(data.chipsBadges)
+        console.log(data)
         return buttonType !== 'Edit'
             ? newNote(data)
             : updateNote(note.id, data);
@@ -137,7 +133,8 @@ function NewNote({open, buttonType, noteForEdit, handleClose }) {
             completedHrs:data.completedHrs,
             actionType:data.actionType,
             noteType:data.noteType,
-            targetDate:data.targetDate
+            targetDate:data.targetDate,
+            studentClass:data.studentClass
         } )
         .then(()=>{
             console.log("Note edited")
@@ -162,7 +159,8 @@ function NewNote({open, buttonType, noteForEdit, handleClose }) {
             completedHrs:data.completedHrs,
             actionType:data.actionType,
             noteType:data.noteType,
-            targetDate:data.targetDate
+            targetDate:data.targetDate,
+            studentClass:data.studentClass
         }
 
         db.collection('users').doc(currentUser.uid).collection('notes').add(newNote)
@@ -215,23 +213,26 @@ function NewNote({open, buttonType, noteForEdit, handleClose }) {
             }} noValidate>
                 <Grid container spacing={2}>
                     
-                    <Grid item xs={4} key="status">
-                        <InputLabel id="status">Status</InputLabel>
+                    <Grid item xs={4} key="studentClass">
+                        <InputLabel id="studentClass">Class</InputLabel>
                         <Controller
-                            name="status"
+                            name="studentClass"
                             control={control}
-                            defaultValue="Active"
+                            defaultValue={classes.length && classes[0]}
                             render={({ field: { onChange, value }, fieldState: { error } }) => (
                             <Select
-                                labelId="status"
-                                id="status"
+                                labelId="studentClass"
+                                id="studentClass"
                                 value={value}
-                                label="Status"
+                                defaultValue={classes.length && classes[0]}
+                                label="Classes"
                                 onChange={onChange}
                             >
-                                <MenuItem value={"Active"}>Active</MenuItem>
-                                <MenuItem value={"Archived"}>Archived</MenuItem>
-                                <MenuItem value={"Paused"}>Paused</MenuItem>
+                                {classes.length && classes.map(aClass => (
+                                <MenuItem key={aClass.value} value={aClass}>
+                                    <ListItemText primary={aClass.label} />
+                                </MenuItem>
+                                ))}
                             </Select>
                             )}
                         />
@@ -258,18 +259,24 @@ function NewNote({open, buttonType, noteForEdit, handleClose }) {
                             )}
                         />
                     </Grid>
-                    <Grid item xs={4} sm={4} key='date' sx={{mt:1}}>
-                        <InputLabel id="date label">Target Date</InputLabel>
+                    <Grid item xs={4} key="status">
+                        <InputLabel id="status">Status</InputLabel>
                         <Controller
-                            name="targetDate"
+                            name="status"
                             control={control}
-                            defaultValue={rightNow}
+                            defaultValue="Active"
                             render={({ field: { onChange, value }, fieldState: { error } }) => (
-                            <DatePicker
+                            <Select
+                                labelId="status"
+                                id="status"
                                 value={value}
+                                label="Status"
                                 onChange={onChange}
-                                renderInput={(params) => <TextField {...params} />}
-                            />
+                            >
+                                <MenuItem value={"Active"}>Active</MenuItem>
+                                <MenuItem value={"Archived"}>Archived</MenuItem>
+                                <MenuItem value={"Paused"}>Paused</MenuItem>
+                            </Select>
                             )}
                         />
                     </Grid>
@@ -315,6 +322,21 @@ function NewNote({open, buttonType, noteForEdit, handleClose }) {
                             />
                         </Box>
                     </Grid>
+                    <Grid item xs={4} sm={4} key='date' sx={{mt:1}}>
+                        <InputLabel id="date label">Target Date</InputLabel>
+                        <Controller
+                            name="targetDate"
+                            control={control}
+                            defaultValue={rightNow}
+                            render={({ field: { onChange, value }, fieldState: { error } }) => (
+                            <DatePicker
+                                value={value}
+                                onChange={onChange}
+                                renderInput={(params) => <TextField {...params} />}
+                            />
+                            )}
+                        />
+                    </Grid>
                     <Grid item xs={4} key='crits'>
                         <Box sx={{display: noteType === 'TermGoals' || noteType === 'Assessment' ? 'block' : 'none'}}>
                         <Controller
@@ -336,6 +358,70 @@ function NewNote({open, buttonType, noteForEdit, handleClose }) {
                             />
                         </Box>
                     </Grid>
+
+
+                    <Grid item xs={4} key="chipsBadges">
+                    <Box sx={{display: noteType === 'ActionItem' ? 'flex' : 'none', flexDirection:'column'}}>
+                        <InputLabel id="Badges">Badges</InputLabel>
+                        <Controller
+                            name="activities"
+                            control={control}
+                            defaultValue={[]}
+                            render={({ field: { onChange, value }, fieldState: { error } }) => (
+                            <Select
+                                labelId="chipsBadges"
+                                id="chipsBadges"
+                                multiple
+                                value={value}
+                                onChange={onChange}
+                                defaultValue=""
+                                renderValue={() => value + ' '}
+                                MenuProps={MenuProps}
+                                label="Badges"
+                            >
+                            {dataList.map((option) => (
+                                <MenuItem key={option} value={option}>
+                                    <Checkbox checked={value.indexOf(option) > -1} />
+                                    <ListItemText primary={option} />
+                                </MenuItem>
+                            ))}
+                            </Select>
+                            )}
+                            />
+                    </Box>                    
+                    </Grid>    
+
+                    <Grid item xs={4} key="chipsEvidence">
+                    <Box sx={{display: noteType === 'ActionItem' || noteType === 'Assessment' ? 'flex' : 'none', flexDirection: 'column'}}>
+                        <InputLabel id="Badges">Evidence</InputLabel>
+                        <Controller
+                            name="evidence"
+                            control={control}
+                            defaultValue={[]}
+                            render={({ field: { onChange, value }, fieldState: { error } }) => (
+                            <Select
+                                labelId="evidence"
+                                id="evidence"
+                                multiple
+                                value={value}
+                                onChange={onChange}
+                                defaultValue={[]}
+                                renderValue={() => value + ' '}
+                                MenuProps={MenuProps}
+                                label="Badges"
+                            >
+                            {evidenceList.map((option) => (
+                                <MenuItem key={option.value} value={option.value}>
+                                    <Checkbox checked={value.indexOf(option.value) > -1} />
+                                    <ListItemText primary={option.label} />
+                                </MenuItem>
+                            ))}
+                            </Select>
+                            )}
+                            />
+                    </Box>                    
+                    </Grid>  
+
                     <Grid item xs={4} key="actionType">
                         <Box sx={{display: noteType === 'ActionItem' ? 'block' : 'none'}}>
                             <InputLabel id="action-type-label">Action Type</InputLabel>
@@ -362,68 +448,6 @@ function NewNote({open, buttonType, noteForEdit, handleClose }) {
                         </Box>
                     </Grid>
 
-                    <Grid item xs={4} key="chipsBadges">
-                    <Box sx={{display: noteType === 'ActionItem' ? 'flex' : 'none', flexDirection:'column'}}>
-                        <InputLabel id="Badges">Badges</InputLabel>
-                        <Controller
-                            name="activities"
-                            control={control}
-                            defaultValue={[]}
-                            render={({ field: { onChange, value }, fieldState: { error } }) => (
-                            <Select
-                                labelId="chipsBadges"
-                                id="chipsBadges"
-                                multiple
-                                value={value}
-                                onChange={onChange}
-                                defaultValue=""
-                                renderValue={() => value + ' '}
-                                MenuProps={MenuProps}
-                                label="Badges"
-                            >
-                            {dataList.map((option) => (
-                                <MenuItem key={option.value} value={option.value}>
-                                    <Checkbox checked={value.indexOf(option.value) > -1} />
-                                    <ListItemText primary={option.label} />
-                                </MenuItem>
-                            ))}
-                            </Select>
-                            )}
-                            />
-                    </Box>                    
-                    </Grid>    
-
-                    <Grid item xs={4} key="chipsEvidence">
-                    <Box sx={{display: noteType === 'ActionItem' || noteType === 'Assessment' ? 'flex' : 'none', flexDirection: 'column'}}>
-                        <InputLabel id="Badges">Evidence</InputLabel>
-                        <Controller
-                            name="evdence"
-                            control={control}
-                            defaultValue={[]}
-                            render={({ field: { onChange, value }, fieldState: { error } }) => (
-                            <Select
-                                labelId="evidence"
-                                id="evidence"
-                                multiple
-                                value={value}
-                                onChange={onChange}
-                                defaultValue=""
-                                renderValue={() => value + ' '}
-                                MenuProps={MenuProps}
-                                label="Badges"
-                            >
-                            {evidenceList.map((option) => (
-                                <MenuItem key={option.value} value={option.value}>
-                                    <Checkbox checked={value.indexOf(option.value) > -1} />
-                                    <ListItemText primary={option.label} />
-                                </MenuItem>
-                            ))}
-                            </Select>
-                            )}
-                            />
-                    </Box>                    
-                    </Grid>  
-
                     <Grid item xs={12} key='title'>
                     <Controller
                             name="title"
@@ -445,7 +469,7 @@ function NewNote({open, buttonType, noteForEdit, handleClose }) {
                             />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid item xs={12} sm={6} key='rt'>
                         <Controller
                             name="rt"
                             control={control}

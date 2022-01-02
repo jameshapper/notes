@@ -37,6 +37,7 @@ function Students(props) {
     const [ classes, setClasses ] = useState([])
     const [ selectedClass, setSelectedClass ] = useState()
     const [ selectedStudents, setSelectedStudents ] = useState([])
+    //const [ downloadNotes, setDownloadNotes ] = useState(false)
 
     const history = useHistory()
 
@@ -61,22 +62,23 @@ function Students(props) {
 
     const handleChange = (event) => {
         setSelectedClass(event.target.value)
-        console.log('selected class id is '+event.target.value)
+        console.log('selected class id is '+JSON.stringify(event.target.value.id))
+        console.log('selected class text is '+JSON.stringify(event.target.value.name))
     }
 
     const handleSubmit = (event) => {
         event.preventDefault()
-        if(selectedClass.length){
-          console.log('planning to submit to class id '+selectedClass)
+        if(selectedClass){
+          console.log('planning to submit to class id '+selectedClass.id)
           console.log('and submit selected student ids are '+selectedStudents)
           db.collection('users').doc(currentUser.uid).collection('teacherClasses')
-          .doc(selectedClass).update({
+          .doc(selectedClass.id).update({
               students: firebase.firestore.FieldValue.arrayUnion(...selectedStudents)
           })
           .then(() => {
             selectedStudents.map(student => (
               db.collection('users').doc(student.uid).update({
-                classes: firebase.firestore.FieldValue.arrayUnion(selectedClass)
+                classes: firebase.firestore.FieldValue.arrayUnion({value: selectedClass.id, label: selectedClass.name})
               })
             ))
           })
@@ -87,6 +89,36 @@ function Students(props) {
           alert("Make sure to select a class")
         }
     }
+
+/*     useEffect(() => {
+      if(downloadNotes === true){
+        console.log('tring to download')
+        let allNotes = []
+        return db.collection("adminDocs").doc("studentList").get()
+        .then((doc) => {
+
+            allNotes.push({...doc.data(),id: doc.id})
+
+        })
+        .then(() => {
+          download(JSON.stringify(allNotes), 'notes.txt', 'text/plain')
+        })
+      }
+    },[downloadNotes]) */
+
+/*     function download(content, fileName, contentType) {
+      var a = document.createElement("a");
+      var file = new Blob([content], {type: contentType});
+      a.href = URL.createObjectURL(file);
+      a.download = fileName;
+      a.click();
+  } */
+
+/*     const handleDownload = () => {
+      setDownloadNotes(true)
+    } */
+
+    //Was getting a warning on the Select that was answered here https://stackoverflow.com/questions/55429442/material-ui-select-component-a-component-is-changing-a-controlled-input-of-type
 
     if (uiLoading === true) {
         return (
@@ -113,13 +145,13 @@ function Students(props) {
                             <Select
                                 labelId="select class"
                                 id="select-class"
-                                value={selectedClass}
+                                value={selectedClass ?? " "}
                                 label="Classes"
                                 onChange={handleChange}
                                 defaultValue=""
                             >
                                 {classes.map((eachclass) => (
-                                    <MenuItem key={eachclass.name} value={eachclass.id}>{eachclass.name}</MenuItem>
+                                    <MenuItem key={eachclass.name} value={eachclass}>{eachclass.name}</MenuItem>
                                 ))
                                 }
                             </Select>
@@ -136,6 +168,10 @@ function Students(props) {
                 <Box sx={{flexGrow:1, p:3}} >
                     <EnhancedTable rows={rows} setSelectedStudents={(selecteds) => setSelectedStudents(selecteds)} />
                 </Box>
+
+                {/*<Box>
+                <Button variant='contained' onClick={handleDownload}>Get Notes to File</Button>
+                </Box>*/}
     
             </>
         )

@@ -33,11 +33,11 @@ service cloud.firestore {
     match /{somePath=**}/notes/{noteId} {
 
       function optional() {
-        return ['title', 'body', 'uid', 'createdAt', 'timestamp','activities','author','avatar', 'rt', 'commentNum','status','evidence','plannedHrs','completedHrs','actionType','noteType','targetDate']
+        return ['title', 'body', 'uid', 'createdAt', 'timestamp','activities','author','avatar', 'rt', 'commentNum','status','evidence','plannedHrs','completedHrs','actionType','noteType','targetDate','studentClass']
       }
 
       function onlyEdit() {
-        return ['title', 'body', 'createdAt', 'timestamp', 'activities','rt','commentNum','status','evidence','plannedHrs','completedHrs','actionType','noteType','targetDate']
+        return ['title', 'body', 'createdAt', 'timestamp', 'activities','rt','commentNum','status','evidence','plannedHrs','completedHrs','actionType','noteType','targetDate','studentClass']
       }
 
       function statusOptionOk(){
