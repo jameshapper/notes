@@ -37,7 +37,7 @@ function Note() {
     const [ currentPlans, setCurrentPlans ] = useState([]);
     const [ summaryEvidence, setSummaryEvidence ] = useState([])
 
-    const { currentUser } = useContext(UserContext)
+    const { currentUser, isAdmin } = useContext(UserContext)
 
     dayjs.extend(relativeTime);
 
@@ -132,11 +132,14 @@ function Note() {
     }, [currentUser, studentClass]);
 
     useEffect(() => {
+        if(!isAdmin && currentUser){
         db.collection('users').doc(currentUser.uid).get()
         .then(doc => {
+            if(doc){
             setSummaryEvidence(doc.data().evidence)
             setClasses(doc.data().classes)
             const badgeMap = doc.data().myBadgesMap
+            if(badgeMap){
             const entries = Object.entries(badgeMap)
             console.log('entries are '+JSON.stringify(entries))
             const badgeNames = []
@@ -144,10 +147,12 @@ function Note() {
                 return badgeNames.push(entry[1].badgename)
             })
             setBadges(badgeNames)
+            }
             //console.log("summary evidence max crits for first item is "+doc.data().evidence[0].sumCritsMax)
             setUiLoading(false)
-        })
-    }, [currentUser])
+        }
+        })}
+    }, [currentUser,isAdmin])
 
 	const handleEditOpen = (note) => {
         setNoteForEdit(note)
@@ -232,7 +237,7 @@ function Note() {
                     </Grid>
                 </Box>
 
-                {open && <NewNote open={open} handleClose={handleClose} buttonType={buttonType} noteForEdit={noteForEdit} classes={classes} badges={badges}/>}
+                {open && classes && <NewNote open={open} handleClose={handleClose} buttonType={buttonType} noteForEdit={noteForEdit} classes={classes} badges={badges}/>}
                 
                 <Divider sx={{mt:1}}/>
 
@@ -269,7 +274,7 @@ function Note() {
                             }}>
                             <Typography variant='h6' sx={{mb:0}}>Paused Items</Typography>
                             <Divider sx={{mb:1}}/>
-                            <ListCards notes={pausedItems} handleEditOpen={handleEditOpen} canEdit={true}/>
+                            <ListCards notes={pausedItems} handleEditOpen={handleEditOpen} canEdit={true} classes={classes} badges={badges}/>
                         </Box>
 
                         <Divider sx={{mt:1}}/>
@@ -335,7 +340,7 @@ function Note() {
                             }}>
                             <Typography variant='h6' sx={{mb:0}}>Current Goals</Typography>
                             <Divider sx={{mb:1}}/>
-                            <ListGoals notes={termGoals.concat(currentPlans)} handleEditOpen={handleEditOpen} canEdit={true}/>
+                            <ListGoals notes={termGoals.concat(currentPlans)} handleEditOpen={handleEditOpen} canEdit={true} classes={classes} badges={badges} />
                         </Box>
                         <Divider sx={{mt:1}}/>
 

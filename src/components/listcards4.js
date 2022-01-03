@@ -17,11 +17,13 @@ import VisibilityIcon from '@material-ui/icons/Visibility';
 import EditIcon from '@material-ui/icons/Edit'
 //import ShieldIcon from '@material-ui/icons/Shield';
 
-export default function ListCards({notes, canEdit}) {
+export default function ListCards({notes, canEdit, classes, badges}) {
 
     const [ viewOpen, setViewOpen ] = useState(false)
     const [ open, setOpen ] = useState(false)
     const [ note, setNote ] = useState({})
+
+    console.log('classes and badges are '+JSON.stringify(classes)+" "+JSON.stringify(badges))
 
     function colorForStatus(status) {
         switch (status) {
@@ -182,7 +184,7 @@ export default function ListCards({notes, canEdit}) {
             <ViewNotes note={note} handleViewClose={handleViewClose} viewOpen={viewOpen}/>
 
             {open && 
-                <NewNote open={open} handleClose={handleClose} buttonType={"Edit"} noteForEdit={note}/>
+                <NewNote open={open} handleClose={handleClose} buttonType={"Edit"} noteForEdit={note} classes={classes} badges={badges}/>
             }
         </div>
     )

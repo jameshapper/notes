@@ -84,6 +84,12 @@ export default function ListTable({notes, rowType, handleViewOpen}) {
               label: 'Note Type',
             },
             {
+              id: 'title',
+              numeric: false,
+              disablePadding: false,
+              label: 'Title'
+            },
+            {
               id: 'actionType',
               numeric: false,
               disablePadding: false,
@@ -128,6 +134,12 @@ export default function ListTable({notes, rowType, handleViewOpen}) {
               disablePadding: false,
               label: 'Note Type',
             },
+            {
+              id: 'title',
+              numeric: false,
+              disablePadding: false,
+              label: 'Title',
+            },            
             {
               id: 'plannedHrs',
               numeric: false,
@@ -431,10 +443,11 @@ function ActionItemRow(props) {
           {row.author}
         </TableCell>
         <TableCell align="left">{row.noteType}</TableCell>
+        <TableCell align="left">{row.title}</TableCell>
         <TableCell align="left">{row.actionType}</TableCell>
         <TableCell align="left">{row.plannedHrs}</TableCell>
         <TableCell align="left">{row.completedHrs}</TableCell>
-        <TableCell align='left'>{row.timestamp.toDate().toString().slice(0,15)}</TableCell>
+        <TableCell align='left'>{row.targetDate.toDate().toString().slice(0,15)}</TableCell>
       </TableRow>
     )
 }
@@ -464,7 +477,7 @@ function TermGoalsRow(props) {
         </TableCell>
         <TableCell align="left">{row.noteType}</TableCell>
         <TableCell align="left">{row.critsTarget}</TableCell>
-        <TableCell align="left">{row.timestamp.toDate().toString().slice(0,15)}</TableCell>
+        <TableCell align="left">{row.targetDate.toDate().toString().slice(0,15)}</TableCell>
         <TableCell align="left">{row.evidence}</TableCell>
       </TableRow>
     )
@@ -494,9 +507,10 @@ function PlanRow(props) {
           {row.author}
         </TableCell>
         <TableCell align="left">{row.noteType}</TableCell>
+        <TableCell align="left">{row.title}</TableCell>
         <TableCell align="left">{row.plannedHrs}</TableCell>
         <TableCell align="left">{row.completedHrs}</TableCell>
-        <TableCell align="left">{row.timestamp.toDate().toString().slice(0,15)}</TableCell>
+        <TableCell align="left">{row.targetDate.toDate().toString().slice(0,15)}</TableCell>
       </TableRow>
     )
 }

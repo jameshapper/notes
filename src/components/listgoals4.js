@@ -20,7 +20,7 @@ import EditIcon from '@material-ui/icons/Edit'
 //https://firebasestorage.googleapis.com/v0/b/progressnotes-b6fc9.appspot.com/o/GoalToInkscapeEditted.svg?alt=media&token=e935e1c8-46fb-4015-bb76-9437294546fc
 
 
-export default function ListGoals({notes, canEdit}) {
+export default function ListGoals({notes, canEdit, classes, badges}) {
 
     const PlansIcon = "https://firebasestorage.googleapis.com/v0/b/progressnotes-b6fc9.appspot.com/o/GoalTargetEditted.png?alt=media&token=59a794c9-225a-49c9-949e-6ffa4bb7c188"
     const GoalsIcon = "https://firebasestorage.googleapis.com/v0/b/progressnotes-b6fc9.appspot.com/o/GoalToInkscapeEditted.svg?alt=media&token=e935e1c8-46fb-4015-bb76-9437294546fc"
@@ -141,7 +141,7 @@ export default function ListGoals({notes, canEdit}) {
             <ViewNotes note={note} handleViewClose={handleViewClose} viewOpen={viewOpen}/>
 
             {open && 
-                <NewNote open={open} handleClose={handleClose} buttonType={"Edit"} noteForEdit={note}/>
+                <NewNote open={open} handleClose={handleClose} buttonType={"Edit"} noteForEdit={note} classes={classes} badges={badges}/>
             }
 
         </div>

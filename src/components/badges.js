@@ -6,7 +6,6 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Toolbar from '@material-ui/core/Toolbar'
 import Grid from '@material-ui/core/Grid'
 import Card from '@material-ui/core/Card'
-import CardActions from '@material-ui/core/CardActions';
 
 import Button from '@material-ui/core/Button'
 import CardMedia from '@material-ui/core/CardMedia'
@@ -72,7 +71,7 @@ function Badges(props) {
                     );
                 });
                 //return true
-            } else if (selectedCourse == "All Badges") {
+            } else if (selectedCourse === "All Badges") {
                  return searchParam.some((newBadge) => {
                     return (
                         badge[newBadge]
@@ -82,14 +81,14 @@ function Badges(props) {
                     );
                 });
                 //return true
-            }
+            } else {return false}
         });
     }
 
 
     const handleCourseFilter = (event) => {
 
-        if(event.target.value == "All Badges"){
+        if(event.target.value === "All Badges"){
             setSelectedCourse(event.target.value)
         } else {
             setSelectedCourse(event.target.value)

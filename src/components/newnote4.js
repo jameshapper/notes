@@ -37,6 +37,9 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges })
 
     const note = noteForEdit
 
+    console.log('in newnote4 classes and badges are '+JSON.stringify(classes)+" "+JSON.stringify(badges))
+
+
     const { currentUser, avatar } = useContext(UserContext)
 
     const { handleSubmit, control, setValue, watch } = useForm();
@@ -44,11 +47,11 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges })
     const noteType = watch("noteType","ActionItem")
 
     if(buttonType === "Edit"){
-        const fields = ['title','status','plannedHrs','completedHrs','actionType','noteType','rt','targetDate','activities','evidence','studentClass']
+        const fields = ['title','status','plannedHrs','completedHrs','actionType','noteType','rt','targetDate','badges','evidence','studentClass']
         fields.forEach(field => {
             if(note.hasOwnProperty(field)){
                 if(field === 'targetDate'){
-                    setValue(field, note[field.seconds])
+                    setValue(field, note[field])
                 } else {
                     setValue(field, note[field]);
                 }
@@ -78,6 +81,9 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges })
         },
         getContentAnchorEl: null
       };
+    
+    console.log('in newnote4 classes and badges are '+JSON.stringify(classes)+" "+JSON.stringify(badges))
+
 
     const dataList = badges
 
@@ -124,7 +130,7 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges })
         let document = db.collection('users').doc(currentUser.uid).collection('notes').doc(noteId);
         document.update( {
             title : data.title,
-            activities: data.activities,
+            badges: data.badges,
             rt:data.rt,
             body:data.rt.replace(/<[^>]+>/g, ''),
             status:data.status,
@@ -133,7 +139,7 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges })
             completedHrs:data.completedHrs,
             actionType:data.actionType,
             noteType:data.noteType,
-            targetDate:data.targetDate,
+            targetDate:firebase.firestore.Timestamp.fromDate(new Date(data.targetDate)),
             studentClass:data.studentClass
         } )
         .then(()=>{
@@ -148,7 +154,7 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges })
             createdAt: new Date().toISOString(),
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             uid: currentUser.uid,
-            activities: data.activities,
+            badges: data.badges,
             author: currentUser.displayName,
             avatar: avatar,
             rt: data.rt,
@@ -159,7 +165,7 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges })
             completedHrs:data.completedHrs,
             actionType:data.actionType,
             noteType:data.noteType,
-            targetDate:data.targetDate,
+            targetDate:firebase.firestore.Timestamp.fromDate(new Date(data.targetDate)),
             studentClass:data.studentClass
         }
 
@@ -218,17 +224,17 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges })
                         <Controller
                             name="studentClass"
                             control={control}
-                            defaultValue={classes.length && classes[0]}
+                            defaultValue={classes && classes.length && classes[0]}
                             render={({ field: { onChange, value }, fieldState: { error } }) => (
                             <Select
                                 labelId="studentClass"
                                 id="studentClass"
                                 value={value}
-                                defaultValue={classes.length && classes[0]}
+                                defaultValue={classes && classes.length && classes[0]}
                                 label="Classes"
                                 onChange={onChange}
                             >
-                                {classes.length && classes.map(aClass => (
+                                {classes && classes.length && classes.map(aClass => (
                                 <MenuItem key={aClass.value} value={aClass}>
                                     <ListItemText primary={aClass.label} />
                                 </MenuItem>
@@ -364,7 +370,7 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges })
                     <Box sx={{display: noteType === 'ActionItem' ? 'flex' : 'none', flexDirection:'column'}}>
                         <InputLabel id="Badges">Badges</InputLabel>
                         <Controller
-                            name="activities"
+                            name="badges"
                             control={control}
                             defaultValue={[]}
                             render={({ field: { onChange, value }, fieldState: { error } }) => (
@@ -379,7 +385,7 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges })
                                 MenuProps={MenuProps}
                                 label="Badges"
                             >
-                            {dataList.map((option) => (
+                            {dataList && dataList.map((option) => (
                                 <MenuItem key={option} value={option}>
                                     <Checkbox checked={value.indexOf(option) > -1} />
                                     <ListItemText primary={option} />

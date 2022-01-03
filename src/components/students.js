@@ -28,7 +28,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import { AssignmentInd, CloudDownload, Edit } from '@material-ui/icons';
 import { AppBar, TextField, Dialog, FormControl, InputLabel, Select, MenuItem, Button, Grid } from '@material-ui/core';
 
-function Students(props) {
+function Students() {
 
     const { loading, currentUser } = useContext(UserContext)
 

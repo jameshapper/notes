@@ -61,7 +61,7 @@ const drawerWidth = 200;
 
 function Layout({ children }) {
 
-    const { currentUser, isAdmin, loading, avatar, logout } = useContext(UserContext);
+    const { currentUser, isAdmin, avatar, logout } = useContext(UserContext);
     const location = useLocation()
     const [ menuItems, setMenuItems ] = useState([])
 
