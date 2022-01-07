@@ -17,7 +17,7 @@ import VisibilityIcon from '@material-ui/icons/Visibility';
 import EditIcon from '@material-ui/icons/Edit'
 //import ShieldIcon from '@material-ui/icons/Shield';
 
-export default function ListCards({notes, canEdit, classes, badges}) {
+export default function ListCards({notes, canEdit, classes, badges, studentClass}) {
 
     const [ viewOpen, setViewOpen ] = useState(false)
     const [ open, setOpen ] = useState(false)
@@ -184,7 +184,7 @@ export default function ListCards({notes, canEdit, classes, badges}) {
             <ViewNotes note={note} handleViewClose={handleViewClose} viewOpen={viewOpen}/>
 
             {open && 
-                <NewNote open={open} handleClose={handleClose} buttonType={"Edit"} noteForEdit={note} classes={classes} badges={badges}/>
+                <NewNote open={open} handleClose={handleClose} buttonType={"Edit"} noteForEdit={note} classes={classes} badges={badges} studentClass={studentClass} />
             }
         </div>
     )

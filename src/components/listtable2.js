@@ -367,19 +367,19 @@ export function EnhancedTable(props) {
 
                   if(rowType==="TermGoals") {
                     return (
-                        <TermGoalsRow labelId={labelId} row={row} handleClick={handleClick}/>
+                        <TermGoalsRow key={`TermGoalsRow-${index}`} labelId={labelId} row={row} handleClick={handleClick}/>
                     );
                   } else if(rowType==="ActionItem") {
                     return (
-                        <ActionItemRow labelId={labelId} row={row} handleClick={handleClick}/>
+                        <ActionItemRow key={`ActionItemRow-${index}`} labelId={labelId} row={row} handleClick={handleClick}/>
                     );
                   } else if(rowType==="Plan") {
                     return (
-                        <PlanRow labelId={labelId} row={row} handleClick={handleClick}/>
+                        <PlanRow key={`PlanRow-${index}`} labelId={labelId} row={row} handleClick={handleClick}/>
                     );
                   } else if(rowType==="Progress") {
                     return (
-                        <ProgressRow labelId={labelId} row={row} handleClick={handleClick}/>
+                        <ProgressRow key={`ProgressRow-${index}`} labelId={labelId} row={row} handleClick={handleClick}/>
                     );
                   } else {
                       return (
@@ -538,11 +538,11 @@ function ProgressRow(props) {
         >
           {row.firstName}
         </TableCell>
-        <TableCell align="left">{row.startDate.toDate().toString().slice(0,15)}</TableCell>
+        <TableCell align="left">{(new Date(row.startDate)).toString().slice(0,15)}</TableCell>
         <TableCell align="left">{row.sumEvidence}</TableCell>
         <TableCell align="left"></TableCell>
-        <TableCell align="left">{row.nextDate.toDate().toString().slice(0,15)}</TableCell>
-        <TableCell align="left">{row.nextCrits}</TableCell>
+        <TableCell align="left">{(new Date(row.plannedDate).toString()).slice(0,15)}</TableCell>
+        <TableCell align="left">{row.crits}</TableCell>
       </TableRow>
     )
 }

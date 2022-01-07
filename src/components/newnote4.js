@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import firebase, { db } from '../firebase';
 import "react-quill/dist/quill.snow.css";
 import "./styles.css";
@@ -33,9 +33,15 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 	return <Slide direction="up" ref={ref} {...props} />;
 });
 
-function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges }) {
+function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges, studentClass }) {
 
     const note = noteForEdit
+    let initNoteType
+    if(buttonType === 'Edit'){
+        initNoteType = note.noteType
+    } else {
+        initNoteType = "ActionItem"
+    }
 
     console.log('in newnote4 classes and badges are '+JSON.stringify(classes)+" "+JSON.stringify(badges))
 
@@ -44,14 +50,23 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges })
 
     const { handleSubmit, control, setValue, watch } = useForm();
 
-    const noteType = watch("noteType","ActionItem")
+    const noteType = watch("noteType",initNoteType)
+
+    let previousTermGoals
+    let previousAssessment
 
     if(buttonType === "Edit"){
+        console.log(note)
+        console.log(new Date().getTime())
         const fields = ['title','status','plannedHrs','completedHrs','actionType','noteType','rt','targetDate','badges','evidence','studentClass']
         fields.forEach(field => {
             if(note.hasOwnProperty(field)){
                 if(field === 'targetDate'){
-                    setValue(field, note[field])
+                    setValue(field, new Date(1000*note[field].seconds))
+                    console.log('targetDate seconds is '+JSON.parse(JSON.stringify(note[field])).seconds)
+                } else if(field === 'studentClass'){
+                    setValue(field, studentClass)
+                    console.log('student class '+JSON.stringify(studentClass))
                 } else {
                     setValue(field, note[field]);
                 }
@@ -60,6 +75,26 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges })
                 console.log("this note is missing the key: "+field)
             }
         })
+        if(note.noteType === "TermGoals"){
+            previousTermGoals = {
+                classId: note.studentClass.value,
+                className: note.studentClass.label,
+                noteId: note.id,
+                startDate: note.ts_msec,
+                crits: note.crits
+            }
+        } else if(note.noteType === "Assessment"){
+            previousAssessment = {
+                classId: note.studentClass.value,
+                className: note.studentClass.label,
+                noteId: note.id,
+                plannedDate: note.ts_msec,
+                crits: note.crits
+            }
+        }
+
+    } else {
+        setValue("studentClass",studentClass)
     }
 
     const ITEM_HEIGHT = 48;
@@ -127,6 +162,10 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges })
 
     const updateNote = (noteId, data) => {
         handleClose()
+
+        const targetDate = new Date(data.targetDate)
+        const ts_msec = targetDate.getTime()
+
         let document = db.collection('users').doc(currentUser.uid).collection('notes').doc(noteId);
         document.update( {
             title : data.title,
@@ -139,9 +178,44 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges })
             completedHrs:data.completedHrs,
             actionType:data.actionType,
             noteType:data.noteType,
-            targetDate:firebase.firestore.Timestamp.fromDate(new Date(data.targetDate)),
-            studentClass:data.studentClass
+            targetDate:firebase.firestore.Timestamp.fromDate(targetDate),
+            studentClass:data.studentClass,
+            crits:data.crits,
+            ts_msec: ts_msec
         } )
+        .then(() => {
+            if(note.noteType === "TermGoals"){
+                const termGoals = {
+                    classId: note.studentClass.value,
+                    className: note.studentClass.label,
+                    noteId: note.id,
+                    startDate: ts_msec,
+                    crits: data.crits
+                }     
+                console.log(termGoals)           
+                db.collection("users").doc(currentUser.uid)
+                .update({termGoals: firebase.firestore.FieldValue.arrayRemove(previousTermGoals)})
+                .then(() => {
+                    db.collection("users").doc(currentUser.uid)
+                    .update({termGoals: firebase.firestore.FieldValue.arrayUnion(termGoals)})
+                })
+            } else if(note.noteType === "Assessment"){
+                const nextAssessment = {
+                    classId: note.studentClass.value,
+                    className: note.studentClass.label,
+                    noteId: note.id,
+                    plannedDate: ts_msec,
+                    crits: data.crits
+                }  
+                db.collection("users").doc(currentUser.uid)
+                .update({termGoals: firebase.firestore.FieldValue.arrayRemove(previousAssessment)})
+                .then(() => {
+                    db.collection("users").doc(currentUser.uid)
+                    .update({nextTarget: firebase.firestore.FieldValue.arrayUnion(nextAssessment)})
+                })              
+            }
+
+        })
         .then(()=>{
             console.log("Note edited")
             //handleClose();
@@ -149,6 +223,11 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges })
     }
 
     const newNote = (data) => {
+
+        const targetDate = new Date(data.targetDate)
+        const ts_msec = targetDate.getTime()
+        console.log(data)
+
         const newNote = {
             title: data.title,
             createdAt: new Date().toISOString(),
@@ -165,13 +244,41 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges })
             completedHrs:data.completedHrs,
             actionType:data.actionType,
             noteType:data.noteType,
-            targetDate:firebase.firestore.Timestamp.fromDate(new Date(data.targetDate)),
-            studentClass:data.studentClass
+            targetDate:firebase.firestore.Timestamp.fromDate(targetDate),
+            studentClass:data.studentClass,
+            crits: data.crits,
+            ts_msec: ts_msec
         }
 
         db.collection('users').doc(currentUser.uid).collection('notes').add(newNote)
-        .then(()=>{
+        .then((doc)=>{
             console.log("New note added to db")
+            if(data.noteType === "TermGoals") {
+                const termGoals = {
+                    classId: data.studentClass.value,
+                    className: data.studentClass.label,
+                    noteId: doc.id,
+                    startDate: ts_msec,
+                    crits: data.crits
+                }
+                console.log('Adding new termGoal to user doc')
+                db.collection('users').doc(currentUser.uid)
+                .update({termGoals: firebase.firestore.FieldValue.arrayUnion(termGoals)})
+            } else if(data.noteType === "Assessment"){
+                console.log(doc.id)
+                console.log(data.studentClass.value)
+                const nextAssessment = {
+                    classId: data.studentClass.value,
+                    className: data.studentClass.label,
+                    noteId: doc.id,
+                    plannedDate: ts_msec,
+                    crits: data.crits
+                }
+                db.collection('users').doc(currentUser.uid)
+                .update({nextTarget: firebase.firestore.FieldValue.arrayUnion(nextAssessment)})
+            }
+        })
+        .then(() => {
             handleClose()
         })
         .catch((error) => {
@@ -181,7 +288,7 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges })
         });
     }
 
-    const rightNow = new Date().getTime()
+    const rightNow = new Date()
 
     return (                
         <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
@@ -224,13 +331,13 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges })
                         <Controller
                             name="studentClass"
                             control={control}
-                            defaultValue={classes && classes.length && classes[0]}
+                            defaultValue={null}
                             render={({ field: { onChange, value }, fieldState: { error } }) => (
                             <Select
                                 labelId="studentClass"
                                 id="studentClass"
                                 value={value}
-                                defaultValue={classes && classes.length && classes[0]}
+                                defaultValue={classes[0]}
                                 label="Classes"
                                 onChange={onChange}
                             >
@@ -254,6 +361,7 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges })
                                 labelId="noteType label"
                                 id="noteType"
                                 value={value}
+                                defaultValue="ActionItem"
                                 label="Note Type"
                                 onChange={onChange}
                             >
@@ -276,6 +384,7 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges })
                                 labelId="status"
                                 id="status"
                                 value={value}
+                                defaultValue="Active"
                                 label="Status"
                                 onChange={onChange}
                             >
@@ -337,6 +446,7 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges })
                             render={({ field: { onChange, value }, fieldState: { error } }) => (
                             <DatePicker
                                 value={value}
+                                defaultValue={rightNow}
                                 onChange={onChange}
                                 renderInput={(params) => <TextField {...params} />}
                             />
@@ -440,6 +550,7 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges })
                                 labelId="action-type-label"
                                 id="action-type"
                                 value={value}
+                                defaultValue="ProblemSolving"
                                 label="Action Type"
                                 onChange={onChange}
                             >

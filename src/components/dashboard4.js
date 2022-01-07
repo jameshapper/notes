@@ -237,7 +237,7 @@ function Note() {
                     </Grid>
                 </Box>
 
-                {open && classes && <NewNote open={open} handleClose={handleClose} buttonType={buttonType} noteForEdit={noteForEdit} classes={classes} badges={badges}/>}
+                {open && classes && <NewNote open={open} handleClose={handleClose} buttonType={buttonType} noteForEdit={noteForEdit} classes={classes} badges={badges} studentClass={studentClass} />}
                 
                 <Divider sx={{mt:1}}/>
 
@@ -259,7 +259,7 @@ function Note() {
                             }}>
                             <Typography variant='h6' sx={{mb:0}}>Active Items</Typography>
                             <Divider sx={{mb:1}}/>
-                            <ListCards notes={notes} handleEditOpen={handleEditOpen} canEdit={true}/>
+                            {classes && <ListCards notes={notes} handleEditOpen={handleEditOpen} canEdit={true} classes={classes} badges={badges} studentClass={studentClass} />}
                         </Box>
 
                         <Divider sx={{mt:1}}/>
@@ -274,7 +274,7 @@ function Note() {
                             }}>
                             <Typography variant='h6' sx={{mb:0}}>Paused Items</Typography>
                             <Divider sx={{mb:1}}/>
-                            <ListCards notes={pausedItems} handleEditOpen={handleEditOpen} canEdit={true} classes={classes} badges={badges}/>
+                            {classes &&<ListCards notes={pausedItems} handleEditOpen={handleEditOpen} canEdit={true} classes={classes} badges={badges} studentClass={studentClass}/>}
                         </Box>
 
                         <Divider sx={{mt:1}}/>
@@ -340,7 +340,7 @@ function Note() {
                             }}>
                             <Typography variant='h6' sx={{mb:0}}>Current Goals</Typography>
                             <Divider sx={{mb:1}}/>
-                            <ListGoals notes={termGoals.concat(currentPlans)} handleEditOpen={handleEditOpen} canEdit={true} classes={classes} badges={badges} />
+                            <ListGoals notes={termGoals.concat(currentPlans)} handleEditOpen={handleEditOpen} canEdit={true} classes={classes} badges={badges} studentClass={studentClass} />
                         </Box>
                         <Divider sx={{mt:1}}/>
 

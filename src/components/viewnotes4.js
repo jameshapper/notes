@@ -18,7 +18,7 @@ import CloseIcon from '@material-ui/icons/Close'
 import MuiDialogTitle from '@material-ui/core/DialogTitle'
 
 const DialogTitle = ((props) => {
-    const { children, onClose, classes, ...other } = props;
+    const { children, onClose, ...other } = props;
     return (
         <MuiDialogTitle sx={{minWidth:220}} {...other}>
             <div><Typography variant="h6">{children}</Typography></div>

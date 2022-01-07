@@ -20,7 +20,7 @@ import EditIcon from '@material-ui/icons/Edit'
 //https://firebasestorage.googleapis.com/v0/b/progressnotes-b6fc9.appspot.com/o/GoalToInkscapeEditted.svg?alt=media&token=e935e1c8-46fb-4015-bb76-9437294546fc
 
 
-export default function ListGoals({notes, canEdit, classes, badges}) {
+export default function ListGoals({notes, canEdit, classes, badges, studentClass}) {
 
     const PlansIcon = "https://firebasestorage.googleapis.com/v0/b/progressnotes-b6fc9.appspot.com/o/GoalTargetEditted.png?alt=media&token=59a794c9-225a-49c9-949e-6ffa4bb7c188"
     const GoalsIcon = "https://firebasestorage.googleapis.com/v0/b/progressnotes-b6fc9.appspot.com/o/GoalToInkscapeEditted.svg?alt=media&token=e935e1c8-46fb-4015-bb76-9437294546fc"
@@ -63,8 +63,9 @@ export default function ListGoals({notes, canEdit, classes, badges}) {
                                 boxShadow: 1,
                                 fontWeight: 'bold',
                                 justifyContent: 'space-between',
-                                maxWidth:250,
-                                minWidth:200
+                                maxWidth:300,
+                                minWidth:250,
+                                minHeight:125
                             }}
                         >
                             <Box
@@ -116,8 +117,8 @@ export default function ListGoals({notes, canEdit, classes, badges}) {
                                     flexDirection: 'column',
                                     alignItems: 'left',
                                     m: 1,
-                                    minWidth: { md: 125, lg: 125 },
-                                    width:125
+                                    minWidth: { md: 150, lg: 150 },
+                                    width:150
                                     }}
                                 >
                                     <Box component="span" sx={{ fontSize: 10, mt:0 }}>
@@ -141,7 +142,7 @@ export default function ListGoals({notes, canEdit, classes, badges}) {
             <ViewNotes note={note} handleViewClose={handleViewClose} viewOpen={viewOpen}/>
 
             {open && 
-                <NewNote open={open} handleClose={handleClose} buttonType={"Edit"} noteForEdit={note} classes={classes} badges={badges}/>
+                <NewNote open={open} handleClose={handleClose} buttonType={"Edit"} noteForEdit={note} classes={classes} badges={badges} studentClass={studentClass} />
             }
 
         </div>

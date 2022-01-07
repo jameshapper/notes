@@ -100,7 +100,7 @@ function TeacherClasses(props) {
     },[selected])
 
     dayjs.extend(relativeTime);
-    const { classes } = props;
+    //const { classes } = props;
 
     const handleSelectOpen = (teacherClass) => {
         setTitle(teacherClass.name)
@@ -123,7 +123,7 @@ function TeacherClasses(props) {
 
         function evidenceSum(evidenceArray, startDate) {
             const termEvidence = evidenceArray.filter(evidence => {
-                return evidence.assessedDate.seconds - startDate.seconds > 0
+                return (evidence.ts_msec)/1000 - startDate/1000 > 0
             })
             const sumAllCritsToDate = termEvidence.reduce((total, evidence) => {
                 return total + evidence.sumCritsForAssessment
@@ -150,6 +150,7 @@ function TeacherClasses(props) {
                         sumEvidence = evidenceSum(doc.data().evidence, classObject.startDate)
                         classObject = {...classObject, sumEvidence: sumEvidence}
                         notes10.push(classObject)
+                        console.log(classObject)
                     })
                 })       
             }
@@ -477,7 +478,7 @@ function TeacherClasses(props) {
                 <ListTable notes={notes} rowType={noteType} handleViewOpen={handleViewOpen}/>
                 }
   
-                <ViewNotes handleViewClose={handleViewClose} viewOpen={viewOpen} title={title} author={author} created={created} avatar={noteAvatar} comments={comments} rt={rt} classes={classes} handleSubmitComment={handleSubmitComment} setCommentBody={setCommentBody} setCommentRt={setCommentRt} commentRt={commentRt}/>
+                <ViewNotes handleViewClose={handleViewClose} viewOpen={viewOpen} title={title} author={author} created={created} avatar={noteAvatar} comments={comments} rt={rt} handleSubmitComment={handleSubmitComment} setCommentBody={setCommentBody} setCommentRt={setCommentRt} commentRt={commentRt}/>
 
             </main>
         );

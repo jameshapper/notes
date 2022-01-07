@@ -71,11 +71,12 @@ export default function Feedback() {
                     createdAt: feedback.data().createdAt,
                     sumCritsForAssessment: feedback.data().sumCritsForAssessment,
                     sumCritsMax: feedback.data().sumCritsMax,
-                    badgeName: feedback.data().badgeName
+                    badgeName: feedback.data().badgeName,
+                    ts_msec: feedback.data().ts_msec
                 }
                 setPreviousFeedbackSummary(previous)
                 setPreviousShort(previousShort)
-                console.log('previous is '+JSON.stringify(previous))
+                console.log('previous short is '+JSON.stringify(previousShort))
             })
         }
     },[badgeDetails.badgeId, feedbackId, isAddMode, selectedStudentId, setValue])
@@ -88,7 +89,9 @@ export default function Feedback() {
 
     const newFeedback = data => {
 
-        const createdAt = new Date().toISOString()
+        const createdDate = new Date()
+        const createdAt = createdDate.toISOString()
+        const ts_msec = createdDate.getTime()
 
         //const oldBadgeDetails = JSON.parse(JSON.stringify(badgeDetails.criteria))
         //console.log("original badgeDetails "+JSON.stringify(oldBadgeDetails))
@@ -134,6 +137,7 @@ export default function Feedback() {
             sumCritsForAssessment: sumCritsForAssessment,
             sumCritsMax: sumCritsMax
         }
+        
         db.collection('users').doc(selectedStudentId).collection('myBadges').doc(badgeDetails.badgeId).collection("feedback").add(feedback)
         .then((doc)=>{
             const feedbackSummary = {
@@ -142,14 +146,16 @@ export default function Feedback() {
                 feedbackId: doc.id,
                 createdAt: createdAt,
                 sumCritsForAssessment: sumCritsForAssessment,
-                sumCritsMax: sumCritsMax
+                sumCritsMax: sumCritsMax,
+                ts_msec: ts_msec
             }
             fbShortSummary = {
                 feedbackId: doc.id,
                 createdAt: createdAt,
                 sumCritsForAssessment: sumCritsForAssessment,
                 sumCritsMax: sumCritsMax,
-                badgeName: badgeDetails.badgename                
+                badgeName: badgeDetails.badgename,
+                ts_msec: ts_msec 
             }
             console.log("New feedback added to db")
             db.collection('users').doc(selectedStudentId).collection('myBadges').doc(badgeDetails.badgeId)
@@ -173,7 +179,9 @@ export default function Feedback() {
         console.log('data is '+JSON.stringify(data))
         console.log('badgeDetails.criteria start as '+JSON.stringify(badgeDetails.criteria))
 
-        const createdAt = new Date().toISOString()
+        const createdDate = new Date()
+        const createdAt = createdDate.toISOString()
+        const ts_msec = createdDate.getTime()
 
         let sumCritsForAssessment = 0
         let sumCritsMax = 0
@@ -222,14 +230,16 @@ export default function Feedback() {
                     feedbackId: feedbackId,
                     createdAt: createdAt,
                     sumCritsForAssessment: sumCritsForAssessment,
-                    sumCritsMax: sumCritsMax
+                    sumCritsMax: sumCritsMax,
+                    ts_msec: ts_msec
                 }
                 fbShortSummary = {
                     feedbackId: feedbackId,
                     createdAt: createdAt,
                     sumCritsForAssessment: sumCritsForAssessment,
                     sumCritsMax: sumCritsMax,
-                    badgeName: badgeDetails.badgename                
+                    badgeName: badgeDetails.badgename,
+                    ts_msec: ts_msec
                 }
                 db.collection('users').doc(selectedStudentId).collection('myBadges').doc(badgeDetails.badgeId)
                 .update({evidence: firebase.firestore.FieldValue.arrayUnion(feedbackSummary), progress: badgeDetails.progress, criteria: badgeDetails.criteria})
