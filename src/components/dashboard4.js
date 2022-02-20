@@ -29,10 +29,24 @@ function Note() {
     const [ buttonType, setButtonType ] = useState('New')
 
     const [ notes, setNotes ] = useState([]);
+/*     const [ classes, setClasses ] = useState(() => {
+        if(localStorage.getItem('classes') !== null){
+            return JSON.parse(localStorage.getItem('classes'))
+        } else {
+            return []
+        }
+    })
+    const [ studentClass, setStudentClass ] = useState(() => {
+        if(localStorage.getItem('studentClass') !== null){
+            return JSON.parse(localStorage.getItem('studentClass'))
+        } else {
+            return ""
+        }
+    }) */
     const [ classes, setClasses ] = useState([])
     const [ studentClass, setStudentClass ] = useState("")
     const [ badges, setBadges ] = useState([])
-    const [ pausedItems, setPausedItems ] = useState([]);
+    const [ assessmentItems, setassessmentItems ] = useState([]);
     const [ termGoals, setTermGoals ] = useState([]);
     const [ currentPlans, setCurrentPlans ] = useState([]);
     const [ summaryEvidence, setSummaryEvidence ] = useState([])
@@ -40,6 +54,16 @@ function Note() {
     const { currentUser, isAdmin } = useContext(UserContext)
 
     dayjs.extend(relativeTime);
+
+/*     useEffect(() => {
+        return localStorage.setItem("classes",JSON.stringify(classes))
+    },[classes])
+
+    useEffect(() => {
+        const index = classes.findIndex((element) => element === studentClass)
+        console.log('index is '+index)
+        return localStorage.setItem('studentClass',JSON.stringify(classes[0]))
+    },[studentClass, classes]) */
 
     useEffect(() => {
         // const fetchData = async () => {
@@ -77,12 +101,13 @@ function Note() {
             return db.collectionGroup("notes").where("uid", "==", currentUser.uid)
             .where("timestamp", ">=", recentDate)
             .where("studentClass","==",studentClass)
-            .where("status", "==","Paused")
+            .where("status", "==","Active")
+            .where("noteType","==","Assessment")
             .orderBy("timestamp","desc")
             .onSnapshot(snapshot => {
                 const notesData = [];
                 snapshot.forEach(doc => notesData.push({ ...doc.data(), id: doc.id }));
-                setPausedItems(notesData)
+                setassessmentItems(notesData)
                 setUiLoading(false)
             })
         }
@@ -135,9 +160,10 @@ function Note() {
         if(!isAdmin && currentUser){
         db.collection('users').doc(currentUser.uid).get()
         .then(doc => {
+            const hasClasses = "classes" in doc.data()
             if(doc){
             setSummaryEvidence(doc.data().evidence)
-            setClasses(doc.data().classes)
+            setClasses(hasClasses ? doc.data().classes : [])
             const badgeMap = doc.data().myBadgesMap
             if(badgeMap){
             const entries = Object.entries(badgeMap)
@@ -211,6 +237,7 @@ function Note() {
                                 value={studentClass}
                                 label="Class"
                                 onChange={onChange}
+                                defaultValue=""
                             >
                             {classes.length && classes.map(aClass => (
                                 <MenuItem key={aClass.value} value={aClass}>
@@ -257,7 +284,7 @@ function Note() {
                             minWidth: 300,
                             maxWidth: 500
                             }}>
-                            <Typography variant='h6' sx={{mb:0}}>Active Items</Typography>
+                            <Typography variant='h6' sx={{mb:0}}>Action Items</Typography>
                             <Divider sx={{mb:1}}/>
                             {classes && <ListCards notes={notes} handleEditOpen={handleEditOpen} canEdit={true} classes={classes} badges={badges} studentClass={studentClass} />}
                         </Box>
@@ -272,9 +299,9 @@ function Note() {
                             minWidth: 300,
                             maxWidth: 500
                             }}>
-                            <Typography variant='h6' sx={{mb:0}}>Paused Items</Typography>
+                            <Typography variant='h6' sx={{mb:0}}>Upcoming Assessments</Typography>
                             <Divider sx={{mb:1}}/>
-                            {classes &&<ListCards notes={pausedItems} handleEditOpen={handleEditOpen} canEdit={true} classes={classes} badges={badges} studentClass={studentClass}/>}
+                            {classes &&<ListCards notes={assessmentItems} handleEditOpen={handleEditOpen} canEdit={true} classes={classes} badges={badges} studentClass={studentClass}/>}
                         </Box>
 
                         <Divider sx={{mt:1}}/>
@@ -338,7 +365,7 @@ function Note() {
                             minWidth: 300,
                             maxWidth: 500
                             }}>
-                            <Typography variant='h6' sx={{mb:0}}>Current Goals</Typography>
+                            <Typography variant='h6' sx={{mb:0}}>Current Goals and Plans</Typography>
                             <Divider sx={{mb:1}}/>
                             <ListGoals notes={termGoals.concat(currentPlans)} handleEditOpen={handleEditOpen} canEdit={true} classes={classes} badges={badges} studentClass={studentClass} />
                         </Box>

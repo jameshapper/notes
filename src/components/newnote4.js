@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import firebase, { db } from '../firebase';
 import "react-quill/dist/quill.snow.css";
 import "./styles.css";
@@ -44,7 +44,7 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges, s
     }
 
     console.log('in newnote4 classes and badges are '+JSON.stringify(classes)+" "+JSON.stringify(badges))
-
+    console.log(studentClass)
 
     const { currentUser, avatar } = useContext(UserContext)
 
@@ -58,7 +58,7 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges, s
     if(buttonType === "Edit"){
         console.log(note)
         console.log(new Date().getTime())
-        const fields = ['title','status','plannedHrs','completedHrs','actionType','noteType','rt','targetDate','badges','evidence','studentClass']
+        const fields = ['title','status','plannedHrs','completedHrs','actionType','noteType','rt','targetDate','badges','evidence','studentClass','crits']
         fields.forEach(field => {
             if(note.hasOwnProperty(field)){
                 if(field === 'targetDate'){
@@ -114,7 +114,7 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges, s
           vertical: "top",
           horizontal: "left"
         },
-        getContentAnchorEl: null
+        //getContentAnchorEl: null
       };
     
     console.log('in newnote4 classes and badges are '+JSON.stringify(classes)+" "+JSON.stringify(badges))
@@ -155,9 +155,15 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges, s
 
     function onSubmit(data) {
         console.log(data)
-        return buttonType !== 'Edit'
+        if(data.studentClass === ""){
+            alert('Please selected a class before submitting!')
+            return
+        } else {
+            return buttonType !== 'Edit'
             ? newNote(data)
             : updateNote(note.id, data);
+        }
+
     }
 
     const updateNote = (noteId, data) => {
@@ -596,7 +602,7 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges, s
                                 theme="snow"
                                 value={value}
                                 onChange={onChange}
-                                placeholder={"Add links to archived work here..."}
+                                placeholder={"Add notes and links here..."}
                                 modules={modules}
                                 formats={formats}
                             />

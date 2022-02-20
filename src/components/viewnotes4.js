@@ -95,6 +95,10 @@ export default function ViewNotes({note, handleViewClose, viewOpen }) {
                 handleViewClose()
                 setCommentRt("")
             })
+            .then(() => {
+                let noteRef = db.collection('users').doc(studentId).collection('notes').doc(noteId)
+                noteRef.update({ commentNum: firebase.firestore.FieldValue.increment(1)})
+            })
             .catch((error) => {
                 handleViewClose()
                 console.error(error);
@@ -106,17 +110,17 @@ export default function ViewNotes({note, handleViewClose, viewOpen }) {
     return (
     <Dialog
         onClose={handleViewClose}
+        fullScreen
         aria-labelledby="customized-dialog-title"
         open={viewOpen}
-        fullWidth
-        classes={{ paperFullWidth: {maxWidth: '75%'} }}
+        classes={{ paperFullWidth: {maxWidth: '100%'} }}
     >
         <Paper   elevation={2}
             sx={{
-                padding: 1,
+                padding: 2,
                 backgroundColor: "#e0e0e0",
                 border: "1px solid black",
-                margin: "2px 2px 8px 2px"
+                margin: "8px 8px 8px 8px"
             }}>
             <Grid container >
                 <Grid item xs={1}>
@@ -153,7 +157,8 @@ export default function ViewNotes({note, handleViewClose, viewOpen }) {
                         width: 50,
                         flexShrink: 0,
                         flexGrow: 0,
-                        marginTop: 2
+                        marginTop: 2,
+                        m:1
                     }} src={comment.avatar} />
                     </Grid>
                     <Grid item xs={11}>
@@ -170,11 +175,11 @@ export default function ViewNotes({note, handleViewClose, viewOpen }) {
               ))}
           </div>
         }
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={12} sm={6} m={1}>
             <Editor initText={commentRt} setRt={rt => setCommentRt(rt)} setBody={body => setCommentBody(body)}/>
         </Grid>
 
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={12} sm={6} m={1}>
             <Button variant="contained" onClick={handleSubmitComment}>Add Comment</Button>
         </Grid>
 

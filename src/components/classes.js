@@ -1,7 +1,5 @@
-import React, { useState, useEffect, useContext } from 'react';
-import firebase, { db, auth } from '../firebase';
-import { UserContext } from '../userContext';
-import ViewNotes from './viewnotes'
+import React, { useState, useEffect } from 'react';
+import { db, auth } from '../firebase';
 import { Link } from "react-router-dom";
 import ListTable from './listtable2'
 
@@ -36,8 +34,6 @@ function TeacherClasses(props) {
     const [ user ] = useState(auth.currentUser)
 
     const [ title, setTitle ] = useState('')
-    const [ noteId, setNoteId ] = useState('')
-    const [ studentId, setStudentId ] = useState('')
 
     const [ students10, setStudents10 ] = useState([])
     const [ students20, setStudents20 ] = useState([])
@@ -45,14 +41,9 @@ function TeacherClasses(props) {
 
     const [ currentClass, setCurrentClass ] = useState([])
     const [ classId, setClassId ] = useState("")
-    const [ created, setCreated ] = useState("")
-    const [ author, setAuthor ] = useState("")
-    const [ noteAvatar, setNoteAvatar ] = useState("")
     const [ classForSelect, setClassForSelect ] = useState([])
 
-    const [ errors, setErrors ] = useState([])
     const [ open, setOpen ] = useState(false)
-    const [ viewOpen, setViewOpen ] = useState(false)
     const [ uiLoading, setUiLoading ] = useState(true)
 
     const [ teacherClasses, setTeacherClasses ] = useState([]);
@@ -63,12 +54,6 @@ function TeacherClasses(props) {
     const [ selectedDate, setSelectedDate ] = useState(new Date(Date.now() - 604800000))
 
     const [ selected, setSelected ] = useState([])
-    const [ rt, setRt ] = useState("")
-    const [ commentBody, setCommentBody ] = useState("")
-    const [ commentRt, setCommentRt ] = useState("")
-    const [ comments, setComments ] = useState([])
-
-    const { avatar } = useContext(UserContext)
 
     //get class data (if stored in teacherClasses collection?)
     useEffect(() => {
@@ -140,13 +125,21 @@ function TeacherClasses(props) {
                 db.collection('users').where('uid','in',students10).get()
                 .then(docs => {
                     docs.forEach(doc => {
-                        targetAssessment = doc.data().nextTarget.find(thisClass => {                        
-                            return thisClass.classId === classId
-                        })
-                        termGoal = doc.data().termGoals.find(thisClass => {
-                            return thisClass.classId === classId
-                        })
-                        classObject = {...targetAssessment, ...termGoal, uid: doc.data().uid, firstName: doc.data().firstName, avatar: doc.data().avatar}
+                        if("nextTarget" in doc.data()){
+                            targetAssessment = doc.data().nextTarget.find(thisClass => {                        
+                                return thisClass.classId === classId
+                            })
+                        }
+                        if("termGoals" in doc.data()){
+                            termGoal = doc.data().termGoals.find(thisClass => {
+                                return thisClass.classId === classId
+                            })
+                        }
+                        let nextCrits = 0
+                        if(targetAssessment && "crits" in targetAssessment){
+                            nextCrits = targetAssessment.crits
+                        }
+                        classObject = {...targetAssessment, ...termGoal, nextCrits: nextCrits, uid: doc.data().uid, firstName: doc.data().firstName, avatar: doc.data().avatar}
                         sumEvidence = evidenceSum(doc.data().evidence, classObject.startDate)
                         classObject = {...classObject, sumEvidence: sumEvidence}
                         notes10.push(classObject)
@@ -159,12 +152,16 @@ function TeacherClasses(props) {
                 db.collection('users').where('uid','in',students20).get()
                 .then(docs => {
                     docs.forEach(doc => {
-                        targetAssessment = doc.data().nextTarget.find(thisClass => {                        
-                            return thisClass.classId === classId
-                        })
-                        termGoal = doc.data().termGoals.find(thisClass => {
-                            return thisClass.classId === classId
-                        })
+                        if("nextTarget" in doc.data()){
+                            targetAssessment = doc.data().nextTarget.find(thisClass => {                        
+                                return thisClass.classId === classId
+                            })
+                        }
+                        if("termGoals" in doc.data()){
+                            termGoal = doc.data().termGoals.find(thisClass => {
+                                return thisClass.classId === classId
+                            })
+                        }
                         classObject = {...targetAssessment, ...termGoal, uid: doc.data().uid, firstName: doc.data().firstName, avatar: doc.data().avatar}
                         sumEvidence = evidenceSum(doc.data().evidence, classObject.startDate)
                         classObject = {...classObject, sumEvidence: sumEvidence}
@@ -178,12 +175,16 @@ function TeacherClasses(props) {
                 db.collection('users').where('uid','in',students30).get()
                 .then(docs => {
                     docs.forEach(doc => {
-                        targetAssessment = doc.data().nextTarget.find(thisClass => {                        
-                            return thisClass.classId === classId
-                        })
-                        termGoal = doc.data().termGoals.find(thisClass => {
-                            return thisClass.classId === classId
-                        })
+                        if("nextTarget" in doc.data()){
+                            targetAssessment = doc.data().nextTarget.find(thisClass => {                        
+                                return thisClass.classId === classId
+                            })
+                        }
+                        if("termGoals" in doc.data()){
+                            termGoal = doc.data().termGoals.find(thisClass => {
+                                return thisClass.classId === classId
+                            })
+                        }
                         classObject = {...targetAssessment, ...termGoal, uid: doc.data().uid, firstName: doc.data().firstName, avatar: doc.data().avatar}
                         sumEvidence = evidenceSum(doc.data().evidence, classObject.startDate)
                         classObject = {...classObject, sumEvidence: sumEvidence}
@@ -243,75 +244,6 @@ function TeacherClasses(props) {
 
     };
 
-    const handleSubmitComment = (event) => {
-        event.preventDefault();
-
-        if (commentBody) {
-            const newComment = {
-                body: commentBody,
-                createdAt: new Date().toISOString(),
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                uid: user.uid,
-                author: user.displayName,
-                avatar: avatar,
-                rt: commentRt,
-                studentId: studentId,
-                noteId: noteId
-            }
-            db.collection('users').doc(studentId).collection('notes').doc(noteId).collection('comments').add(newComment)
-            .then((doc)=>{
-                console.log("New comment added to db")
-                setViewOpen(false);
-            })
-            .then(() => {
-                let noteRef = db.collection('users').doc(studentId).collection('notes').doc(noteId)
-                noteRef.update({ commentNum: firebase.firestore.FieldValue.increment(1)})
-            })
-            .catch((error) => {
-                setErrors(error)
-                setOpen(true)
-                console.error(error);
-                console.log('errors in handleSubmitComment of classes '+errors)
-                alert('Something went wrong' );
-            });
-        } else {
-            alert("No empty comments")
-        }
-
-    };
-
-    const handleViewOpen = (note) => {
-        setTitle(note.title)
-        setNoteId(note.id)
-        setStudentId(note.uid)
-        setCreated(note.createdAt)
-        setAuthor(note.author)
-        setRt(note.rt)
-        setNoteAvatar(note.avatar)
-        setViewOpen(true)
-	}
-
-    useEffect(() => {
-        
-        if(noteId){
-            return db.collectionGroup("comments")
-            .where("noteId","==",noteId)
-            .get()
-            .then((querySnapshot) => {
-                const commentsData = [];
-                querySnapshot.forEach((doc) => {
-                    commentsData.push({ ...doc.data(), id: doc.id })
-                    console.log("comment doc id is "+doc.id)
-                })
-                setComments(commentsData)
-            })
-            .catch((error) => {
-                alert('something wrong while looking for comments')
-                console.log(error)
-            })
-        }
-    }, [noteId]);
-
     useEffect(() => {
         const toLabelValue = currentClass.map((student) => {
             return {
@@ -321,8 +253,6 @@ function TeacherClasses(props) {
         })
         setClassForSelect(toLabelValue)
     },[currentClass])
-
-    const handleViewClose = () => setViewOpen(false);
 
     const handleClose = (event) => setOpen(false);
 
@@ -475,11 +405,9 @@ function TeacherClasses(props) {
                 </Grid>
 
                 { notes && notes.length > 0 && 
-                <ListTable notes={notes} rowType={noteType} handleViewOpen={handleViewOpen}/>
+                <ListTable notes={notes} rowType={noteType}/>
                 }
   
-                <ViewNotes handleViewClose={handleViewClose} viewOpen={viewOpen} title={title} author={author} created={created} avatar={noteAvatar} comments={comments} rt={rt} handleSubmitComment={handleSubmitComment} setCommentBody={setCommentBody} setCommentRt={setCommentRt} commentRt={commentRt}/>
-
             </main>
         );
     }

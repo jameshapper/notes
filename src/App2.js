@@ -21,6 +21,10 @@ import BadgeForm from './components/badgeform2'
 import MyBadges from './components/mybadges'
 import MyBadgeDetails from './components/mybadgedetails';
 import FeedbackView from './components/feedbackview';
+import Modules from './components/modules';
+import ModuleForm from './components/moduleform2';
+import ModuleDetails from './components/moduledetails';
+//import MyClassActivitiesDetails from './components/myclassactivitiesdetails';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 
@@ -98,6 +102,11 @@ function App() {
 							<Route exact path="/badgeForm/:badgeId"><Layout><BadgeForm /></Layout></Route>
 							<Route exact path="/myBadges"><MyBadgesRedirect /></Route>
 							<Route exact path="/myBadges/:myBadgeId"><Layout><MyBadgeDetails /></Layout></Route>
+							<Route exact path="/modules"><Layout><Modules /></Layout></Route>
+							<Route exact path="/modules/:moduleId"><Layout><ModuleDetails /></Layout></Route>
+							<Route exact path="/moduleForm"><Layout><ModuleForm /></Layout></Route>
+							<Route exact path="/moduleForm/:moduleId"><Layout><ModuleForm /></Layout></Route>
+							
 							<Route exact path="/students/:studentId/myBadges/:myBadgeId"><Layout><MyBadgeDetails /></Layout></Route>
 							<Route exact path="/students/:studentId/myBadges"><Layout><MyBadges /></Layout></Route>
 							<Route exact path="/students/:studentId/myBadges/:myBadgeId/feedback/:feedbackId"><Layout><FeedbackView /></Layout></Route>

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 /** @jsxImportSource @emotion/react */
 
+import ViewNotes from './viewnotes4'
+
 import PropTypes from 'prop-types';
 import Box from '@material-ui/core/Box';
 import Table from '@material-ui/core/Table';
@@ -19,7 +21,7 @@ import Switch from '@material-ui/core/Switch';
 
 import Avatar from '@material-ui/core/Avatar'
 
-export default function ListTable({notes, rowType, handleViewOpen}) {
+export default function ListTable({notes, rowType}) {
 
     const rows = notes
     let headCells
@@ -307,6 +309,8 @@ export function EnhancedTable(props) {
   const [page, setPage] = useState(0);
   const [dense, setDense] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(25);
+  const [note, setNote] = useState({})
+  const [viewOpen, setViewOpen] = useState(false)
 
   const rows = props.rows
   const headCells = props.headCells
@@ -319,9 +323,15 @@ export function EnhancedTable(props) {
     setOrderBy(property);
   };
 
-  const handleClick = (event, name) => {
+  const handleClick = (event, note) => {
     console.log("Clicked a row!")
+    setNote(note)
+    setViewOpen(true)
   };
+
+  const handleViewClose = () => {
+    setViewOpen(false)
+  }
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -414,7 +424,12 @@ export function EnhancedTable(props) {
         control={<Switch checked={dense} onChange={handleChangeDense} />}
         label="Dense padding"
       />
+      
+      <ViewNotes note={note} handleViewClose={handleViewClose} viewOpen={viewOpen}/>
+
     </Box>
+
+    
   );
 }
 
@@ -447,7 +462,7 @@ function ActionItemRow(props) {
         <TableCell align="left">{row.actionType}</TableCell>
         <TableCell align="left">{row.plannedHrs}</TableCell>
         <TableCell align="left">{row.completedHrs}</TableCell>
-        <TableCell align='left'>{row.targetDate.toDate().toString().slice(0,15)}</TableCell>
+        <TableCell align='left'>{(new Date(row.ts_msec).toString()).slice(0,15)}</TableCell>
       </TableRow>
     )
 }
@@ -476,8 +491,8 @@ function TermGoalsRow(props) {
           {row.author}
         </TableCell>
         <TableCell align="left">{row.noteType}</TableCell>
-        <TableCell align="left">{row.critsTarget}</TableCell>
-        <TableCell align="left">{row.targetDate.toDate().toString().slice(0,15)}</TableCell>
+        <TableCell align="left">{row.crits}</TableCell>
+        <TableCell align="left">{(new Date(row.ts_msec).toString()).slice(0,15)}</TableCell>
         <TableCell align="left">{row.evidence}</TableCell>
       </TableRow>
     )
@@ -542,7 +557,7 @@ function ProgressRow(props) {
         <TableCell align="left">{row.sumEvidence}</TableCell>
         <TableCell align="left"></TableCell>
         <TableCell align="left">{(new Date(row.plannedDate).toString()).slice(0,15)}</TableCell>
-        <TableCell align="left">{row.crits}</TableCell>
+        <TableCell align="left">{row.nextCrits}</TableCell>
       </TableRow>
     )
 }

@@ -104,6 +104,7 @@ export default function MyBadgeDetails() {
     return (
         <>
             <Toolbar />
+            {console.log(badgeDetails)}
 
             <Box sx={{m:2, display: 'flex', justifyContent: 'space-between'}}>
             <Typography variant="h4">

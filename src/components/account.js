@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { db, storage } from '../firebase';
 import { useHistory } from 'react-router';
 
@@ -20,12 +20,26 @@ function Account(props) {
     const { currentUser, avatar, loading } = useContext(UserContext)
 
 	const [ fileUpload, setFileUpload ] = useState(null)
+	const [preview, setPreview] = useState()
 
 	const history = useHistory()
   
     const onFileChange = async (e) => {
 	  setFileUpload(e.target.files[0])
     };
+
+	useEffect(() => {
+		if (!fileUpload) {
+            setPreview(undefined)
+            return
+        }
+		// create the preview
+		const objectUrl = URL.createObjectURL(fileUpload)
+		setPreview(objectUrl)
+	 
+		// free memory when ever this component is unmounted
+		return () => URL.revokeObjectURL(objectUrl)
+	 }, [fileUpload])
 
 	const Filevalidation = (file) => {
         // Check if any file is selected.
@@ -97,6 +111,20 @@ function Account(props) {
 							{currentUser && currentUser.displayName ? currentUser.displayName : "Welcome!"}
 						</p>
 					</Grid>
+					{preview && 
+					<Grid item xs={12}>
+						<Avatar alt="User Avatar" src={preview} sx={{
+								height: 330,
+								width: 300,
+								flexShrink: 0,
+								flexGrow: 0,
+								marginTop: 2
+							}} />
+						<p>Preview New Image</p>
+						</Grid>
+					}
+
+
 					<Grid item xs={12}>
 
 						<ButtonGroup orientation='vertical'>
