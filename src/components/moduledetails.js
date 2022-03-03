@@ -14,7 +14,7 @@ import { Dialog, Typography, Button, ButtonGroup, Table, TableContainer, TableHe
 export default function ModuleDetails() {
 
     const { moduleId } = useParams()
-    const { currentUser, isAdmin } = useContext(UserContext)
+    const { currentUser, isAdmin, avatar } = useContext(UserContext)
     const [ moduleDetails, setModuleDetails ] = useState({})
     const [ updateModule, setUpdateModule ] = useState(false)
     const [ refresh, setRefresh ] = useState(false)
@@ -56,27 +56,46 @@ export default function ModuleDetails() {
     }, [moduleId]);
 
     useEffect(() => {
-        if(updateModule){ return db.collection('users').doc(currentUser.uid)
-            .collection('myModules').add({...moduleDetails,uid: currentUser.uid, progress:0})
-            .then((doc)=>{
-                console.log('New module aspiration added')
-                const newModule = {
-                    modulename:moduleDetails.modulename,
-                    myModuleId:doc.id,
-                    crits:moduleDetails.totalcrits,
-                    critsAwarded: 0,
-                    progress: 0,
-                    evidence: []
-                  }
-                db.collection('users').doc(currentUser.uid).update({
-                    [`myModulesMap.${moduleId}`]:newModule
-                })
+        if(updateModule){ 
+            var batch = db.batch()
+            moduleDetails.activities.forEach((activity,index) => {
+                const targetDate = new Date()
+                const ts_msec = targetDate.getTime() + (24*60*60*1000)*(index+1)*7
+                var tempRef = db.collection("users").doc(currentUser.uid).collection("notes").doc()
+                const activityNote = {
+                    actionType: "",
+                    author: currentUser.displayName,
+                    avatar: avatar,
+                    badges: [],
+                    body: activity.activity,
+                    completedHrs: 0,
+                    createdAt: new Date().toISOString(),
+                    evidence: [],
+                    noteType: "ActionItem",
+                    plannedHrs: activity.hrs_estimate,
+                    rt: "",
+                    status: "Active",
+                    ts_msec: ts_msec,
+                    targetDate: targetDate,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    uid: currentUser.uid,
+                    title: activity.label,
+                    studentClass: {
+                        label: "DT10",
+                        value: "e0feYC1T9Y4OvMKC3Rl3"
+                    }
+                }
+                batch.set(tempRef, activityNote)
+            });
+            return batch.commit()
+            .then(()=>{
+                console.log('New module activities added as notes')
                 setUpdateModule(false)
                 setAddModuleDialog(false)
-                history.push('/myModules')
+                history.push('/')
             })
         }
-    },[updateModule, currentUser.uid, moduleDetails, moduleId, history])
+    },[updateModule, currentUser.uid, moduleDetails, moduleId, history, currentUser.displayName, avatar])
 
     const handleViewClose = () => setAddModuleDialog(false);
 
@@ -84,23 +103,10 @@ export default function ModuleDetails() {
     const handleAddModule = (e) => {
         e.preventDefault()
         if(moduleDetails.status && moduleDetails.status === "Published"){
-            let document = db.collection('users').doc(currentUser.uid)
-            document.collection('myModules').where("uid","==",currentUser.uid)
-            .where("modulename","==",moduleDetails.modulename).get()
-            .then((snapshot) => {
-                console.log('number of docs in snapshot is '+snapshot.size)
-                if(snapshot.size === 0){
-                    setUpdateModule(true)
-                } else {
-                    setUpdateModule(false)
-                    setAddModuleDialog(false)
-                    alert('Maybe you already have this module?')
-                }
-            })
+            setUpdateModule(true)
         }else{
             alert('This module is still under development! Check with your teacher about when it might be published.')
         }
-
     }
 
     const [ fileUpload, setFileUpload ] = useState(null)
@@ -238,7 +244,7 @@ export default function ModuleDetails() {
                     <Table sx={{ minWidth: 650 }} aria-label="simple table">
                         <TableHead>
                         <TableRow>
-                            <TableCell align="right" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Activity</TableCell>
+                            <TableCell align="left" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Activity</TableCell>
                             <TableCell align="right" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Level</TableCell>
                             <TableCell align="left" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Description</TableCell>
                             <TableCell align="right" sx={{fontWeight:'bold',backgroundColor:(theme)=>theme.palette.secondary.main, color: (theme)=>theme.palette.getContrastText(theme.palette.secondary.main)}}>Hours</TableCell>
@@ -247,6 +253,8 @@ export default function ModuleDetails() {
                         <TableBody>
                         {moduleDetails.activities.map((row) => (
                             <TableRow
+                            hover
+                            onClick={()=> window.open(row.link, "_blank")}
                             key={row.label}
                             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                             >
@@ -254,7 +262,7 @@ export default function ModuleDetails() {
                                 {row.label}
                             </TableCell>
                             <TableCell align="right">{row.level}</TableCell>
-                            <TableCell align="left">{row.description}</TableCell>
+                            <TableCell align="left">{row.activity}</TableCell>
                             <TableCell align="right" sx={{fontWeight:'bold'}}>{row.hrs_estimate}</TableCell>
                             </TableRow>
                         ))}

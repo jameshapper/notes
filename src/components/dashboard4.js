@@ -6,6 +6,7 @@ import ListCards from './listcards4'
 import ListGoals from './listgoals4'
 import MyBadges from './mybadges'
 import NewNote from './newnote4'
+import ListNotes from './listnotes'
 
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -383,6 +384,9 @@ function Note() {
                         </Box>
                     </Box>
 
+                </Box>
+                <Box>
+                    <ListNotes classes={classes} badges={badges} studentClass={studentClass} />
                 </Box>
 
             </main>

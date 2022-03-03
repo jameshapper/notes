@@ -260,8 +260,8 @@ export default function ModuleForm() {
                 <Box sx={{m:2}}>
                 <Grid container spacing={2} >
                 {fields.map((item, index) => {
-                    console.log('item crits is '+item.crits)
-                    console.log(`activities.${index}.crits`)
+                    console.log('item hrs is '+item.hrs_estimate)
+                    console.log(`activities.${index}.hrs_estimate`)
                 return (
                     <Box key={item.id} sx={{display:'flex'}} >
                     <Grid item md={2} sx={{p:0.5}}>
@@ -293,11 +293,11 @@ export default function ModuleForm() {
                         render={({ field }) => 
                             <TextField {...field} 
                                 variant="filled"
-                                label="Crits"
+                                label="Hrs"
                             />}
-                        name={`activities.${index}.crits`}
+                        name={`activities.${index}.hrs_estimate`}
                         control={control}
-                        defaultValue={item.crits} // make sure to set up defaultValue
+                        defaultValue={item.hrs_estimate} // make sure to set up defaultValue
                     />
                     </Grid>
                     <Grid item md={7} sx={{p:0.5}}>
@@ -311,6 +311,19 @@ export default function ModuleForm() {
                         name={`activities.${index}.activity`}
                         control={control}
                         defaultValue={item.activity} // make sure to set up defaultValue
+                    />
+                    </Grid>
+                    <Grid item md={7} sx={{p:0.5}}>
+                    <Controller
+                        render={({ field }) => 
+                            <TextField {...field} 
+                                variant="filled"
+                                label="Link/Url"
+                                fullWidth
+                            />}
+                        name={`activities.${index}.link`}
+                        control={control}
+                        defaultValue={item.link} // make sure to set up defaultValue
                     />
                     </Grid>
                     <Grid item md={1}>

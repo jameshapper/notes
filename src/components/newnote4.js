@@ -54,6 +54,7 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges, s
 
     let previousTermGoals
     let previousAssessment
+    let previousActionItem
 
     if(buttonType === "Edit"){
         console.log(note)
@@ -91,6 +92,15 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges, s
                 plannedDate: note.ts_msec,
                 crits: note.crits
             }
+        } else if(note.noteType === "ActionItem"){
+            previousActionItem = {
+                classId: note.studentClass.value,
+                className: note.studentClass.label,
+                noteId: note.id,
+                ts_msec: note.ts_msec,
+                title: note.title,
+                body: note.body
+            }  
         }
 
     } else {
@@ -219,8 +229,22 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges, s
                     db.collection("users").doc(currentUser.uid)
                     .update({nextTarget: firebase.firestore.FieldValue.arrayUnion(nextAssessment)})
                 })              
+            } else if(note.noteType === "ActionItem"){
+                const nextActionItem = {
+                    classId: data.studentClass.value,
+                    className: data.studentClass.label,
+                    noteId: note.id,
+                    ts_msec: ts_msec,
+                    title: data.title,
+                    body: data.rt.replace(/<[^>]+>/g, '')
+                }  
+                db.collection("users").doc(currentUser.uid).collection('userLists').doc("notesList")
+                .update({notes: firebase.firestore.FieldValue.arrayRemove(previousActionItem)})
+                .then(() => {
+                    db.collection("users").doc(currentUser.uid).collection('userLists').doc("notesList")
+                    .update({notes: firebase.firestore.FieldValue.arrayUnion(nextActionItem)})
+                })    
             }
-
         })
         .then(()=>{
             console.log("Note edited")
