@@ -51,7 +51,7 @@ export default function ListGoals({notes, canEdit, classes, badges, studentClass
         <div>
             <Grid container spacing={{ xs: 2, md: 2, lg:2 }}>
                 {notes.map((note) => (
-                    <Grid item xs={12} md={12} lg={12} key = {note.id}>
+                    <Grid item xs={12} md={6} lg={6} key = {note.id}>
                         <Box
                             sx={{
                                 display: 'flex',
@@ -63,7 +63,7 @@ export default function ListGoals({notes, canEdit, classes, badges, studentClass
                                 boxShadow: 1,
                                 fontWeight: 'bold',
                                 justifyContent: 'space-between',
-                                maxWidth:300,
+                                maxWidth:350,
                                 minWidth:250,
                                 minHeight:125
                             }}
@@ -118,13 +118,13 @@ export default function ListGoals({notes, canEdit, classes, badges, studentClass
                                     alignItems: 'left',
                                     m: 1,
                                     minWidth: { md: 150, lg: 150 },
-                                    width:150
+                                    width:200
                                     }}
                                 >
                                     <Box component="span" sx={{ fontSize: 10, mt:0 }}>
                                         {note.title}
                                     </Box>
-                                    <Box color="text.secondary" component="span" sx={{ fontSize: 10, mt:0 }}>
+                                    <Box color="text.secondary" component="span" sx={{ fontSize: 10, m:1 }}>
                                         {dayjs(note.createdAt).fromNow()+" by "+note.author}
                                     </Box>
                                     <Box color="text.secondary" component="span" sx={{ ml:1, fontSize: 10 }}>

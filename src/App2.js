@@ -8,7 +8,7 @@ import UserProvider, { UserContext } from './userContext'
 import Logout from './pages/logout'
 import MyBadgesRedirect from './pages/mybadgesredirect';
 import Layout from './components/layout'
-import Note from './components/dashboard4'
+import Note from './components/dashboard5'
 import Account from './components/account'
 import Badges from './components/badges'
 import TeacherClasses from './components/classes';

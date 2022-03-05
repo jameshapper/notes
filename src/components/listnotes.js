@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import firebase, { db } from '../firebase';
+import { db } from '../firebase';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import NewNote from './newnote4';
 import ViewNotes from './viewnotes4';
@@ -22,6 +22,7 @@ import Switch from '@material-ui/core/Switch';
 import { List, ListItem, ListItemIcon } from '@material-ui/core';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import EditIcon from '@material-ui/icons/Edit'
+//import { DatePicker } from 'material-ui';
 
 function ListNotes({classes, badges, studentClass} ) {
 
@@ -29,13 +30,62 @@ function ListNotes({classes, badges, studentClass} ) {
 
     const [ uiLoading ] = useState(loading)
     const [ rows, setRows ] = useState([])
+    const [ msec, setMsec ] = useState([])
+    const [ msecCheck, setMsecCheck ] = useState(false)
+    const [ nextDate, setNextDate ] = useState(0)
+    const [ prevDate, setPrevDate ] = useState(0)
 
     useEffect(() => {   
-        return db.collection("users").doc(currentUser.uid).collection("userLists").doc("notesList")
-        .onSnapshot((doc) => {
-            setRows(doc.data().notes)
+      var unsubscribe = db.collection("users").doc(currentUser.uid).collection("userLists").doc("notesList")
+      .onSnapshot((doc) => {
+        const msecList = []
+        doc.data().notes.forEach(note => {
+          msecList.push(note.ts_msec)
         })
+        setMsec(msecList)
+        setRows(doc.data().notes)
+        setMsecCheck(true)
+      })
+      return () => unsubscribe()
     }, [currentUser.uid]);
+
+    useEffect(() => {
+      if(msecCheck){
+        const nowMsec = new Date().getTime()
+        console.log('nowMsec is '+nowMsec)
+        let msecDif = []
+        msec.map(element => {
+          return msecDif.push(element - nowMsec)
+        })
+        console.log('msec is '+msec)
+        console.log(msecDif)
+        msecDif.sort(function(a, b){return a-b})
+        const laterTimes = msecDif.filter(num => num > 0)
+        const earlierTimes = msecDif.filter(num => num <= 0)
+        console.log('laterTimes is '+laterTimes)
+        console.log('earlierTimes is '+earlierTimes)
+        const prevMsec = () => {
+          if(laterTimes.length){
+            console.log(Math.min(...laterTimes))
+            console.log(Math.min(...laterTimes) + nowMsec)
+            return Math.min(...laterTimes) + nowMsec
+          } else {
+            return 0
+          }
+        }
+        const nextMsec = () => {
+          if(earlierTimes.length){
+            return Math.min(...earlierTimes) + nowMsec
+          } else {
+            return 0
+          }
+        }
+        console.log('prevMsec is '+prevMsec())
+        console.log('nextMsec is '+nextMsec())
+        setNextDate(nextMsec())
+        setPrevDate(prevMsec())
+      }
+    },[msec, msecCheck])
 
     //Was getting a warning on the Select that was answered here https://stackoverflow.com/questions/55429442/material-ui-select-component-a-component-is-changing-a-controlled-input-of-type
 
@@ -57,7 +107,7 @@ function ListNotes({classes, badges, studentClass} ) {
         return (
             <>    
                 <Box sx={{flexGrow:1, p:3}} >
-                    <EnhancedTable rows={rows} headCells={headCells} userId={currentUser.uid} classes={classes} badges={badges} studentClass={studentClass}  />
+                    <EnhancedTable rows={rows} headCells={headCells} userId={currentUser.uid} classes={classes} badges={badges} studentClass={studentClass} nextDate={nextDate} prevDate={prevDate} />
                 </Box>
             </>
         )
@@ -171,7 +221,7 @@ const EnhancedTableToolbar = (props) => {
 
 export function EnhancedTable(props) {
   const [order, setOrder] = useState('asc');
-  const [orderBy, setOrderBy] = useState('date');
+  const [orderBy, setOrderBy] = useState('ts_msec');
   const [page, setPage] = useState(0);
   const [dense, setDense] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(25);
@@ -185,6 +235,8 @@ export function EnhancedTable(props) {
   const classes = props.classes
   const studentClass = props.studentClass
   const badges = props.badges
+  const nextDate = props.nextDate
+  const prevDate = props.prevDate
 
   const handleViewOpen = (note) => {
     console.log("Clicked a row!")
@@ -236,10 +288,16 @@ export function EnhancedTable(props) {
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <Paper sx={{ width: '100%', mb: 2 }}>
+    <Box sx={{ flexGrow:1, m:0, p:0 }}>
+      <Paper sx={{ width: 'auto',borderRadius:2 }}>
         <EnhancedTableToolbar />
-        <TableContainer>
+        <TableContainer
+          sx={{
+            width:1,
+            p:1,
+            m:0
+          }}
+        >
           <Table
             sx={{ minWidth: 750 }}
             aria-labelledby="tableTitle"
@@ -261,7 +319,7 @@ export function EnhancedTable(props) {
                   const labelId = `enhanced-table-checkbox-${index}`;
 
                 return (
-                    <ActionItemRow key={`ActionItemRow-${index}`} labelId={labelId} row={row} handleViewOpen={handleViewOpen} handleEditOpen={handleEditOpen} />
+                    <ActionItemRow key={`ActionItemRow-${index}`} labelId={labelId} row={row} handleViewOpen={handleViewOpen} handleEditOpen={handleEditOpen} nextDate={nextDate} prevDate={prevDate} />
                 );
                 })}
               {emptyRows > 0 && (
@@ -306,23 +364,34 @@ function ActionItemRow(props) {
     const labelId = props.labelId
     const handleViewOpen = props.handleViewOpen
     const handleEditOpen = props.handleEditOpen
+    const nextDate = props.nextDate === row.ts_msec
+    const prevDate = props.prevDate === row.ts_msec
+    const statusFont = {
+      isNext: 'pink',
+      isPrev: 'yellow',
+      default: ''
+    }
+    const status = nextDate ? "isNext" : prevDate ? "isPrev" : "default"
+    console.log('font is '+statusFont[status])
 
     return (
         <TableRow
         tabIndex={-1}
         key={row.noteId}
+        sx={{ backgroundColor: statusFont[status] ?? "" }}
         >
         <TableCell
           component="th"
           id={labelId}
           scope="row"
           padding="none"
+          sx={{width:300}}
         >
           {row.title}
         </TableCell>
-        <TableCell align='left'>{(new Date(row.ts_msec).toString()).slice(0,15)}</TableCell>
-        <TableCell align="left">{row.body}</TableCell>
-        <TableCell align="left">
+        <TableCell sx={{width:200}} align='left'>{(new Date(row.ts_msec).toString()).slice(0,15)}</TableCell>
+        <TableCell sx={{width:700}} align="left">{row.body}</TableCell>
+        <TableCell sx={{width:200}} align="left">
           <Box sx={{ ml:1, width: 15 }}>
               <List sx={{display:'flex', flexDirection: 'row'}}>
                   <ListItem 

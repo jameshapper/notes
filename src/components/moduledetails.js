@@ -8,7 +8,7 @@ import Toolbar from '@material-ui/core/Toolbar'
 import IconButton from '@material-ui/core/IconButton';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { Dialog, Typography, Button, ButtonGroup, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Paper, Card, CardMedia, DialogContent } from '@material-ui/core'
+import { Dialog, Typography, Button, ButtonGroup, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Paper, Card, CardMedia, DialogContent, Grid, InputLabel, Select, MenuItem, ListItemText } from '@material-ui/core'
 
 
 export default function ModuleDetails() {
@@ -21,10 +21,23 @@ export default function ModuleDetails() {
     const [ previousModuleSummary, setPreviousModuleSummary ] = useState()
     const [ uiLoading, setUiLoading ] = useState(true)
     const [ moduleAddDialog, setAddModuleDialog ] = useState(false)
+    const [ classes, setClasses ] = useState([])
+    const [ selectedClass, setSelectedClass ] = useState("")
 
     const history = useHistory()
 
-
+    useEffect(() => {
+        if(!isAdmin && currentUser){
+        db.collection('users').doc(currentUser.uid).get()
+        .then(doc => {
+            const hasClasses = "classes" in doc.data()
+            if(doc){
+            setClasses(hasClasses ? doc.data().classes : [])
+            //console.log("summary evidence max crits for first item is "+doc.data().evidence[0].sumCritsMax)
+            setUiLoading(false)
+        }
+        })}
+    }, [currentUser,isAdmin])
     
     useEffect(() => {
         setUiLoading(true)
@@ -57,11 +70,11 @@ export default function ModuleDetails() {
 
     useEffect(() => {
         if(updateModule){ 
-            var batch = db.batch()
+            //var batch = db.batch()
             moduleDetails.activities.forEach((activity,index) => {
                 const targetDate = new Date()
                 const ts_msec = targetDate.getTime() + (24*60*60*1000)*(index+1)*7
-                var tempRef = db.collection("users").doc(currentUser.uid).collection("notes").doc()
+                //var tempRef = db.collection("users").doc(currentUser.uid).collection("notes").doc()
                 const activityNote = {
                     actionType: "",
                     author: currentUser.displayName,
@@ -81,24 +94,45 @@ export default function ModuleDetails() {
                     uid: currentUser.uid,
                     title: activity.label,
                     studentClass: {
-                        label: "DT10",
-                        value: "e0feYC1T9Y4OvMKC3Rl3"
+                        label: selectedClass.label,
+                        value: selectedClass.value
                     }
                 }
-                batch.set(tempRef, activityNote)
+                db.collection("users").doc(currentUser.uid).collection("notes").add(activityNote)
+                .then(doc => {
+                    const summaryNote = {
+                        classId: selectedClass.value,
+                        className: selectedClass.label,
+                        noteId: doc.id,
+                        ts_msec: ts_msec,
+                        title: activity.label,
+                        body: activity.activity
+                    }  
+                    db.collection("users").doc(currentUser.uid).collection('userLists').doc("notesList")
+                    .update({notes: firebase.firestore.FieldValue.arrayUnion(summaryNote)})
+                })
+                //batch.set(tempRef, activityNote)
             });
-            return batch.commit()
-            .then(()=>{
+            //return batch.commit()
+/*             .then(()=>{
                 console.log('New module activities added as notes')
                 setUpdateModule(false)
                 setAddModuleDialog(false)
                 history.push('/')
-            })
+            }) */
+            console.log('New module activities added as notes')
+            setUpdateModule(false)
+            setAddModuleDialog(false)
+            history.push('/')
         }
-    },[updateModule, currentUser.uid, moduleDetails, moduleId, history, currentUser.displayName, avatar])
+    },[updateModule, currentUser.uid, moduleDetails, moduleId, history, currentUser.displayName, avatar, selectedClass.label, selectedClass.value])
 
     const handleViewClose = () => setAddModuleDialog(false);
 
+    const onChange = (e) => {
+        setSelectedClass(e.target.value)
+        console.log('student class is '+JSON.stringify(e.target.value))
+    }
 
     const handleAddModule = (e) => {
         e.preventDefault()
@@ -201,8 +235,33 @@ export default function ModuleDetails() {
                     margin: "2px 2px 8px 2px"
                 }}>
                     <DialogContent>
-                        Do you want to add this as a "Module Aspiration"? Once it is added, only the teacher will be able to remove it! But if you are ready to go for it, click "Add" and enjoy the challenge!
-                    </DialogContent>
+                        Do you want to add this as a "Module Aspiration"? </DialogContent>
+                    <Box sx={{
+                        width: '88%',
+                        marginLeft: 2,
+                        marginTop: 3,
+                        marginBottom: 3
+                    }} noValidate>
+                        <Grid container spacing={2}>
+                            <Grid item xs={4} key="studentClass">
+                            <InputLabel id="studentClass">Class</InputLabel>
+                                <Select
+                                    labelId="studentClass"
+                                    id="studentClass"
+                                    value={selectedClass}
+                                    defaultValue={classes[0]}
+                                    label="Classes"
+                                    onChange={onChange}
+                                >
+                                    {classes && classes.length && classes.map(aClass => (
+                                    <MenuItem key={aClass.value} value={aClass}>
+                                        <ListItemText primary={aClass.label} />
+                                    </MenuItem>
+                                    ))}
+                                </Select>
+                            </Grid>
+                        </Grid>
+                    </Box>
                     <Button variant='contained' onClick={handleAddModule}>Add Module</Button>
                 </Paper>
             </Dialog>

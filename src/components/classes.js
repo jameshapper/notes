@@ -52,6 +52,7 @@ function TeacherClasses(props) {
     const [ noteType, setNoteType ] = useState("ActionItem")
     const [ actionType, setActionType ] = useState("ProblemSolving")
     const [ selectedDate, setSelectedDate ] = useState(new Date(Date.now() - 604800000))
+    const [ laterDate, setLaterDate ] = useState(new Date(Date.now() + 604800000))
 
     const [ selected, setSelected ] = useState([])
 
@@ -105,6 +106,11 @@ function TeacherClasses(props) {
         let targetAssessment = {}
         let termGoal = {}
         let sumEvidence = 0
+
+        console.log('selectedDate is ')
+        console.log(selectedDate)
+        console.log('later date is ')
+        console.log(laterDate)
 
         function evidenceSum(evidenceArray, startDate) {
             const termEvidence = evidenceArray.filter(evidence => {
@@ -195,12 +201,13 @@ function TeacherClasses(props) {
 
         } else {
 
-            if(students10.length>0){
+             if(students10.length>0){
                 let first10 = await
                 db.collectionGroup('notes')
                 .where('uid','in', students10)
                 .where('noteType','==',noteType)
                 .where("timestamp", ">=", recentDate)
+                .where("timestamp", "<", laterDate)
                 .orderBy("timestamp","desc")
                 .get()
 

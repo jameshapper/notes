@@ -110,7 +110,7 @@ export default function ListTable({notes, rowType}) {
               label: 'Hrs Completed',
             },
             {
-              id: 'targetDate',
+              id: 'ts_msec',
               numeric: false,
               disablePadding: false,
               label: 'Target Date',

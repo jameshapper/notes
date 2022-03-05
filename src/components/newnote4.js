@@ -68,6 +68,13 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges, s
                 } else if(field === 'studentClass'){
                     setValue(field, studentClass)
                     console.log('student class '+JSON.stringify(studentClass))
+                } else if(field === 'rt'){
+                    if(note[field] === ""){
+                        setValue(field,note['body'])
+                        console.log('no rt')
+                    } else {
+                        setValue(field,note['rt'])
+                    }
                 } else {
                     setValue(field, note[field]);
                 }
@@ -195,6 +202,7 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges, s
             actionType:data.actionType,
             noteType:data.noteType,
             targetDate:firebase.firestore.Timestamp.fromDate(targetDate),
+            timestamp:firebase.firestore.Timestamp.fromDate(targetDate),
             studentClass:data.studentClass,
             crits:data.crits,
             ts_msec: ts_msec
@@ -261,7 +269,8 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges, s
         const newNote = {
             title: data.title,
             createdAt: new Date().toISOString(),
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            //timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            timestamp:firebase.firestore.Timestamp.fromDate(targetDate),
             uid: currentUser.uid,
             badges: data.badges,
             author: currentUser.displayName,
