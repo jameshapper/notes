@@ -4,6 +4,7 @@ import { UserContext } from '../userContext';
 import { Link, useParams } from 'react-router-dom';
 import Progress from './progressbar';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import ListNotes from './listnotes'
 
 import { Toolbar, Grid, CardActionArea, CardMedia, Card, CardContent, Typography, Divider } from '@material-ui/core';
 //import { StudentContext } from '../studentcontext';
@@ -131,6 +132,7 @@ export default function MyBadges(props) {
                     </Grid>
                 ))}
             </Grid>
+            {isAdmin && <ListNotes studentId={studentId} classes={[]} badges={[]} studentClass={''} />}
         </div>
     )}
 }

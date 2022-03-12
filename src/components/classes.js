@@ -52,7 +52,7 @@ function TeacherClasses(props) {
     const [ noteType, setNoteType ] = useState("ActionItem")
     const [ actionType, setActionType ] = useState("ProblemSolving")
     const [ selectedDate, setSelectedDate ] = useState(new Date(Date.now() - 604800000))
-    const [ laterDate, setLaterDate ] = useState(new Date(Date.now() + 604800000))
+    const [ laterDate, setLaterDate ] = useState(new Date(Date.now() + 691200000))
 
     const [ selected, setSelected ] = useState([])
 

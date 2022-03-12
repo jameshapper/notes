@@ -2,9 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { db } from '../firebase';
 
 import { UserContext } from '../userContext';
-import ListCards from './listcards4'
 import ListGoals from './listgoals4'
-import MyBadges from './mybadges'
 import NewNote from './newnote4'
 import ListNotes from './listnotes'
 

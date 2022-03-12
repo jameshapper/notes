@@ -24,7 +24,7 @@ import VisibilityIcon from '@material-ui/icons/Visibility';
 import EditIcon from '@material-ui/icons/Edit'
 //import { DatePicker } from 'material-ui';
 
-function ListNotes({classes, badges, studentClass} ) {
+function ListNotes({classes, badges, studentClass, studentId} ) {
 
     const { loading, currentUser } = useContext(UserContext)
 
@@ -34,20 +34,35 @@ function ListNotes({classes, badges, studentClass} ) {
     const [ msecCheck, setMsecCheck ] = useState(false)
     const [ nextDate, setNextDate ] = useState(0)
     const [ prevDate, setPrevDate ] = useState(0)
+    const [ notesAuthorUid, setNotesAuthorUid ] = useState("")
+
+    useEffect(() => {
+      if(studentId){
+        setNotesAuthorUid(studentId)
+      } else {
+        setNotesAuthorUid(currentUser.uid)
+      }
+    },[currentUser.uid, studentId])
 
     useEffect(() => {   
-      var unsubscribe = db.collection("users").doc(currentUser.uid).collection("userLists").doc("notesList")
-      .onSnapshot((doc) => {
-        const msecList = []
-        doc.data().notes.forEach(note => {
-          msecList.push(note.ts_msec)
+      if(notesAuthorUid){
+        var unsubscribe = db.collection("users").doc(notesAuthorUid).collection("userLists").doc("notesList")
+        .onSnapshot((doc) => {
+          if(doc.exists){
+            const msecList = []
+            doc.data().notes.forEach(note => {
+              msecList.push(note.ts_msec)
+            })
+            setMsec(msecList)
+            setRows(doc.data().notes)
+            setMsecCheck(true)
+          }
+
         })
-        setMsec(msecList)
-        setRows(doc.data().notes)
-        setMsecCheck(true)
-      })
-      return () => unsubscribe()
-    }, [currentUser.uid]);
+        return () => unsubscribe()
+      }
+
+    }, [notesAuthorUid]);
 
     useEffect(() => {
       if(msecCheck){
@@ -57,7 +72,7 @@ function ListNotes({classes, badges, studentClass} ) {
         msec.map(element => {
           return msecDif.push(element - nowMsec)
         })
-        console.log('msec is '+msec)
+        console.log(msec)
         console.log(msecDif)
         msecDif.sort(function(a, b){return a-b})
         const laterTimes = msecDif.filter(num => num > 0)
@@ -75,7 +90,7 @@ function ListNotes({classes, badges, studentClass} ) {
         }
         const nextMsec = () => {
           if(earlierTimes.length){
-            return Math.min(...earlierTimes) + nowMsec
+            return Math.max(...earlierTimes) + nowMsec
           } else {
             return 0
           }
@@ -107,7 +122,7 @@ function ListNotes({classes, badges, studentClass} ) {
         return (
             <>    
                 <Box sx={{flexGrow:1, p:3}} >
-                    <EnhancedTable rows={rows} headCells={headCells} userId={currentUser.uid} classes={classes} badges={badges} studentClass={studentClass} nextDate={nextDate} prevDate={prevDate} />
+                    <EnhancedTable rows={rows} headCells={headCells} userId={notesAuthorUid} classes={classes} badges={badges} studentClass={studentClass} nextDate={nextDate} prevDate={prevDate} />
                 </Box>
             </>
         )

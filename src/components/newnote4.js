@@ -312,10 +312,21 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges, s
                     noteId: doc.id,
                     plannedDate: ts_msec,
                     crits: data.crits
-                }
+                } 
                 db.collection('users').doc(currentUser.uid)
                 .update({nextTarget: firebase.firestore.FieldValue.arrayUnion(nextAssessment)})
-            }
+            } else if(data.noteType === "ActionItem"){
+                const nextActionItem = {
+                    classId: data.studentClass.value,
+                    className: data.studentClass.label,
+                    noteId: doc.id,
+                    ts_msec: ts_msec,
+                    title: data.title,
+                    body: data.rt.replace(/<[^>]+>/g, '')
+                }
+                db.collection("users").doc(currentUser.uid).collection('userLists').doc("notesList")
+                .update({notes: firebase.firestore.FieldValue.arrayUnion(nextActionItem)}) 
+            } 
         })
         .then(() => {
             handleClose()
