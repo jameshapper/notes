@@ -232,7 +232,7 @@ function NewNote({open, buttonType, noteForEdit, handleClose, classes, badges, s
                     crits: data.crits
                 }  
                 db.collection("users").doc(currentUser.uid)
-                .update({termGoals: firebase.firestore.FieldValue.arrayRemove(previousAssessment)})
+                .update({nextTarget: firebase.firestore.FieldValue.arrayRemove(previousAssessment)})
                 .then(() => {
                     db.collection("users").doc(currentUser.uid)
                     .update({nextTarget: firebase.firestore.FieldValue.arrayUnion(nextAssessment)})

@@ -4,7 +4,7 @@ import { useHistory, useParams } from 'react-router';
 
 import Toolbar from '@material-ui/core/Toolbar'
 import { useForm, Controller, useFieldArray } from 'react-hook-form'
-import { FormControl, InputLabel, Select, MenuItem, Box, Typography, Grid, TextField, Button } from '@material-ui/core';
+import { FormControl, InputLabel, Select, MenuItem, Box, Typography, Grid, TextField, Button, ListItemText, Checkbox, Divider } from '@material-ui/core';
 
 export default function ModuleForm() {
 
@@ -28,6 +28,38 @@ export default function ModuleForm() {
 
     console.log("isAddMode is "+isAddMode)
     console.log("and moduleId is "+moduleId)
+
+    const evidenceList = [
+        {label:'Notebook-Notes',value: 'Notebook-Notes'},
+        {label:'Video', value: 'Video'},
+        {label:'Report', value: 'Report'},
+        {label:'TestQuiz', value: 'Test/Quiz'}
+    ];
+
+    const dataList = [
+
+    ]
+
+    const ITEM_HEIGHT = 48;
+    const ITEM_PADDING_TOP = 8;
+
+    const MenuProps = {
+        PaperProps: {
+          style: {
+            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+            width: 250,
+          },
+        },
+        anchorOrigin: {
+          vertical: "bottom",
+          horizontal: "left"
+        },
+        transformOrigin: {
+          vertical: "top",
+          horizontal: "left"
+        },
+        //getContentAnchorEl: null
+      };
 
     useEffect(() => {
         if(!isAddMode) {
@@ -263,11 +295,13 @@ export default function ModuleForm() {
                     console.log('item hrs is '+item.hrs_estimate)
                     console.log(`activities.${index}.hrs_estimate`)
                 return (
-                    <Box key={item.id} sx={{display:'flex'}} >
-                    <Grid item md={2} sx={{p:0.5}}>
+                    <Box key={item.id} sx={{display:'flex', mb:1}} >
+                    <Grid item xs={12} sm container>
+
+                    <Grid item xs={6} sm={3} sx={{p:0.5}}>
                     <Controller
                         render={({ field }) => 
-                            <TextField {...field} 
+                            <TextField fullWidth {...field} 
                                 variant="filled"
                                 label="Activity Label"
                             />}
@@ -276,7 +310,19 @@ export default function ModuleForm() {
                         defaultValue={item.label} // make sure to set up defaultValue
                     />
                     </Grid>
-                    <Grid item md={1} sx={{p:0.5}}>
+                    <Grid item xs={2} sm={1} sx={{p:0.5}}>
+                    <Controller
+                        render={({ field }) => 
+                            <TextField {...field} 
+                                variant="filled"
+                                label="Schedule"
+                            />}
+                        name={`activities.${index}.schedule`}
+                        control={control}
+                        defaultValue={1} // make sure to set up defaultValue
+                    />
+                    </Grid>
+                    <Grid item xs={2} sm={1} sx={{p:0.5}}>
                     <Controller
                         render={({ field }) => 
                             <TextField {...field} 
@@ -288,7 +334,7 @@ export default function ModuleForm() {
                         defaultValue={item.level} // make sure to set up defaultValue
                     />
                     </Grid>
-                    <Grid item md={1} sx={{p:0.5}}>
+                    <Grid item xs={2} sm={1} sx={{p:0.5}}>
                     <Controller
                         render={({ field }) => 
                             <TextField {...field} 
@@ -300,7 +346,7 @@ export default function ModuleForm() {
                         defaultValue={item.hrs_estimate} // make sure to set up defaultValue
                     />
                     </Grid>
-                    <Grid item md={7} sx={{p:0.5}}>
+                    <Grid item xs={12} sm={6} sx={{p:0.5}}>
                     <Controller
                         render={({ field }) => 
                             <TextField {...field} 
@@ -313,7 +359,75 @@ export default function ModuleForm() {
                         defaultValue={item.activity} // make sure to set up defaultValue
                     />
                     </Grid>
-                    <Grid item md={7} sx={{p:0.5}}>
+
+                    <Grid item xs={6} sm={3} key="chipsBadges" sx={{p:0.5}}>
+                    <Box sx={{}}>
+                        <FormControl variant='filled' fullWidth>
+                        <InputLabel id="Badges">Badges</InputLabel>
+                        <Controller
+                            name={`activities.${index}.badges`}
+                            control={control}
+                            defaultValue={[]}
+                            render={({ field: { onChange, value }, fieldState: { error } }) => (
+                            <Select
+                                labelId="chipsBadges"
+                                id="chipsBadges"
+                                multiple
+                                value={value}
+                                onChange={onChange}
+                                defaultValue=""
+                                renderValue={() => value + ' '}
+                                MenuProps={MenuProps}
+                                label="Badges"
+                            >
+                            {dataList && dataList.map((option) => (
+                                <MenuItem key={option} value={option}>
+                                    <Checkbox checked={value.indexOf(option) > -1} />
+                                    <ListItemText primary={option} />
+                                </MenuItem>
+                            ))}
+                            </Select>
+                            )}
+                            />
+                        </FormControl>
+                    </Box>                    
+                    </Grid>    
+
+                    <Grid item xs={6} sm={3} key="chipsEvidence" sx={{p:0.5}}>
+                    <Box sx={{}}>
+                    <FormControl variant='filled' fullWidth>
+
+                        <InputLabel id="Badges">Evidence</InputLabel>
+                        <Controller
+                            name={`activities.${index}.evidence`}
+                            control={control}
+                            defaultValue={[]}
+                            render={({ field: { onChange, value }, fieldState: { error } }) => (
+                            <Select
+                                labelId="evidence"
+                                id="evidence"
+                                multiple
+                                value={value}
+                                onChange={onChange}
+                                defaultValue={[]}
+                                renderValue={() => value + ' '}
+                                MenuProps={MenuProps}
+                                label="Badges"
+                            >
+                            {evidenceList.map((option) => (
+                                <MenuItem key={option.value} value={option.value}>
+                                    <Checkbox checked={value.indexOf(option.value) > -1} />
+                                    <ListItemText primary={option.label} />
+                                </MenuItem>
+                            ))}
+                            </Select>
+                            )}
+                            />
+                        </FormControl>
+                    </Box>                    
+                    </Grid>  
+
+                    <Grid item xs={12} sm={6} sx={{p:0.5}}>
                     <Controller
                         render={({ field }) => 
                             <TextField {...field} 
@@ -326,10 +440,80 @@ export default function ModuleForm() {
                         defaultValue={item.link} // make sure to set up defaultValue
                     />
                     </Grid>
+                    <Grid item xs={6} sm={3} key="actionType" sx={{p:0.5}}>
+                        <Box sx={{}}>
+                        <FormControl variant='filled' fullWidth>
+
+                            <InputLabel id="action-type-label">Action Type</InputLabel>
+                            <Controller
+                            name={`activities.${index}.actionType`}
+                            control={control}
+                            defaultValue="ProblemSolving"
+                            render={({ field: { onChange, value }, fieldState: { error } }) => (
+                            <Select
+                                labelId="action-type-label"
+                                id="action-type"
+                                value={value}
+                                defaultValue="ProblemSolving"
+                                label="Action Type"
+                                onChange={onChange}
+                            >
+                                <MenuItem value={"ProblemSolving"}>Problem Solving</MenuItem>
+                                <MenuItem value={"ResearchStudy"}>Research Study</MenuItem>
+                                <MenuItem value={"HandsOn"}>Hands On</MenuItem>
+                                <MenuItem value={"DataAnalysis"}>Data Analysis</MenuItem>
+                                <MenuItem value={"Communicating"}>Communicating</MenuItem>
+                            </Select>
+                            )}
+                            />
+                            </FormControl>
+                        </Box>
+                    </Grid>
+                    <Grid item xs={4} sm={2} key="assessment" sx={{p:0.5}}>
+                        <Box sx={{}}>
+                        <FormControl variant='filled' fullWidth>
+
+                            <InputLabel id="action-type-label">Assessment?</InputLabel>
+                            <Controller
+                            name={`activities.${index}.assessment`}
+                            control={control}
+                            defaultValue="No"
+                            render={({ field: { onChange, value }, fieldState: { error } }) => (
+                            <Select
+                                labelId="assessment-label"
+                                id="assessment"
+                                value={value}
+                                defaultValue="No"
+                                label="Assessment"
+                                onChange={onChange}
+                            >
+                                <MenuItem value={"No"}>No</MenuItem>
+                                <MenuItem value={"Yes"}>Yes</MenuItem>
+                            </Select>
+                            )}
+                            />
+                            </FormControl>
+                        </Box>
+                    </Grid>
+                    <Grid item xs={2} sm={1} sx={{p:0.5}}>
+                    <Controller
+                        render={({ field }) => 
+                            <TextField {...field} 
+                                variant="filled"
+                                label="Crits?"
+                            />}
+                        name={`activities.${index}.crits`}
+                        control={control}
+                        defaultValue={item.crits} // make sure to set up defaultValue
+                    />
+                    </Grid>
                     <Grid item md={1}>
                     <Button type="button" variant="outlined" onClick={() => remove(index)}>
                         Delete
                     </Button>
+                    </Grid>
+                    <Grid item xs={12}><Divider sx={{mt:1}} /></Grid>
+
                     </Grid>
                     </Box>
                 );
@@ -340,7 +524,7 @@ export default function ModuleForm() {
                     type="button"
                     variant="outlined"
                     onClick={() => {
-                        append({ label: "", crits: 10, level: 100, activity:"what to do" });
+                        append({ label: "", schedule: 0, crits: 0, level: 100, hrs_estimate: 3, activity:"", link:"", badges:[], evidence: [], actionType:"ProblemSolving", assessment:"No" });
                     }}
                     >
                     append

@@ -152,6 +152,21 @@ function TeacherClasses(props) {
                         console.log(classObject)
                     })
                 })       
+                students10.forEach(studentId => {
+                    db.collectionGroup('notes')
+                    .where('uid','==',studentId)
+                    .where('noteType','==','Assessment')
+                    .where('ts_msec','>=',1647320001000)
+                    .orderBy('ts_msec','asc')
+                    .limit(1)
+                    .get()
+                    .then(docs => {
+                        docs.forEach(doc => {
+                            console.log("latest assessment for "+studentId)
+                            console.log(doc.data())
+                        })
+                    })
+                })
             }
             if(students20.length > 0) {
                 await

@@ -33,11 +33,11 @@ service cloud.firestore {
     match /{somePath=**}/notes/{noteId} {
 
       function optional() {
-        return ['title', 'body', 'uid', 'createdAt', 'timestamp','activities','author','avatar', 'rt', 'commentNum','status','evidence','plannedHrs','completedHrs','actionType','noteType','targetDate','studentClass']
+        return ['title', 'body', 'uid', 'createdAt', 'timestamp','badges','author','avatar', 'rt', 'commentNum','status','evidence','plannedHrs','completedHrs','actionType','noteType','targetDate','studentClass','crits','ts_msec']
       }
 
       function onlyEdit() {
-        return ['title', 'body', 'createdAt', 'timestamp', 'activities','rt','commentNum','status','evidence','plannedHrs','completedHrs','actionType','noteType','targetDate','studentClass']
+        return ['title', 'body', 'createdAt', 'timestamp', 'badges','rt','commentNum','status','evidence','plannedHrs','completedHrs','actionType','noteType','targetDate','studentClass','crits','ts_msec']
       }
 
       function statusOptionOk(){
@@ -141,6 +141,14 @@ service cloud.firestore {
       allow write: if isAdmin()
 
     }
+    
+    match /users/{userId}/userLists/notesList {
+
+      allow read: if (request.auth.uid == userId) || isAdmin()
+
+      allow write: if (request.auth.uid == userId) || isAdmin()
+
+    }
 
     match /{somePath=**}/feedback/{feedbackId} {
 
@@ -159,6 +167,18 @@ service cloud.firestore {
     }
 
     match /adminDocs/classesList {
+
+      allow read: if true
+      allow create, update: if isAdmin()
+    }
+    
+    match /adminDocs/moduleList {
+
+      allow read: if true
+      allow create, update: if isAdmin()
+    }
+    
+    match /modules/{moduleId} {
 
       allow read: if true
       allow create, update: if isAdmin()
